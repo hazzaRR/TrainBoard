@@ -11,8 +11,8 @@ matrix.StartRendering();
 
 BdfFont font = BdfFont.Load(@"fonts/4x6.bdf");
 
-matrix.DrawText(0,1,"Hello World", font, 255, 255, 255, 0, 0, 0);
-matrix.DrawText(0,10,"London Liv Street", font, 255, 255, 255, 0, 0, 0);
+matrix.DrawText(0,1,"Hello World", font, 255, 30, 0, 0, 0, 0);
+matrix.DrawText(0,10,"London Liv St", font, 255, 30, 0, 0, 0, 0);
 
 
 while(true)
