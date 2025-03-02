@@ -17,7 +17,8 @@ using var matrix = new RGBLedMatrix(options);
 var canvas = matrix.CreateOffscreenCanvas();
 using var font = new RGBLedFont("../fonts/4x6.bdf");
 
-canvas.DrawText(font, 1, 6, new Color(0, 255, 0), text);
+canvas.DrawText(font, 0, 6, new Color(255, 160, 0), text);
+canvas.DrawText(font, 0, 12, new Color(255, 160, 0), "Hello lucy");
 matrix.SwapOnVsync(canvas);
 
 // run until user presses Ctrl+C
