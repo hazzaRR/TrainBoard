@@ -14,7 +14,7 @@
         <Compile Remove="examples\**" />
         <None Remove="examples\**" />
         <None Condition="$(SkipNative) != 'true'" Pack="true" 
-              Include="..\..\lib\librgbmatrix.so.1"
+              Include="..\lib\librgbmatrix.so.1"
               PackagePath="\runtimes\linux-arm64\native" >
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>

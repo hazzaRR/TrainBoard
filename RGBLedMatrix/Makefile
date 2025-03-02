@@ -2,7 +2,7 @@
 # For any other purposes, use .NET SDK build tools directly
 
 # Don't forget to synchronize these variables with the 'RPiRgbLEDMatrix.csproj' file
-RGB_LIBDIR=../../lib
+RGB_LIBDIR=../lib
 RGB_LIBRARY_NAME=rgbmatrix
 RGB_LIBRARY=$(RGB_LIBDIR)/lib$(RGB_LIBRARY_NAME).so.1
 
