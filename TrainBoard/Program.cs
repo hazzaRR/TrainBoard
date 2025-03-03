@@ -61,8 +61,8 @@ void UpdateTime(RGBLedCanvas canvas, RGBLedMatrix matrix)
 
 void TogglePlatformAndEtd(RGBLedCanvas canvas, RGBLedMatrix matrix, bool showEtd)
 {
-        int posFromEndEtd = canvas.Width - etd.Count;
-        int posFromEndPlatfrom = canvas.Width - platformNumber.Count;
+    int posFromEndEtd = canvas.Width - etd.Count;
+    int posFromEndPlatfrom = canvas.Width - platformNumber.Count;
 
     if (showEtd)
     {
@@ -92,7 +92,7 @@ while (running)
     canvas.DrawText(font, 0, 11, new Color(255, 160, 0), destination);
     ScrollText(canvas, matrix);
     UpdateTime(canvas, matrix);
-    
+
     matrix.SwapOnVsync(canvas);
     Thread.Sleep(1000);
     // Thread.Yield();
