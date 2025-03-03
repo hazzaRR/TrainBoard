@@ -1,4 +1,5 @@
 using TrainBoard.Services;
+using RPiRgbLEDMatrix;
 
 namespace TrainBoard.Workers;
 
@@ -20,6 +21,13 @@ public class DataFeedWorker : BackgroundService
 
             if (_matrixService.IsInitialised)
             {
+
+                int timeStartingPos = (_matrixService.Canvas.Width - time.Count) / 2;
+
+                _matrixService.Canvas.SetPixels(0, 18, _matrixService.Canvas.Width, 6, new Color(0,0,0));
+
+                _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, 16, new Color(255, 160, 0), time);
+
 
             }
 
