@@ -32,7 +32,7 @@ int scrollTextPos = canvas.Width;
 
 void ScrollText(RGBLedCanvas canvas, RGBLedMatrix matrix)
 {
-    canvas.SetPixels(0, 6, canvas.Width, 6, new Color(0,0,0));
+    canvas.SetPixels(0, 12, canvas.Width, 6, new Color(0,0,0));
 
     int pixelsDrawn = canvas.DrawText(font, scrollTextPos, 16, new Color(255, 160, 0), callingPoints);
 
@@ -43,20 +43,56 @@ void ScrollText(RGBLedCanvas canvas, RGBLedMatrix matrix)
         scrollTextPos = canvas.Width;
     }
 
+    Thread.Sleep(5);
+}
+
+void UpdateTime(RGBLedCanvas canvas, RGBLedMatrix matrix)
+{
+
+    int timeStartingPos = (canvas.Width - time.Count) / 2;
+
+    canvas.SetPixels(0, 18, canvas.Width, 6, new Color(0,0,0));
+
+    canvas.DrawText(font, timeStartingPos, 16, new Color(255, 160, 0), time);
+
     Thread.Sleep(1000);
 }
+
+
+void TogglePlatformAndEtd(RGBLedCanvas canvas, RGBLedMatrix matrix, bool showEtd)
+{
+        int posFromEndEtd = canvas.Width - etd.Count;
+        int posFromEndPlatfrom = canvas.Width - platformNumber.Count;
+
+    if (showEtd)
+    {
+        canvas.SetPixels(0, posFromEndPlatfrom, etd.Count, 6, new Color(0,0,0));
+        canvas.DrawText(font, posFromEndEtd, 5, new Color(255, 160, 0), platformNumber);
+
+    }
+    else
+    {
+        canvas.SetPixels(0, posFromEndEtd, etd.Count, 6, new Color(0,0,0));
+        canvas.DrawText(font, posFromEndPlatfrom, 5, new Color(255, 160, 0), platformNumber);
+
+    }
+    Thread.Sleep(10000);
+    showEtd = !showEtd;
+}
+
 
 
 while (running)
 {
     int postFromEnd = canvas.Width - platformNumber.Count;
     int timeStartingPos = (canvas.Width - time.Count) / 2;
+    bool showEtd = false; 
 
     canvas.DrawText(font, 0, 5, new Color(255, 160, 0), text);
-    canvas.DrawText(font, postFromEnd, 5, new Color(255, 160, 0), platformNumber);
     canvas.DrawText(font, 0, 11, new Color(255, 160, 0), destination);
     ScrollText(canvas, matrix);
-    canvas.DrawText(font, timeStartingPos, 22, new Color(255, 160, 0), time);
+    UpdateTime(canvas, matrix);
+    
     matrix.SwapOnVsync(canvas);
     Thread.Sleep(1000);
     // Thread.Yield();
