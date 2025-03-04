@@ -1,17 +1,21 @@
 using TrainBoard.Services;
-using RPiRgbLEDMatrix;
+using OpenLDBWS;
+using OpenLDBWS.Entities;
 
 namespace TrainBoard.Workers;
 
 public class DataFeedWorker : BackgroundService
 {
     private readonly ILogger<DataFeedWorker> _logger;
+
+    private readonly IMemoryCache _cache;
     private readonly IRgbMatrixService _matrixService;
 
-    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService)
+    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache)
     {
         _logger = logger;
         _matrixService = matrixService;
+        _cache = cache;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -22,12 +26,14 @@ public class DataFeedWorker : BackgroundService
             if (_matrixService.IsInitialised)
             {
 
-                int timeStartingPos = (_matrixService.Canvas.Width - time.Count) / 2;
+                string departureStationCode = "COL";
+                string destinationStationCode = "LST";
 
-                _matrixService.Canvas.SetPixels(0, 18, _matrixService.Canvas.Width, 6, new Color(0,0,0));
+                LdbwsClient client = new("<api-key>");
 
-                _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, 16, new Color(255, 160, 0), time);
+                GetDepBoardWithDetailsResponse response = await client.GetDepBoardWithDetails(1, departureStationCode, destinationStationCode);
 
+                 _cache.Set("departureBoard", response);
 
             }
 

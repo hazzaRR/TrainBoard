@@ -10,5 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <ProjectReference Include="../RPiRgbLEDMatrix/RPiRgbLEDMatrix.csproj"/>
+    <ProjectReference Include="../OpenLDBWS/OpenLDBWS.csproj"/>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1-*" />
   </ItemGroup>
 </Project>

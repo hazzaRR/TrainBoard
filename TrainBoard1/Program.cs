@@ -7,6 +7,7 @@ builder.Services.AddSingleton<IRgbMatrixService, RgbMatrixService>();
 builder.Services.AddHostedService<DataFeedWorker>();
 builder.Services.AddHostedService<CallingPointsWorker>();
 builder.Services.AddHostedService<CurrentTimeWorker>();
+builder.Services.AddMemoryCache();
 
 var host = builder.Build();
 host.Run();
