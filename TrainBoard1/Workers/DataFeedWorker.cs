@@ -33,6 +33,11 @@ public class DataFeedWorker : BackgroundService
 
                 GetDepBoardWithDetailsResponse response = await client.GetDepBoardWithDetails(1, departureStationCode, destinationStationCode);
 
+                //need std, platform and Etd
+                // destination
+                //calling points Name and then std,
+
+                
                  _cache.Set("departureBoard", response);
 
             }
