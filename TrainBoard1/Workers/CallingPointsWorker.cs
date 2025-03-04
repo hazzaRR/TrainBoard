@@ -22,7 +22,7 @@ public class CallingPointsWorker : BackgroundService
     {
 
         int scrollTextPos = _matrixService.Canvas.Width;
-        _cache.TryGetValue("serverHeartbeat", out ScreenData data);
+        _cache.TryGetValue("departureBoard", out ScreenData data);
 
         while (!stoppingToken.IsCancellationRequested)
         {
