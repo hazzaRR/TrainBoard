@@ -1,6 +1,7 @@
 using RPiRgbLEDMatrix;
 using TrainBoard.Entities;
 using TrainBoard.Services;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace TrainBoard.Workers;
 

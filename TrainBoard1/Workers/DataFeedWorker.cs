@@ -3,6 +3,7 @@ using TrainBoard.Entities;
 using OpenLDBWS;
 using OpenLDBWS.Entities;
 using System.Text;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace TrainBoard.Workers;
 
