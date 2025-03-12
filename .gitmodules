@@ -1,0 +1,3 @@
+[submodule "OpenLDBWS"]
+	path = OpenLDBWS
+	url = https://github.com/hazzaRR/OpenLDBWS.git
