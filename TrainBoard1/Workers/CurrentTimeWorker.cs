@@ -22,9 +22,13 @@ public class CurrentTimeWorker : BackgroundService
 
             if (_matrixService.IsInitialised)
             {
+
+                Color[] area = new Color[_matrixService.Canvas.Width * 6];
+                Array.Fill(area, new Color(0,0,0));
+
                 string currentTime = $"{TimeOnly.FromDateTime(DateTime.Now)}";
                 int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length) / 2;
-                _matrixService.Canvas.SetPixels(0, 18, _matrixService.Canvas.Width, 6, (Span<Color>) new Color(0,0,0));
+                _matrixService.Canvas.SetPixels(0, 18, _matrixService.Canvas.Width, 6, area);
                 _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, 16, new Color(255, 160, 0), currentTime);
 
 

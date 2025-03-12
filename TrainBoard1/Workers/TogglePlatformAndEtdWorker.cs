@@ -31,12 +31,14 @@ public class TogglePlatformAndEtdWorker : BackgroundService
             if (_matrixService.IsInitialised)
             {
 
-                int posFromEndEtd = _matrixService.Canvas.Width - data.Etd.Count;
-                int posFromEndPlatfrom = _matrixService.Canvas.Width - data.Platform.Count;
+                int posFromEndEtd = _matrixService.Canvas.Width - data.Etd.Length;
+                int posFromEndPlatfrom = _matrixService.Canvas.Width - data.Platform.Length;
 
                 if (showEtd)
                 {
-                    _matrixService.Canvas.SetPixels(posFromEndPlatfrom, 0, data.Platform.Count, 6, new Color(0,0,0));
+                    Color[] area = new Color[data.Platform.Length * 6];
+                    Array.Fill(area, new Color(0,0,0));
+                    _matrixService.Canvas.SetPixels(posFromEndPlatfrom, 0, data.Platform.Length, 6, area);
 
                     Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 0, 0);
                     _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, 5, colourToDisplay, data.Etd);
@@ -44,7 +46,9 @@ public class TogglePlatformAndEtdWorker : BackgroundService
                 }
                 else
                 {
-                    _matrixService.Canvas.SetPixels(posFromEndEtd, 0, data.Etd.Count, 6, new Color(0,0,0));
+                    Color[] area = new Color[data.Etd.Length * 6];
+                    Array.Fill(area, new Color(0,0,0));
+                    _matrixService.Canvas.SetPixels(posFromEndEtd, 0, data.Etd.Length, 6, area);
                     _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndPlatfrom, 5, new Color(255, 160, 0), data.Platform);
 
                 }

@@ -1,4 +1,4 @@
-using System.Buffers;
+using RPiRgbLEDMatrix;
 using Microsoft.Extensions.Caching.Memory;
 using TrainBoard.Entities;
 using TrainBoard.Services;
@@ -31,7 +31,10 @@ public class CallingPointsWorker : BackgroundService
             if (_matrixService.IsInitialised)
             {
 
-                _matrixService.Canvas.SetPixels(0, 12, _matrixService.Canvas.Width, 6, new Color(0,0,0));
+                Color[] area = new Color[_matrixService.Canvas.Width * 6];
+                Array.Fill(area, new Color(0,0,0));
+
+                _matrixService.Canvas.SetPixels(0, 12, _matrixService.Canvas.Width, 6, area);
 
                 int pixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, scrollTextPos, 16, new Color(255, 160, 0), data.CallingPoints);
 
