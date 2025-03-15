@@ -31,10 +31,10 @@ public class CallingPointsWorker : BackgroundService
             if (_matrixService.IsInitialised)
             {
 
-                Color[] area = new Color[_matrixService.Canvas.Width * 6];
+                Color[] area = new Color[_matrixService.Canvas.Width * _matrixService.FontHeight];
                 Array.Fill(area, new Color(0,0,0));
 
-                _matrixService.Canvas.SetPixels(0, 12, _matrixService.Canvas.Width, 6, area);
+                _matrixService.Canvas.SetPixels(0, 10, _matrixService.Canvas.Width, _matrixService.FontHeight, area);
 
                 int pixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, scrollTextPos, 16, new Color(255, 160, 0), data.CallingPoints);
 
@@ -44,14 +44,17 @@ public class CallingPointsWorker : BackgroundService
                 {
                     scrollTextPos = _matrixService.Canvas.Width;
                     await Task.Delay(2, stoppingToken);
-                    _cache.TryGetValue("serverHeartbeat", out data);
+                    _cache.TryGetValue("departureBoard", out data);
                 }
+
+
+            _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
 
 
 
             }
 
-            await Task.Delay(5, stoppingToken);
+            await Task.Delay(20, stoppingToken);
         }
     }
 }

@@ -23,15 +23,15 @@ public class CurrentTimeWorker : BackgroundService
             if (_matrixService.IsInitialised)
             {
 
-                Color[] area = new Color[_matrixService.Canvas.Width * 6];
+                Color[] area = new Color[_matrixService.Canvas.Width * _matrixService.FontHeight];
                 Array.Fill(area, new Color(0,0,0));
 
-                string currentTime = $"{TimeOnly.FromDateTime(DateTime.Now)}";
-                int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length) / 2;
-                _matrixService.Canvas.SetPixels(0, 18, _matrixService.Canvas.Width, 6, area);
-                _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, 16, new Color(255, 160, 0), currentTime);
+                string currentTime = DateTime.Now.ToString("HH:mm:ss");
+                int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length*_matrixService.FontWidth) / 2;
+                _matrixService.Canvas.SetPixels(0, _matrixService.Canvas.Height-_matrixService.FontHeight, _matrixService.Canvas.Width, _matrixService.FontHeight, area);
+                _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height, new Color(255, 160, 0), currentTime);
 
-
+                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
             }
             await Task.Delay(1000, stoppingToken);
         }
