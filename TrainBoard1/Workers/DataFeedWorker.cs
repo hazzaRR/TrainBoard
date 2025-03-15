@@ -1,9 +1,10 @@
 using TrainBoard.Services;
 using TrainBoard.Entities;
-// using OpenLDBWS;
-// using OpenLDBWS.Entities;
+using OpenLDBWS;
+using OpenLDBWS.Entities;
 using System.Text;
 using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
 
 namespace TrainBoard.Workers;
 
@@ -13,14 +14,14 @@ public class DataFeedWorker : BackgroundService
 
     private readonly IMemoryCache _cache;
     private readonly IRgbMatrixService _matrixService;
-    // private readonly LdbwsClient _client;
+    private readonly LdbwsClient _client;
 
     public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache)
     {
         _logger = logger;
         _matrixService = matrixService;
         _cache = cache;
-        // _client = new("<Api-key>");
+        _client = new("<Api-key>");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,37 +38,39 @@ public class DataFeedWorker : BackgroundService
                 string destinationStationCode = "LST";
 
 
-                // GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(1, departureStationCode, destinationStationCode);
+                GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(1, departureStationCode, destinationStationCode);
 
-                // List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
-
-
-                // for (int i = 0; i < services[0].SubsequentCallingPoints.CallingPoints.Count; i++)
-                // {
-                //     callingPoints.Append($" {services[0].SubsequentCallingPoints.CallingPoints[i].LocationName} ({services[0].SubsequentCallingPoints.CallingPoints[i].St})");
-
-                //     if (i < services[0].SubsequentCallingPoints.CallingPoints.Count-1)
-                //     {
-                //         callingPoints.Append(',');
-                //     }
-                // }
+                List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
 
 
-                // ScreenData service = new()
-                // {
-                //     Std = services[0].Std,
-                //     Platform = services[0].Platform,
-                //     Destination = services[0].Destination[0].LocationName,
-                //     CallingPoints = callingPoints.ToString()
-                // };
+                List<string> callingPoints = new List<string>();
+
+                for (int i = 0; i < services[0].SubsequentCallingPoints.CallingPoints.Count; i++)
+                {
+                    callingPoints.Add($" {services[0].SubsequentCallingPoints.CallingPoints[i].LocationName} ({services[0].SubsequentCallingPoints.CallingPoints[i].St})");
+
+                    if (i < services[0].SubsequentCallingPoints.CallingPoints.Count-1)
+                    {
+                        callingPoints.Add(",");
+                    }
+                }
+
+
                 ScreenData service = new()
                 {
-                    Etd = "On Time",
-                    Std = "16:40:00",
-                    Platform = $"Plat {2}",
-                    Destination = "London Liv St.",
-                    CallingPoints = "Calling at: Witham (14:40), Chelmsford (15:01), Stratford (15:10), London Liverpool Street (15:20)"
+                    Std = services[0].Std == "On Time" ? "On Time" : $"Exp. {services[0].Std}",
+                    Platform = $"Plat {services[0].Platform}",
+                    Destination = services[0].Destination[0].LocationName,
+                    CallingPoints = callingPoints.ToString()
                 };
+                // ScreenData service = new()
+                // {
+                //     Etd = "On Time",
+                //     Std = "16:40:00",
+                //     Platform = $"Plat {2}",
+                //     Destination = "London Liv St.",
+                //     CallingPoints = "Calling at: Witham (14:40), Chelmsford (15:01), Stratford (15:10), London Liverpool Street (15:20)"
+                // };
 
 
                  _cache.Set("departureBoard", service);
