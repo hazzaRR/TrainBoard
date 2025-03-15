@@ -1,13 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-TrainBoard-6445457c-9d31-4266-9f45-ab71848cf1d7</UserSecretsId>
   </PropertyGroup>
 
-      <ItemGroup>
-        <ProjectReference Include="../RPiRgbLEDMatrix/RPiRgbLEDMatrix.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <ProjectReference Include="../RPiRgbLEDMatrix/RPiRgbLEDMatrix.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1-*" />
+  </ItemGroup>
 </Project>
