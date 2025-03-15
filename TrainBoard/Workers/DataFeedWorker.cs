@@ -11,21 +11,21 @@ namespace TrainBoard.Workers;
 public class DataFeedWorker : BackgroundService
 {
     private readonly ILogger<DataFeedWorker> _logger;
-
     private readonly IMemoryCache _cache;
     private readonly IRgbMatrixService _matrixService;
-    private readonly LdbwsClient _client;
+    private readonly ILdbwsClient _client;
 
-    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache)
+    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache, ILdbwsClient client)
     {
         _logger = logger;
         _matrixService = matrixService;
         _cache = cache;
-        _client = new("<Api-key>");
+        _client = client;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+
         while (!stoppingToken.IsCancellationRequested)
         {
 
@@ -48,30 +48,17 @@ public class DataFeedWorker : BackgroundService
                 for (int i = 0; i < services[0].SubsequentCallingPoints.CallingPoints.Count; i++)
                 {
                     callingPoints.Add($" {services[0].SubsequentCallingPoints.CallingPoints[i].LocationName} ({services[0].SubsequentCallingPoints.CallingPoints[i].St})");
-
-                    if (i < services[0].SubsequentCallingPoints.CallingPoints.Count-1)
-                    {
-                        callingPoints.Add(",");
-                    }
                 }
 
 
                 ScreenData service = new()
                 {
-                    Std = services[0].Std == "On Time" ? "On Time" : $"Exp. {services[0].Std}",
+                    Std = services[0].Std,
+                    Etd = services[0].Etd == "On time" ? "On Time" : $"Exp. {services[0].Etd}",
                     Platform = $"Plat {services[0].Platform}",
                     Destination = services[0].Destination[0].LocationName,
-                    CallingPoints = callingPoints.ToString()
+                    CallingPoints = string.Join(",", callingPoints)
                 };
-                // ScreenData service = new()
-                // {
-                //     Etd = "On Time",
-                //     Std = "16:40:00",
-                //     Platform = $"Plat {2}",
-                //     Destination = "London Liv St.",
-                //     CallingPoints = "Calling at: Witham (14:40), Chelmsford (15:01), Stratford (15:10), London Liverpool Street (15:20)"
-                // };
-
 
                  _cache.Set("departureBoard", service);
 

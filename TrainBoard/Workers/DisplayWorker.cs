@@ -23,13 +23,19 @@ public class DisplayWorker : BackgroundService
     {
 
         int scrollTextPos = _matrixService.Canvas.Width;
-        _cache.TryGetValue("departureBoard", out ScreenData data);
+
+        while(!_cache.TryGetValue("departureBoard", out ScreenData data)) 
+        {
+            await Task.Delay(1000, stoppingToken);
+        }
 
         while (!stoppingToken.IsCancellationRequested)
         {
 
             if (_matrixService.IsInitialised)
             {
+
+                _cache.TryGetValue("departureBoard", out ScreenData data);
 
                 // Color[] area = new Color[_matrixService.Canvas.Width * _matrixService.FontHeight];
                 // Array.Fill(area, new Color(0,0,0));
@@ -39,7 +45,7 @@ public class DisplayWorker : BackgroundService
                 _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
 
                 int posFromEndEtd = _matrixService.Canvas.Width - (data.Etd.Length*_matrixService.FontWidth);
-                Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 0, 0);
+                Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 15, 0);
                 _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, colourToDisplay, data.Etd);
 
                 _matrixService.Canvas.DrawText(_matrixService.Font, 0, 14, new Color(255, 160, 0), data.Destination);
