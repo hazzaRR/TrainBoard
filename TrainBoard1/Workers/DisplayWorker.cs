@@ -36,7 +36,7 @@ public class DisplayWorker : BackgroundService
                 // _matrixService.Canvas.SetPixels(0, 10, _matrixService.Canvas.Width, _matrixService.FontHeight, area);
 
                 _matrixService.Canvas.Clear();
-                _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight-1, new Color(255, 160, 0), data.Platform);
+                _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
 
                 int posFromEndEtd = _matrixService.Canvas.Width - (data.Etd.Length*_matrixService.FontWidth);
                 Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 0, 0);
@@ -44,7 +44,7 @@ public class DisplayWorker : BackgroundService
 
                 _matrixService.Canvas.DrawText(_matrixService.Font, 0, 14, new Color(255, 160, 0), data.Destination);
 
-                int pixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, scrollTextPos, 24, new Color(255, 160, 0), data.CallingPoints);
+                int pixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, scrollTextPos, 22, new Color(255, 160, 0), data.CallingPoints);
 
                 scrollTextPos -= 1;
 
@@ -58,7 +58,7 @@ public class DisplayWorker : BackgroundService
 
                 string currentTime = DateTime.Now.ToString("HH:mm:ss");
                 int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length*_matrixService.FontWidth) / 2;
-                _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height, new Color(255, 160, 0), currentTime);
+                _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height-1, new Color(255, 160, 0), currentTime);
 
 
             _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
