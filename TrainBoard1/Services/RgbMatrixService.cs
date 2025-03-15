@@ -27,9 +27,15 @@ public class RgbMatrixService : IRgbMatrixService
 
         Matrix = new RGBLedMatrix(options);
         Canvas = Matrix.CreateOffscreenCanvas();
-        Font = new RGBLedFont("../fonts/5x7.bdf");
-        FontWidth = 5;
-        FontHeight = 7;
+        // Font = new RGBLedFont("../fonts/5x7.bdf");
+        // FontWidth = 5;
+        // FontHeight = 7;
+        Font = new RGBLedFont("../fonts/4x6.bdf");
+        FontWidth = 4;
+        FontHeight = 6;
+        // Font = new RGBLedFont("../fonts/04B_03__6pt.bdf");
+        // FontWidth = 4;
+        // FontHeight = 6;
         IsInitialised = true;
 
     }

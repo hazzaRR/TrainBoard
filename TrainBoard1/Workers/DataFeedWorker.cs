@@ -62,11 +62,11 @@ public class DataFeedWorker : BackgroundService
                 // };
                 ScreenData service = new()
                 {
-                    Etd = "16:40:00",
+                    Etd = "On Time",
                     Std = "16:40:00",
-                    Platform = $"Platform {2}",
+                    Platform = $"Plat {2}",
                     Destination = "London Liv St.",
-                    CallingPoints = "CALLING AT: adasdsddsdadasdasd"
+                    CallingPoints = "Calling at: Witham (14:40), Chelmsford (15:01), Stratford (15:10), London Liverpool Street (15:20)"
                 };
 
 

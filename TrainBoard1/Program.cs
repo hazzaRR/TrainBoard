@@ -5,9 +5,10 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddSingleton<IRgbMatrixService, RgbMatrixService>(); 
 builder.Services.AddHostedService<DataFeedWorker>();
-builder.Services.AddHostedService<CallingPointsWorker>();
-builder.Services.AddHostedService<TogglePlatformAndEtdWorker>();
-builder.Services.AddHostedService<CurrentTimeWorker>();
+builder.Services.AddHostedService<DisplayWorker>();
+// builder.Services.AddHostedService<CallingPointsWorker>();
+// builder.Services.AddHostedService<TogglePlatformAndEtdWorker>();
+// builder.Services.AddHostedService<CurrentTimeWorker>();
 builder.Services.AddMemoryCache();
 
 var host = builder.Build();
