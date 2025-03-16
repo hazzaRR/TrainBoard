@@ -42,7 +42,6 @@ public class DataFeedWorker : BackgroundService
                 string departureStationCode = "COL";
                 string destinationStationCode = "LST";
 
-
                 GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(1, departureStationCode, destinationStationCode);
 
                 List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
@@ -63,8 +62,8 @@ public class DataFeedWorker : BackgroundService
                     Std = services[0].Std,
                     Etd = services[0].Etd == "On time" ? "On Time" : $"Exp. {services[0].Etd}",
                     Platform = $"Plat {services[0].Platform}",
-                    Destination = destination != "" ? destination : services[0].Destination[0].LocationName,
-                    CallingPoints = string.Join(",", callingPoints)
+                    Destination = !String.IsNullOrEmpty(destination) ? destination : services[0].Destination[0].LocationName,
+                    CallingPoints = String.Join(",", callingPoints)
                 };
 
                  _cache.Set("departureBoard", service);
