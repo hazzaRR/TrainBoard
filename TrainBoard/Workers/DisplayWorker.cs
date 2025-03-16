@@ -39,10 +39,6 @@ public class DisplayWorker : BackgroundService
 
                 _cache.TryGetValue("departureBoard", out ScreenData data);
 
-                // Color[] area = new Color[_matrixService.Canvas.Width * _matrixService.FontHeight];
-                // Array.Fill(area, new Color(0,0,0));
-                // _matrixService.Canvas.SetPixels(0, 10, _matrixService.Canvas.Width, _matrixService.FontHeight, area);
-
                 _matrixService.Canvas.Clear();
 
                 if (_platformStdService.ShowPlatform)
