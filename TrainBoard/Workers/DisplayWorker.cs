@@ -9,13 +9,15 @@ public class DisplayWorker : BackgroundService
 {
     private readonly ILogger<DisplayWorker> _logger;
     private readonly IRgbMatrixService _matrixService;
+    private readonly IPlatformStdService _platformStdService;
     private readonly IMemoryCache _cache;
 
 
-    public DisplayWorker(ILogger<DisplayWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache)
+    public DisplayWorker(ILogger<DisplayWorker> logger, IRgbMatrixService matrixService, IPlatformStdService platformStdService, IMemoryCache cache)
     {
         _logger = logger;
         _matrixService = matrixService;
+        _platformStdService = platformStdService;
         _cache = cache;
     }
 
@@ -42,7 +44,15 @@ public class DisplayWorker : BackgroundService
                 // _matrixService.Canvas.SetPixels(0, 10, _matrixService.Canvas.Width, _matrixService.FontHeight, area);
 
                 _matrixService.Canvas.Clear();
-                _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
+
+                if (_platformStdService.ShowPlatform)
+                {
+                    _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
+                }
+                else 
+                {
+                    _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 255, 255), data.Std);
+                }
 
                 int posFromEndEtd = _matrixService.Canvas.Width - (data.Etd.Length*_matrixService.FontWidth);
                 Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 15, 0);

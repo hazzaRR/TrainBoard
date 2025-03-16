@@ -26,6 +26,11 @@ public class DataFeedWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
 
+        Dictionary<string, string> stationAliases = new ()
+        {
+            {"London Liverpool Street", "London Liv St."}
+        };
+
         while (!stoppingToken.IsCancellationRequested)
         {
 
@@ -50,13 +55,15 @@ public class DataFeedWorker : BackgroundService
                     callingPoints.Add($" {services[0].SubsequentCallingPoints.CallingPoints[i].LocationName} ({services[0].SubsequentCallingPoints.CallingPoints[i].St})");
                 }
 
+                string destination = "";
+                stationAliases.TryGetValue(services[0].Destination[0].LocationName, out destination);
 
                 ScreenData service = new()
                 {
                     Std = services[0].Std,
                     Etd = services[0].Etd == "On time" ? "On Time" : $"Exp. {services[0].Etd}",
                     Platform = $"Plat {services[0].Platform}",
-                    Destination = services[0].Destination[0].LocationName,
+                    Destination = destination != "" ? destination : services[0].Destination[0].LocationName,
                     CallingPoints = string.Join(",", callingPoints)
                 };
 
