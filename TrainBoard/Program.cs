@@ -7,7 +7,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IRgbMatrixService, RgbMatrixService>(); 
 builder.Services.AddSingleton<IPlatformStdService, PlatformStdService>(); 
-builder.Services.AddSingleton<ILdbwsClient>(provider => new LdbwsClient("<Api-key>"));
+builder.Services.AddSingleton<ILdbwsClient, LdbwsClient>();
 builder.Services.AddHostedService<DataFeedWorker>();
 builder.Services.AddHostedService<PlatformStdToggleWorker>();
 builder.Services.AddHostedService<DisplayWorker>();

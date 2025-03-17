@@ -1,13 +1,20 @@
 using System.Xml;
 using System.Xml.Serialization;
 using OpenLDBWS.Entities;
+using OpenLDBWS.Options;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace OpenLDBWS;
 public class LdbwsClient : ILdbwsClient
 {
     private readonly string _apiKey;
     private readonly string _url;
+    public LdbwsClient(IOptions<LdbwsOptions> options)
+    {
+        _apiKey = options.Value.ApiKey ?? throw new ArgumentNullException("Api key not found");
+        _url = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb12.asmx";
+    }
     public LdbwsClient(string apiKey)
     {
         _apiKey = apiKey;
