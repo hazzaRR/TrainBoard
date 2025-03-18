@@ -22,8 +22,8 @@ public class ScrollCallingPointsWorker : BackgroundService
                 if (_callingPointService.ScrollTextPos + _callingPointService.PixelsDrawn < 0)
                 {
                     _callingPointService.ScrollTextPos = _matrixService.Canvas.Width;
+                    _callingPointService.IsScrollComplete = true;
                     await Task.Delay(1000, stoppingToken);
-                    // _cache.TryGetValue("departureBoard", out data);
                 }
             await Task.Delay(40, stoppingToken);
         }

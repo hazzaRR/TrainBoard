@@ -12,6 +12,7 @@ public class DisplayWorker : BackgroundService
     private readonly IPlatformStdService _platformStdService;
     private readonly ICallingPointService _callingPointService;
     private readonly IMemoryCache _cache;
+    private ScreenData data;
 
 
     public DisplayWorker(ILogger<DisplayWorker> logger, IRgbMatrixService matrixService, IPlatformStdService platformStdService, ICallingPointService callingPointService, IMemoryCache cache)
@@ -28,7 +29,7 @@ public class DisplayWorker : BackgroundService
 
         int scrollTextPos = _matrixService.Canvas.Width;
 
-        while(!_cache.TryGetValue("departureBoard", out ScreenData data)) 
+        while(!_cache.TryGetValue("departureBoard", out data)) 
         {
             await Task.Delay(1000, stoppingToken);
         }
@@ -36,10 +37,14 @@ public class DisplayWorker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
 
-            if (_matrixService.IsInitialised)
+            if (_matrixService.IsInitialised && data != null)
             {
 
-                _cache.TryGetValue("departureBoard", out ScreenData data);
+                if (_callingPointService.IsScrollComplete)
+                {
+                    _cache.TryGetValue("departureBoard", out data);
+                    _callingPointService.IsScrollComplete = false;
+                }
 
                 _matrixService.Canvas.Clear();
 
@@ -65,9 +70,7 @@ public class DisplayWorker : BackgroundService
                 _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height-1, new Color(255, 160, 0), currentTime);
 
 
-            _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-
-
+                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
 
             }
 
