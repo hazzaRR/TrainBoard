@@ -7,7 +7,6 @@ namespace TrainBoard.Workers;
 
 public class DisplayWorker : BackgroundService
 {
-    private readonly ILogger<DisplayWorker> _logger;
     private readonly IRgbMatrixService _matrixService;
     private readonly IPlatformStdService _platformStdService;
     private readonly ICallingPointService _callingPointService;
@@ -15,9 +14,8 @@ public class DisplayWorker : BackgroundService
     private ScreenData data;
 
 
-    public DisplayWorker(ILogger<DisplayWorker> logger, IRgbMatrixService matrixService, IPlatformStdService platformStdService, ICallingPointService callingPointService, IMemoryCache cache)
+    public DisplayWorker(IRgbMatrixService matrixService, IPlatformStdService platformStdService, ICallingPointService callingPointService, IMemoryCache cache)
     {
-        _logger = logger;
         _matrixService = matrixService;
         _platformStdService = platformStdService;
         _callingPointService = callingPointService;
