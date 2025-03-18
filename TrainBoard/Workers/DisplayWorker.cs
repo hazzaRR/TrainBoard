@@ -10,14 +10,16 @@ public class DisplayWorker : BackgroundService
     private readonly ILogger<DisplayWorker> _logger;
     private readonly IRgbMatrixService _matrixService;
     private readonly IPlatformStdService _platformStdService;
+    private readonly ICallingPointService _callingPointService;
     private readonly IMemoryCache _cache;
 
 
-    public DisplayWorker(ILogger<DisplayWorker> logger, IRgbMatrixService matrixService, IPlatformStdService platformStdService, IMemoryCache cache)
+    public DisplayWorker(ILogger<DisplayWorker> logger, IRgbMatrixService matrixService, IPlatformStdService platformStdService, ICallingPointService callingPointService, IMemoryCache cache)
     {
         _logger = logger;
         _matrixService = matrixService;
         _platformStdService = platformStdService;
+        _callingPointService = callingPointService;
         _cache = cache;
     }
 
@@ -56,17 +58,7 @@ public class DisplayWorker : BackgroundService
 
                 _matrixService.Canvas.DrawText(_matrixService.Font, 0, 14, new Color(255, 160, 0), data.Destination);
 
-                int pixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, scrollTextPos, 22, new Color(255, 160, 0), data.CallingPoints);
-
-                scrollTextPos -= 1;
-
-                if (scrollTextPos + pixelsDrawn < 0)
-                {
-                    scrollTextPos = _matrixService.Canvas.Width;
-                    await Task.Delay(1000, stoppingToken);
-                    _cache.TryGetValue("departureBoard", out data);
-                }
-
+                _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CallingPoints);
 
                 string currentTime = DateTime.Now.ToString("HH:mm:ss");
                 int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length*_matrixService.FontWidth) / 2;
@@ -79,7 +71,7 @@ public class DisplayWorker : BackgroundService
 
             }
 
-            await Task.Delay(40, stoppingToken);
+            await Task.Delay(10, stoppingToken);
         }
     }
 }
