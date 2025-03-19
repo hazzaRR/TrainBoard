@@ -1,6 +1,6 @@
 namespace TrainBoard.Services;
 
-public interface IPlatformStdService
+public interface IPlatformEtdService
 {
     bool ShowPlatform {get; set;}
 }

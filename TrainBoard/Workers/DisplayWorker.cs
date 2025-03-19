@@ -8,17 +8,17 @@ namespace TrainBoard.Workers;
 public class DisplayWorker : BackgroundService
 {
     private readonly IRgbMatrixService _matrixService;
-    private readonly IPlatformStdService _platformStdService;
     private readonly ICallingPointService _callingPointService;
+    private readonly IPlatformEtdService _platformEtdService;
     private readonly IMemoryCache _cache;
     private ScreenData data;
 
 
-    public DisplayWorker(IRgbMatrixService matrixService, IPlatformStdService platformStdService, ICallingPointService callingPointService, IMemoryCache cache)
+    public DisplayWorker(IRgbMatrixService matrixService, IPlatformEtdService platformEtdService, ICallingPointService callingPointService, IMemoryCache cache)
     {
         _matrixService = matrixService;
-        _platformStdService = platformStdService;
         _callingPointService = callingPointService;
+        _platformEtdService = platformEtdService;
         _cache = cache;
     }
 
@@ -46,18 +46,21 @@ public class DisplayWorker : BackgroundService
 
                 _matrixService.Canvas.Clear();
 
-                if (_platformStdService.ShowPlatform)
+                _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Std);
+
+
+                if (_platformEtdService.ShowPlatform)
                 {
-                    _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
+                    int posFromEndEtd = _matrixService.Canvas.Width - (data.Platform.Length*_matrixService.FontWidth);
+                    _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
                 }
                 else 
                 {
-                    _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 255, 255), data.Std);
+                    int posFromEndEtd = _matrixService.Canvas.Width - (data.Etd.Length*_matrixService.FontWidth);
+                    Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 15, 0);
+                    _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, colourToDisplay, data.Etd);
                 }
 
-                int posFromEndEtd = _matrixService.Canvas.Width - (data.Etd.Length*_matrixService.FontWidth);
-                Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 15, 0);
-                _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, colourToDisplay, data.Etd);
 
                 _matrixService.Canvas.DrawText(_matrixService.Font, 0, 14, new Color(255, 160, 0), data.Destination);
 
