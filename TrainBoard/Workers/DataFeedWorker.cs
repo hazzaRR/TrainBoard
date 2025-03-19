@@ -69,7 +69,9 @@ public class DataFeedWorker : BackgroundService
                     textInfo.ToTitleCase(services[0].Etd) : $"Expt.{services[0].Etd}",
                     Platform = $"Plat {services[0].Platform}",
                     Destination = !String.IsNullOrEmpty(destination) ? destination : services[0].Destination[0].LocationName,
-                    CallingPoints = String.Join(",", callingPoints)
+                    CallingPoints = String.Join(",", callingPoints),
+                    IsCancelled = services[0].IsCancelled,
+                    DelayReason = services[0].DelayReason,
                 };
 
                  _cache.Set("departureBoard", service);
