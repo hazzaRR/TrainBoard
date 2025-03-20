@@ -66,7 +66,7 @@ public class DataFeedWorker : BackgroundService
                     Etd = services[0].Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
                     services[0].Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
                     services[0].Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ? 
-                    textInfo.ToTitleCase(services[0].Etd) : $"Expt.{services[0].Etd}",
+                    textInfo.ToTitleCase(services[0].Etd) : $"Exp.{services[0].Etd}",
                     Platform = $"Plat {services[0].Platform}",
                     Destination = !string.IsNullOrEmpty(destination) ? destination : services[0].Destination[0].LocationName,
                     CallingPoints = string.Join(",", callingPoints),
