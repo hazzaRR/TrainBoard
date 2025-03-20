@@ -28,7 +28,7 @@ public class PlatformEtdToggleWorker : BackgroundService
 
             _platformEtdService.ShowPlatform = !_platformEtdService.ShowPlatform;
             
-            await Task.Delay(3000, stoppingToken);
+            await Task.Delay(6000, stoppingToken);
         }
     }
 }
