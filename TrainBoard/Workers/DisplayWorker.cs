@@ -25,8 +25,6 @@ public class DisplayWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
 
-        int scrollTextPos = _matrixService.Canvas.Width;
-
         while(!_cache.TryGetValue("departureBoard", out data)) 
         {
             await Task.Delay(1000, stoppingToken);

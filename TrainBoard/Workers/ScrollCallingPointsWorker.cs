@@ -14,6 +14,8 @@ public class ScrollCallingPointsWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+
+         _callingPointService.ScrollTextPos = _matrixService.Canvas.Width;
         while (!stoppingToken.IsCancellationRequested)
         {
 
