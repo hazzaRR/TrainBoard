@@ -25,8 +25,6 @@ public class DisplayWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
 
-        int scrollTextPos = _matrixService.Canvas.Width;
-
         while(!_cache.TryGetValue("departureBoard", out data)) 
         {
             await Task.Delay(1000, stoppingToken);
@@ -64,7 +62,14 @@ public class DisplayWorker : BackgroundService
 
                 _matrixService.Canvas.DrawText(_matrixService.Font, 0, 14, new Color(255, 160, 0), data.Destination);
 
-                _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CallingPoints);
+                if ((bool)data.IsCancelled && !string.IsNullOrEmpty(data.CancelReason))
+                {
+                    _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CancelReason);
+                }
+                else 
+                {
+                    _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CallingPoints);
+                }
 
                 string currentTime = DateTime.Now.ToString("HH:mm:ss");
                 int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length*_matrixService.FontWidth) / 2;

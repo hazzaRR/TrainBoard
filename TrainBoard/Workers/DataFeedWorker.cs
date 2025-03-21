@@ -3,6 +3,8 @@ using TrainBoard.Entities;
 using OpenLDBWS;
 using OpenLDBWS.Entities;
 using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace TrainBoard.Workers;
 
@@ -28,6 +30,8 @@ public class DataFeedWorker : BackgroundService
         {
             {"London Liverpool Street", "London Liv St."}
         };
+
+        TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -58,10 +62,15 @@ public class DataFeedWorker : BackgroundService
                 ScreenData service = new()
                 {
                     Std = services[0].Std,
-                    Etd = services[0].Etd == "On time" ? "On Time" : $"Exp. {services[0].Etd}",
+                    Etd = services[0].Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
+                    services[0].Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
+                    services[0].Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ? 
+                    textInfo.ToTitleCase(services[0].Etd) : $"Exp.{services[0].Etd}",
                     Platform = $"Plat {services[0].Platform}",
-                    Destination = !String.IsNullOrEmpty(destination) ? destination : services[0].Destination[0].LocationName,
-                    CallingPoints = String.Join(",", callingPoints)
+                    Destination = !string.IsNullOrEmpty(destination) ? destination : services[0].Destination[0].LocationName,
+                    CallingPoints = string.Join(",", callingPoints),
+                    IsCancelled = services[0].IsCancelled,
+                    DelayReason = services[0].DelayReason,
                 };
 
                  _cache.Set("departureBoard", service);
