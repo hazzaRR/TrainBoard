@@ -8,7 +8,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IRgbMatrixService, RgbMatrixService>(); 
 builder.Services.AddSingleton<IPlatformEtdService, PlatformEtdService>(); 
 builder.Services.AddSingleton<ICallingPointService, CallingPointService>();  
-builder.Services.AddSingleton<ILdbwsClient>(provider => new LdbwsClient("72a8196c-6306-4f02-8194-6225e3eee456"));
+builder.Services.AddSingleton<ILdbwsClient>(provider => new LdbwsClient("api-key"));
 builder.Services.AddHostedService<DataFeedWorker>();
 builder.Services.AddHostedService<PlatformEtdToggleWorker>();
 builder.Services.AddHostedService<DisplayWorker>();
