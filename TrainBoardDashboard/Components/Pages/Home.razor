@@ -1,4 +1,5 @@
-﻿@page "/"
+﻿@namespace TrainBoardDashboard
+@page "/"
 @rendermode InteractiveServer
 
 <PageTitle>Trainboard Dashboard</PageTitle>
@@ -14,43 +15,36 @@
     <div class="card-body w-50 mx-auto">
 
         <div class="form-floating mb-3">
-            <input type="number" class="form-control" id="floatingNumRows" min="1" max="10" @bind="numRows" />
+            <input type="number" class="form-control" id="floatingNumRows" min="1" max="10" @bind="NumRows" />
             <label for="floatingNumRows">Number of Departure rows</label>
         </div>
 
 
         <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="floatingCrs" min="1" @bind="crs" />
+            <input type="text" class="form-control" id="floatingCrs" min="1" @bind="Crs" />
             <label for="floatingCrs">Station CRS</label>
-            <button @onclick="() => crs = string.Empty">Clear</button>
+            <button @onclick="() => Crs = string.Empty">Clear</button>
         </div>
 
         <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="floatingFilterCrs" min="1" @bind="filterCrs" />
+            <input type="text" class="form-control" id="floatingFilterCrs" min="1" @bind="FilterCrs" />
             <label for="floatingFilterCrs">Destination station CRS</label>
-            <button @onclick="() => filterCrs = string.Empty">Clear</button>
+            <button @onclick="() => FilterCrs = string.Empty">Clear</button>
         </div>
 
 
         <div class="form-floating mb-3">
-            <input type="number" class="form-control" id="floatingTimeOffset" min="1" max="120" @bind="timeOffset" />
+            <input type="number" class="form-control" id="floatingTimeOffset" min="1" max="120" @bind="TimeOffset" />
             <label for="floatingTimeOffset">Time Offset</label>
         </div>
 
 
         <div class="form-floating mb-3">
-            <input type="number" class="form-control" id="floatingTimeWindow" min="1" max="120" @bind="timeWindow" />
+            <input type="number" class="form-control" id="floatingTimeWindow" min="1" max="120" @bind="TimeWindow" />
             <label for="floatingTimeWindow">Time Window</label>
         </div>
     </div>
+    <div class="card-footer text-end">
+        <button @onclick="UpdateMatrixConfig" type="button" class="btn btn-primary">Update</button>
+  </div>
 </div>
-
-@code {
-
-    private int numRows = 1;
-    private string crs = "";
-    private string filterCrs = "";
-    private int timeOffset = 0;
-    private int timeWindow = 0;
-
-}
