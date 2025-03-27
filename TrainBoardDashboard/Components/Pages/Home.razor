@@ -11,31 +11,37 @@
         <h1 class="text-center card-title">Config Train board Screen</h1>
     </div>
 
-    <div class="card-body">
+    <div class="card-body w-50 mx-auto">
 
         <div class="form-floating mb-3">
-            <input type="number" class="form-control" id="floatingInput" min="1" @bind="numRows" />
-            <label for="floatingInput">Number of Departure rows</label>
-            <p>@numRows</p>
+            <input type="number" class="form-control" id="floatingNumRows" min="1" max="10" @bind="numRows" />
+            <label for="floatingNumRows">Number of Departure rows</label>
         </div>
 
-        <h5>Station CRS:</h5>
-        <input @bind="crs" />
-        <button @onclick="() => crs = string.Empty">Clear</button>
-        <p>@crs</p>
 
-        <h5>Destination CRS:</h5>
-        <input @bind="filterCrs" />
-        <button @onclick="() => filterCrs = string.Empty">Clear</button>
-        <p>@filterCrs</p>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="floatingCrs" min="1" @bind="crs" />
+            <label for="floatingCrs">Station CRS</label>
+            <button @onclick="() => crs = string.Empty">Clear</button>
+        </div>
 
-        <h5>TimeOffset:</h5>
-        <input type="number" min="1" @bind="timeOffset" />
-        <p>@timeOffset</p>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="floatingFilterCrs" min="1" @bind="filterCrs" />
+            <label for="floatingFilterCrs">Destination station CRS</label>
+            <button @onclick="() => filterCrs = string.Empty">Clear</button>
+        </div>
 
-        <h5>Time Window</h5>
-        <input type="number" min="1" @bind="timeWindow" />
-        <p>@timeWindow</p>
+
+        <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="floatingTimeOffset" min="1" max="120" @bind="timeOffset" />
+            <label for="floatingTimeOffset">Time Offset</label>
+        </div>
+
+
+        <div class="form-floating mb-3">
+            <input type="number" class="form-control" id="floatingTimeWindow" min="1" max="120" @bind="timeWindow" />
+            <label for="floatingTimeWindow">Time Window</label>
+        </div>
     </div>
 </div>
 
