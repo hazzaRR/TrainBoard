@@ -21,14 +21,18 @@ public class PlatformEtdToggleWorker : BackgroundService
 
             _cache.TryGetValue("departureBoard", out ScreenData data);
 
-            if ((bool)data.IsCancelled)
+            if (data != null)
             {
-            _platformEtdService.ShowPlatform = false; 
+                if ((bool)data.IsCancelled)
+                {
+                _platformEtdService.ShowPlatform = false; 
+                }
+
+                _platformEtdService.ShowPlatform = !_platformEtdService.ShowPlatform;
+                await Task.Delay(6000, stoppingToken);
             }
 
-            _platformEtdService.ShowPlatform = !_platformEtdService.ShowPlatform;
             
-            await Task.Delay(6000, stoppingToken);
         }
     }
 }
