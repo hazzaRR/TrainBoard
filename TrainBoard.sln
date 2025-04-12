@@ -1,0 +1,36 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenLDBWS", "OpenLDBWS\OpenLDBWS.csproj", "{131ADC83-7BB6-C4CA-8CB2-95CAF6F506FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPiRgbLEDMatrix", "RPiRgbLEDMatrix\RPiRgbLEDMatrix.csproj", "{6B45DA97-4637-405E-E0FF-3A76020DF46E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrainBoard", "TrainBoard\TrainBoard.csproj", "{B807197B-8D68-9E92-066A-5382269D66F7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{131ADC83-7BB6-C4CA-8CB2-95CAF6F506FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{131ADC83-7BB6-C4CA-8CB2-95CAF6F506FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{131ADC83-7BB6-C4CA-8CB2-95CAF6F506FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{131ADC83-7BB6-C4CA-8CB2-95CAF6F506FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B45DA97-4637-405E-E0FF-3A76020DF46E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B45DA97-4637-405E-E0FF-3A76020DF46E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B45DA97-4637-405E-E0FF-3A76020DF46E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B45DA97-4637-405E-E0FF-3A76020DF46E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B807197B-8D68-9E92-066A-5382269D66F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B807197B-8D68-9E92-066A-5382269D66F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B807197B-8D68-9E92-066A-5382269D66F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B807197B-8D68-9E92-066A-5382269D66F7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63457060-A5BC-4367-9E15-FC565C9AC595}
+	EndGlobalSection
+EndGlobal
