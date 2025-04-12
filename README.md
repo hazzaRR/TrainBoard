@@ -1,3 +1,16 @@
+## Raspberry pi 4b Matrix Settings
+
+```
+    RGBLedMatrixOptions options = new RGBLedMatrixOptions
+    {
+        Rows = 32,
+        Cols = 64,
+        Brightness = 50,
+        HardwareMapping = "adafruit-hat",
+        GpioSlowdown = 5,
+    };
+```
+
 ## Run train board C# app on boot
 1) Copy over the output file of the dotnet project into the /opt/TrainBoard/ directory
 
