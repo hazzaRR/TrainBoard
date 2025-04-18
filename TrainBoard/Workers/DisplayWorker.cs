@@ -60,10 +60,6 @@ public class DisplayWorker : BackgroundService
                     int line3StartingPos = (_matrixService.Canvas.Width - line3.Length*_matrixService.FontWidth) / 2;
                     _matrixService.Canvas.DrawText(_matrixService.Font, line3StartingPos, 18, new Color(255, 160, 0), line3);
                     
-                    string line4 = "scheduled";
-                    int line4StartingPos = (_matrixService.Canvas.Width - line4.Length*_matrixService.FontWidth) / 2;
-                    _matrixService.Canvas.DrawText(_matrixService.Font, line4StartingPos, 24, new Color(255, 160, 0), line4);
-
                         
                 }
 
