@@ -51,29 +51,45 @@ public class DataFeedWorker : BackgroundService
 
                 List<string> callingPoints = new List<string>();
 
-                for (int i = 0; i < services[0].SubsequentCallingPoints.CallingPoints.Count; i++)
+                ScreenData service;
+
+                ServiceWithCallingPoints? nextService = services.FirstOrDefault();
+
+                if (nextService != null)
                 {
-                    callingPoints.Add($" {services[0].SubsequentCallingPoints.CallingPoints[i].LocationName} ({services[0].SubsequentCallingPoints.CallingPoints[i].St})");
+                    for (int i = 0; i < nextService.SubsequentCallingPoints.CallingPoints.Count; i++)
+                    {
+                        callingPoints.Add($" {nextService.SubsequentCallingPoints.CallingPoints[i].LocationName} ({nextService.SubsequentCallingPoints.CallingPoints[i].St})");
+                    }
+
+                    string destination = "";
+                    stationAliases.TryGetValue(nextService.Destination[0].LocationName, out destination);
+
+                    service = new()
+                    {
+                        Std = nextService.Std,
+                        Etd = nextService.Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
+                        nextService.Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
+                        nextService.Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ? 
+                        textInfo.ToTitleCase(nextService.Etd) : $"Exp.{nextService.Etd}",
+                        Platform = $"Plat {nextService.Platform}",
+                        Destination = !string.IsNullOrEmpty(destination) ? destination : nextService.Destination[0].LocationName,
+                        CallingPoints = string.Join(",", callingPoints),
+                        IsCancelled = nextService.IsCancelled,
+                        DelayReason = nextService.DelayReason,
+                    };
+
+                }
+                else 
+                {
+                    service = new()
+                    {
+                        NoServices = true
+                    };
                 }
 
-                string destination = "";
-                stationAliases.TryGetValue(services[0].Destination[0].LocationName, out destination);
+                    _cache.Set("departureBoard", service);
 
-                ScreenData service = new()
-                {
-                    Std = services[0].Std,
-                    Etd = services[0].Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
-                    services[0].Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
-                    services[0].Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ? 
-                    textInfo.ToTitleCase(services[0].Etd) : $"Exp.{services[0].Etd}",
-                    Platform = $"Plat {services[0].Platform}",
-                    Destination = !string.IsNullOrEmpty(destination) ? destination : services[0].Destination[0].LocationName,
-                    CallingPoints = string.Join(",", callingPoints),
-                    IsCancelled = services[0].IsCancelled,
-                    DelayReason = services[0].DelayReason,
-                };
-
-                 _cache.Set("departureBoard", service);
 
             }
 

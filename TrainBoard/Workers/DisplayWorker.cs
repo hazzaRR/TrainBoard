@@ -11,7 +11,7 @@ public class DisplayWorker : BackgroundService
     private readonly ICallingPointService _callingPointService;
     private readonly IPlatformEtdService _platformEtdService;
     private readonly IMemoryCache _cache;
-    private ScreenData data;
+    private ScreenData? data;
 
 
     public DisplayWorker(IRgbMatrixService matrixService, IPlatformEtdService platformEtdService, ICallingPointService callingPointService, IMemoryCache cache)
@@ -36,6 +36,7 @@ public class DisplayWorker : BackgroundService
             if (_matrixService.IsInitialised && data != null)
             {
 
+
                 if (_callingPointService.IsScrollComplete)
                 {
                     _cache.TryGetValue("departureBoard", out data);
@@ -44,31 +45,57 @@ public class DisplayWorker : BackgroundService
 
                 _matrixService.Canvas.Clear();
 
-                _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Std);
-
-
-                if (_platformEtdService.ShowPlatform)
+                if (data.NoServices)
                 {
-                    int posFromEndEtd = _matrixService.Canvas.Width - (data.Platform.Length*_matrixService.FontWidth);
-                    _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
+
+                    string line1 = "There are";
+                    int line1StartingPos = (_matrixService.Canvas.Width - line1.Length*_matrixService.FontWidth) / 2;
+                    _matrixService.Canvas.DrawText(_matrixService.Font, line1StartingPos, _matrixService.FontHeight, new Color(255, 160, 0), line1);
+
+                    string line2 = "currently no";
+                    int line2StartingPos = (_matrixService.Canvas.Width - line2.Length*_matrixService.FontWidth) / 2;
+                    _matrixService.Canvas.DrawText(_matrixService.Font, line2StartingPos, 12, new Color(255, 160, 0), line2);
+                    
+                    string line3 = "services";
+                    int line3StartingPos = (_matrixService.Canvas.Width - line3.Length*_matrixService.FontWidth) / 2;
+                    _matrixService.Canvas.DrawText(_matrixService.Font, line3StartingPos, 18, new Color(255, 160, 0), line3);
+                    
+                    string line4 = "scheduled";
+                    int line4StartingPos = (_matrixService.Canvas.Width - line4.Length*_matrixService.FontWidth) / 2;
+                    _matrixService.Canvas.DrawText(_matrixService.Font, line4StartingPos, 24, new Color(255, 160, 0), line4);
+
+                        
                 }
-                else 
+
+                else
                 {
-                    int posFromEndEtd = _matrixService.Canvas.Width - (data.Etd.Length*_matrixService.FontWidth);
-                    Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 15, 0);
-                    _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, colourToDisplay, data.Etd);
-                }
+                    _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Std);
 
 
-                _matrixService.Canvas.DrawText(_matrixService.Font, 0, 14, new Color(255, 160, 0), data.Destination);
+                    if (_platformEtdService.ShowPlatform)
+                    {
+                        int posFromEndEtd = _matrixService.Canvas.Width - (data.Platform.Length*_matrixService.FontWidth);
+                        _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
+                    }
+                    else 
+                    {
+                        int posFromEndEtd = _matrixService.Canvas.Width - (data.Etd.Length*_matrixService.FontWidth);
+                        Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 15, 0);
+                        _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, colourToDisplay, data.Etd);
+                    }
 
-                if ((bool)data.IsCancelled && !string.IsNullOrEmpty(data.CancelReason))
-                {
-                    _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CancelReason);
-                }
-                else 
-                {
-                    _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CallingPoints);
+
+                    _matrixService.Canvas.DrawText(_matrixService.Font, 0, 14, new Color(255, 160, 0), data.Destination);
+
+                    if ((bool)data.IsCancelled && !string.IsNullOrEmpty(data.CancelReason))
+                    {
+                        _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CancelReason);
+                    }
+                    else 
+                    {
+                        _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CallingPoints);
+                    }
+
                 }
 
                 string currentTime = DateTime.Now.ToString("HH:mm:ss");

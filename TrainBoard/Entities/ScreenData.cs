@@ -11,4 +11,5 @@ public class ScreenData
     public string CancelReason { get; set; } = "";
     public bool? IsDelayed {get; set;} = false;
     public string DelayReason { get; set; } = "";
+    public bool NoServices {get; set;} = false;
 }
