@@ -1,3 +1,9 @@
+##Install Dotnet 8 on to Raspberry pi 
+
+```
+sudo curl -sSL https://dot.net/v1/dotnet-install.sh | sudo bash /dev/stdin --version 8.0.406 --install-dir /opt/dotnet
+```
+
 ## Raspberry pi 4b Matrix Settings
 
 ```
