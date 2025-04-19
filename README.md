@@ -32,7 +32,7 @@ sudo /opt/dotnet/dotnet publish -c Release -o /opt/TrainBoard
 ```
 
 ```
-sudo chown <current_user> /opt/TrainBoard/
+sudo chown $USER /opt/TrainBoard/
 ```
 
 1) create the unit file
