@@ -1,4 +1,6 @@
 using RPiRgbLEDMatrix;
+using System;
+using System.Device.Gpio;
 
 namespace TrainBoard.Services;
 
@@ -26,6 +28,16 @@ public class RgbMatrixService : IRgbMatrixService
         };
 
         Matrix = new RGBLedMatrix(options);
+
+        using (var gpioController = new GpioController())
+        {
+            gpioController.OpenPin(26, PinMode.Output);
+            gpioController.OpenPin(27, PinMode.Output);
+            gpioController.Write(26, PinValue.High);
+            gpioController.Write(27, PinValue.Low);
+
+        }
+
         Canvas = Matrix.CreateOffscreenCanvas();
         // Font = new RGBLedFont("../fonts/5x7.bdf");
         // FontWidth = 5;
