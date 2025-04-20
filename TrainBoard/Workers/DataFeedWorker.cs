@@ -3,8 +3,9 @@ using TrainBoard.Entities;
 using OpenLDBWS;
 using OpenLDBWS.Entities;
 using Microsoft.Extensions.Caching.Memory;
-using System.Collections.Generic;
 using System.Globalization;
+using MQTTnet;
+using System.Text.Json;
 
 namespace TrainBoard.Workers;
 
@@ -14,6 +15,9 @@ public class DataFeedWorker : BackgroundService
     private readonly IMemoryCache _cache;
     private readonly IRgbMatrixService _matrixService;
     private readonly ILdbwsClient _client;
+    private readonly IMqttClient _mqttClient;
+    private readonly MqttClientOptions _options;
+    private RgbMatrixConfiguration _config;
 
     public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache, ILdbwsClient client)
     {
@@ -21,11 +25,34 @@ public class DataFeedWorker : BackgroundService
         _matrixService = matrixService;
         _cache = cache;
         _client = client;
+
+        _mqttClient = new MqttClientFactory().CreateMqttClient();
+
+        _options = new MqttClientOptionsBuilder()
+        .WithTcpServer("localhost", 1883)
+        .WithClientId("matrixWorker")
+        .WithCleanSession()
+        .Build();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
 
+        string? matrixSettings = await File.ReadAllTextAsync("./matrixSettings.json", stoppingToken);
+
+        if (string.IsNullOrEmpty(matrixSettings))
+        {
+            _config = new();
+            await File.WriteAllTextAsync("./matrixSettings.json", JsonSerializer.Serialize(_config), stoppingToken);
+        }
+        else
+        {
+            _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings);
+        }
+
+
+        SetupMqttEventHandlers(stoppingToken);
+        await PublishConfig(stoppingToken);
         Dictionary<string, string> stationAliases = new ()
         {
             {"London Liverpool Street", "London Liv St."}
@@ -39,12 +66,7 @@ public class DataFeedWorker : BackgroundService
             if (_matrixService.IsInitialised)
             {
 
-                //read this in from a config file
-
-                string departureStationCode = "COL";
-                string destinationStationCode = "LST";
-
-                GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(1, departureStationCode, destinationStationCode);
+                GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs);
 
                 List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
 
@@ -101,4 +123,61 @@ public class DataFeedWorker : BackgroundService
             await Task.Delay(30000, stoppingToken);
         }
     }
+
+    private void SetupMqttEventHandlers(CancellationToken stoppingToken)
+    {
+
+        _mqttClient.ConnectedAsync += async e => 
+        {
+            await _mqttClient.SubscribeAsync("matrix_config", cancellationToken: stoppingToken);
+        };
+
+        _mqttClient.ApplicationMessageReceivedAsync += async e =>
+        {
+            if (e.ApplicationMessage.Topic.Equals("matrix_config"))
+            {
+                _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString());
+                await File.WriteAllTextAsync("./matrixSettings.json", e.ApplicationMessage.ConvertPayloadToString(), stoppingToken);
+            }
+        };
+
+        _mqttClient.DisconnectedAsync += async e => 
+        {
+            await Task.Delay(5000);
+
+            try
+            {
+                await _mqttClient.ConnectAsync(_options, stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Reconnection failed: {ex.Message}");
+            }
+        };
+
+    }
+
+    private async Task PublishConfig(CancellationToken stoppingToken)
+    {
+        try 
+        {
+            await _mqttClient.ConnectAsync(_options, stoppingToken);
+
+            var applicationMessage = new MqttApplicationMessageBuilder()
+            .WithTopic("matrix_config")
+            .WithPayload(JsonSerializer.Serialize(_config))
+            .WithRetainFlag()
+            .Build();
+
+            await _mqttClient.PublishAsync(applicationMessage, stoppingToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Connection failed: {ex.Message}");
+        }
+    }
+
 }
+
+
+

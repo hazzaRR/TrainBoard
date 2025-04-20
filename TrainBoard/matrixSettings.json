@@ -1,0 +1,7 @@
+{
+    "numRows" : 1,
+    "crs" : "COL",
+    "filterCrs" : "LST",
+    "timeOffset" : 0,
+    "timeWindow" : 120
+}
