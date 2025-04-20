@@ -1,4 +1,4 @@
-namespace TrainBoard.Entities;
+namespace TrainBoardDashboard.Entities;
 
 public class RgbMatrixConfiguration
 {
