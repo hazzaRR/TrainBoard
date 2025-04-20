@@ -29,20 +29,15 @@ public class RgbMatrixService : IRgbMatrixService
 
         Matrix = new RGBLedMatrix(options);
 
-        using (var gpioController = new GpioController())
-        {
-            gpioController.OpenPin(26, PinMode.Output);
-            gpioController.OpenPin(27, PinMode.Output);
-            gpioController.Write(26, PinValue.High);
-            gpioController.Write(27, PinValue.Low);
 
-        }
+        string fontPath = "./fonts/4x6.bdf";
 
         Canvas = Matrix.CreateOffscreenCanvas();
         // Font = new RGBLedFont("../fonts/5x7.bdf");
         // FontWidth = 5;
         // FontHeight = 7;
-        Font = new RGBLedFont("../fonts/4x6.bdf");
+
+        Font = new RGBLedFont(fontPath);
         FontWidth = 4;
         FontHeight = 6;
         // Font = new RGBLedFont("../fonts/04B_03__6pt.bdf");
