@@ -46,7 +46,9 @@ Description=National Rail Live Train board
 After=multi-user.target
 
 [Service]
-ExecStart=sudo /opt/dotnet/dotnet /opt/TrainBoard/TrainBoard.dll
+WorkingDirectory=/opt/TrainBoard
+Type=idle
+ExecStart=sudo /opt/dotnet/dotnet TrainBoard.dll
 
 [Install]
 WantedBy=multi-user.target
