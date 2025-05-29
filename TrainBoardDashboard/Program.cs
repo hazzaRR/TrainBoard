@@ -1,10 +1,20 @@
 using TrainBoardDashboard.Components;
+using TrainBoardDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Listen(System.Net.IPAddress.Any, 5030);
+});
+
+
+builder.Services.AddSingleton<MqttService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<MqttService>());
 
 var app = builder.Build();
 
