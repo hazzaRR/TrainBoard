@@ -19,6 +19,7 @@ public partial class Home: IAsyncDisposable
     private int NumRows { get; set; } = 1;
     private string Crs { get; set; } = "";
     private string FilterCrs { get; set; } = "";
+    private string FilterType { get; set; } = "to";
     private int TimeOffset { get; set; } = 0;
     private int TimeWindow { get; set; } = 0;
 
@@ -38,6 +39,7 @@ public partial class Home: IAsyncDisposable
             NumRows = NumRows,
             Crs = Crs,
             FilterCrs = FilterCrs,
+            FilterType = FilterType,
             TimeOffset = TimeOffset,
             TimeWindow = TimeWindow
         };
@@ -52,6 +54,7 @@ public partial class Home: IAsyncDisposable
             NumRows = config.NumRows;
             Crs = config.Crs;
             FilterCrs = config.FilterCrs;
+            FilterType = config.FilterType;
             TimeOffset = config.TimeOffset;
             TimeWindow = config.TimeWindow;
 

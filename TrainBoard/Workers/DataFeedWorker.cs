@@ -66,7 +66,7 @@ public class DataFeedWorker : BackgroundService
             if (_matrixService.IsInitialised)
             {
 
-                GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs);
+                GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
 
                 List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
 
