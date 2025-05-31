@@ -37,8 +37,8 @@ public partial class Home: IAsyncDisposable
         var newConfiguration = new RgbMatrixConfiguration()
         {
             NumRows = NumRows,
-            Crs = Crs,
-            FilterCrs = FilterCrs,
+            Crs = Crs.ToUpper(),
+            FilterCrs = FilterCrs.ToUpper(),
             FilterType = FilterType,
             TimeOffset = TimeOffset,
             TimeWindow = TimeWindow

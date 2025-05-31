@@ -39,10 +39,12 @@ public class DataFeedWorker : BackgroundService
     {
 
         string? matrixSettings = await File.ReadAllTextAsync("./matrixSettings.json", stoppingToken);
+        _logger.LogInformation($"current matrix settings: {matrixSettings}");
 
         if (string.IsNullOrEmpty(matrixSettings))
         {
             _config = new();
+            _logger.LogInformation($"No matrix settings found, writing default settings to file");
             await File.WriteAllTextAsync("./matrixSettings.json", JsonSerializer.Serialize(_config), stoppingToken);
         }
         else
@@ -137,7 +139,15 @@ public class DataFeedWorker : BackgroundService
             if (e.ApplicationMessage.Topic.Equals("matrix_config"))
             {
                 _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString());
-                await File.WriteAllTextAsync("./matrixSettings.json", e.ApplicationMessage.ConvertPayloadToString(), stoppingToken);
+                _logger.LogInformation($"New config recieved: {_config}");
+                try
+                {
+                    await File.WriteAllTextAsync("./matrixSettings.json", e.ApplicationMessage.ConvertPayloadToString(), stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"{ex}");
+                }
             }
         };
 
