@@ -22,6 +22,7 @@ public partial class Home: IAsyncDisposable
     private string FilterType { get; set; } = "to";
     private int TimeOffset { get; set; } = 0;
     private int TimeWindow { get; set; } = 0;
+    private bool ShowAlert { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,18 +48,22 @@ public partial class Home: IAsyncDisposable
 
         var payload = JsonSerializer.Serialize(newConfiguration);
         await MqttService.PublishAsync("matrix_config", payload);
-    }
 
+        ShowAlert = true;
+        await Task.Delay(10000);
+        ShowAlert = false;
+    }
+    
     protected void UpdateConfiguration(RgbMatrixConfiguration config)
     {
-            NumRows = config.NumRows;
-            Crs = config.Crs;
-            FilterCrs = config.FilterCrs;
-            FilterType = config.FilterType;
-            TimeOffset = config.TimeOffset;
-            TimeWindow = config.TimeWindow;
+        NumRows = config.NumRows;
+        Crs = config.Crs;
+        FilterCrs = config.FilterCrs;
+        FilterType = config.FilterType;
+        TimeOffset = config.TimeOffset;
+        TimeWindow = config.TimeWindow;
 
-            InvokeAsync(StateHasChanged);
+        InvokeAsync(StateHasChanged);
     }
 
     public async ValueTask DisposeAsync()
