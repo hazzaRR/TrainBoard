@@ -35,7 +35,7 @@ public class DisplayWorker : BackgroundService
         if (!data.NoServices)
         {
             _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
-            _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels * _matrixService.FontWidth > _matrixService.Canvas.Width;
+            _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels > _matrixService.Canvas.Width;
         }
 
         while (!stoppingToken.IsCancellationRequested)
