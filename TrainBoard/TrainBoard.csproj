@@ -5,12 +5,16 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-TrainBoard-6445457c-9d31-4266-9f45-ab71848cf1d7</UserSecretsId>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems> 
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="./fonts/**/*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="matrixSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -19,5 +23,6 @@
     <ProjectReference Include="../RPiRgbLEDMatrix/RPiRgbLEDMatrix.csproj" />
     <ProjectReference Include="../OpenLDBWS/OpenLDBWS.csproj" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1-*" />
+    <PackageReference Include="MQTTnet" Version="5.0.1.1416" />
   </ItemGroup>
 </Project>

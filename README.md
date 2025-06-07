@@ -35,6 +35,11 @@ sudo /opt/dotnet/dotnet publish -c Release -o /opt/TrainBoard
 sudo chown $USER /opt/TrainBoard/
 ```
 
+ensure the app can write to the matrixSettings.json config
+```
+sudo chmod 666 /opt/TrainBoard/matrixSettings.json
+```
+
 1) create the unit file
 ```
 sudo nano /lib/systemd/system/trainboard.service
