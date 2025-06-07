@@ -21,7 +21,7 @@ public class ScrollDestinationWorker : BackgroundService
             if (_destinationService.ScrollTextPos <= (_matrixService.Canvas.Width -_destinationService.DestinationWidthInPixels))
             {
                 _destinationService.ScrollTextPos = 0;
-                await Task.Delay(3000, stoppingToken);
+                await Task.Delay(5000, stoppingToken);
             }
 
             if (_destinationService.IsDestinationScrollable)
