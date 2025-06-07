@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-TrainBoard-6445457c-9d31-4266-9f45-ab71848cf1d7</UserSecretsId>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems> 
   </PropertyGroup>
 
   <ItemGroup>

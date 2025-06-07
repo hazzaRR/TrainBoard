@@ -18,7 +18,7 @@ public class ScrollDestinationWorker : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
 
-            if (_destinationService.ScrollTextPos > (_destinationService.DestinationWidth - _matrixService.Canvas.Width))
+            if (_destinationService.ScrollTextPos > (_destinationService.DestinationWidthInPixels - _matrixService.Canvas.Width))
             {
                 _destinationService.ScrollTextPos = 0;
                 await Task.Delay(3000, stoppingToken);

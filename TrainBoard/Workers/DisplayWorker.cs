@@ -34,8 +34,8 @@ public class DisplayWorker : BackgroundService
 
         if (!data.NoServices)
         {
-            _destinationService.DestinationWidth = !data.NoServices ? data.Destination.Length : 0;
-            _destinationService.IsDestinationScrollable = _destinationService.DestinationWidth * _matrixService.FontWidth > _matrixService.Canvas.Width;
+            _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
+            _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels * _matrixService.FontWidth > _matrixService.Canvas.Width;
         }
 
         while (!stoppingToken.IsCancellationRequested)
@@ -50,8 +50,8 @@ public class DisplayWorker : BackgroundService
                         _cache.TryGetValue("departureBoard", out data);
                         _callingPointService.IsScrollComplete = false;
                         _destinationService.ScrollTextPos = 0;
-                        _destinationService.DestinationWidth = !data.NoServices ? data.Destination.Length : 0;
-                        _destinationService.IsDestinationScrollable = _destinationService.DestinationWidth * _matrixService.FontWidth > _matrixService.Canvas.Width;
+                        _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
+                        _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels > _matrixService.Canvas.Width;
                     }
 
                     _matrixService.Canvas.Clear();
