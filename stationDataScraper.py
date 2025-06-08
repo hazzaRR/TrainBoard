@@ -44,7 +44,7 @@ class ScrapeStationData:
 
                         if code != None:
                             station = {
-                                'name': name,
+                                'name': name.rstrip(),
                                 'crs': code.replace('(', '').replace(')', '')
                             }  
 
