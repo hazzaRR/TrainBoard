@@ -1,5 +1,6 @@
 ﻿@namespace TrainBoardDashboard
 @page "/"
+@using TrainBoardDashboard.Entities
 @rendermode InteractiveServer
 
 <PageTitle>Trainboard Dashboard</PageTitle>
@@ -27,7 +28,7 @@
 
         <div class="input-group mb-3">
             <div class="form-floating flex-grow-1">
-                <input type="text" class="form-control" id="floatingCrs" @bind="Crs">
+                <input list="stations" class="form-control" id="floatingCrs" @bind="Crs">
                 <label for="floatingCrs">Station CRS</label>
             </div>
             <button class="btn btn-primary" @onclick="() => Crs = string.Empty">Clear</button>
@@ -36,7 +37,7 @@
 
         <div class="input-group mb-3">
             <div class="form-floating flex-grow-1">
-                <input type="text" class="form-control  form-control-lg" id="floatingFilterCrs" min="1" @bind="FilterCrs"/>
+                <input list="stations" class="form-control  form-control-lg" id="floatingFilterCrs" min="1" @bind="FilterCrs"/>
                 <label for="floatingCrs">Destination station CRS</label>
             </div>
             <button class="btn btn-primary" @onclick="() => FilterCrs = string.Empty">Clear</button>
@@ -69,5 +70,12 @@
     <div class="card-footer text-end">
         <button @onclick="UpdateMatrixConfig" type="button" class="btn btn-primary">Update</button>
   </div>
+
+  <datalist id="stations">
+        @foreach (Station station in Stations)
+        {
+            <option value="@station.Crs">@station.Name (@station.Crs)</option>
+        }
+    </datalist>
   
 </div>

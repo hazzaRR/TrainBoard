@@ -16,6 +16,8 @@ public partial class Home: IAsyncDisposable
 
     [Inject]
     private MqttService MqttService {get; set;}
+    [Inject]
+    private StationService StationService {get; set;}
     private int NumRows { get; set; } = 1;
     private string Crs { get; set; } = "";
     private string FilterCrs { get; set; } = "";
@@ -23,12 +25,15 @@ public partial class Home: IAsyncDisposable
     private int TimeOffset { get; set; } = 0;
     private int TimeWindow { get; set; } = 0;
     private bool ShowAlert { get; set; } = false;
+    private List<Station> Stations { get; set; } = [];
+
 
     protected override async Task OnInitializedAsync()
     {
-        
+
         MqttService.OnMessageReceived += UpdateConfiguration;
         UpdateConfiguration(MqttService.CurrentConfig);
+        Stations = await StationService.GetStationsAsync();
 
         await base.OnInitializedAsync();
     }

@@ -14,6 +14,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 
 
 builder.Services.AddSingleton<MqttService>();
+builder.Services.AddScoped<StationService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<MqttService>());
 
 var app = builder.Build();
