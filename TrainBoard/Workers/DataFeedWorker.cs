@@ -204,25 +204,22 @@ public class DataFeedWorker : BackgroundService
 
     private Color ConvertToColour(string hexString)
     {
-        Color newColour; 
         _logger.LogInformation($"{hexString.Length}");
         if (hexString.Length == 7)
         {
             string colour = hexString.Replace("#", "");
-            newColour = new Color(Convert.ToInt32(colour.Substring(0, 2), 16), Convert.ToInt32(colour.Substring(2, 2), 16), Convert.ToInt32(colour.Substring(4, 2), 16));
+            return new Color(Convert.ToInt32(colour.Substring(0, 2), 16), Convert.ToInt32(colour.Substring(2, 2), 16), Convert.ToInt32(colour.Substring(4, 2), 16));
         }
 
         if (hexString.Length == 4)
         {
             string colour = hexString.Replace("#", "");
-            newColour = new Color(Convert.ToInt32($"{colour[0]}{colour[0]}", 16), Convert.ToInt32($"{colour[1]}{colour[1]}", 16), Convert.ToInt32(Convert.ToInt32($"{colour[2]}{colour[2]}", 16)));
+            return new Color(Convert.ToInt32($"{colour[0]}{colour[0]}", 16), Convert.ToInt32($"{colour[1]}{colour[1]}", 16), Convert.ToInt32(Convert.ToInt32($"{colour[2]}{colour[2]}", 16)));
         }
         else
         {
-            newColour = new Color(255,255,255);
+            return new Color(255,255,255);
         }
-
-        return newColour;
     }
 
     private string ConvertToColourHex(Color color)
