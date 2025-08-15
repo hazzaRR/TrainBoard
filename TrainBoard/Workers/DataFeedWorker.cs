@@ -149,6 +149,7 @@ public class DataFeedWorker : BackgroundService
             {
                 _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString());
                 _matrixService.StdColour = ConvertToColour(_config.StdColour);
+                _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
                 _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
                 _matrixService.CallingPointsColour = ConvertToColour(_config.CallingPointsColour);
                 _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
@@ -204,7 +205,6 @@ public class DataFeedWorker : BackgroundService
 
     private Color ConvertToColour(string hexString)
     {
-        _logger.LogInformation($"{hexString.Length}");
         if (hexString.Length == 7)
         {
             string colour = hexString.Replace("#", "");
