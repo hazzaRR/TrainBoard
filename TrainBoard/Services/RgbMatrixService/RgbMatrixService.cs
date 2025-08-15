@@ -20,8 +20,6 @@ public class RgbMatrixService : IRgbMatrixService
     public Color DelayColour {get; set;} = new Color(255, 15, 0);
     public Color OnTimeColour {get; set;} = new Color(0, 255, 0);
 
-
-
     public RgbMatrixService() 
     {
 

@@ -52,7 +52,7 @@ public class DataFeedWorker : BackgroundService
         {
             _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings);
         }
-
+        Console.WriteLine($"string - {_config.StdColour}");
         _matrixService.StdColour = ConvertToColour(_config.StdColour);
         _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
         _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
@@ -60,6 +60,7 @@ public class DataFeedWorker : BackgroundService
         _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
         _matrixService.DelayColour = ConvertToColour(_config.DelayColour);
         _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
+        Console.WriteLine($" data feed {_matrixService.StdColour.R}{_matrixService.StdColour.G}{_matrixService.StdColour.B}");
 
         SetupMqttEventHandlers(stoppingToken);
         await PublishConfig(stoppingToken);
