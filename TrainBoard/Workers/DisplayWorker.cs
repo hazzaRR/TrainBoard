@@ -82,7 +82,7 @@ public class DisplayWorker : BackgroundService
                         if (_platformEtdService.ShowPlatform)
                         {
                             int posFromEndEtd = _matrixService.Canvas.Width - (data.Platform.Length * _matrixService.FontWidth);
-                            _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, _matrixService.StdColour, data.Platform);
+                            _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, _matrixService.PlatformColour, data.Platform);
                         }
                         else
                         {

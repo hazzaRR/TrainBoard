@@ -53,6 +53,7 @@ public class DataFeedWorker : BackgroundService
         }
 
         _matrixService.StdColour = ConvertToColour(_config.StdColour);
+        _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
         _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
         _matrixService.CallingPointsColour = ConvertToColour(_config.CallingPointsColour);
         _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);

@@ -9,6 +9,7 @@ public class RgbMatrixConfiguration
     public int TimeOffset {get; set;} = 2;
     public int TimeWindow {get; set;} = 120;
     public string StdColour { get; set; } = "#ffa000";
+    public string PlatformColour { get; set; } = "#ffa000";
     public string DestinationColour { get; set; } = "#ffa000";
     public string CallingPointsColour { get; set; } = "#ffa000";
     public string CurrentTimeColour { get; set; } = "#ffa000";

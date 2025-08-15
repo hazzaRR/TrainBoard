@@ -13,6 +13,7 @@ public class RgbMatrixService : IRgbMatrixService
     public int FontHeight { get; private set;}
     public bool IsInitialised {get; private set;} = false; 
     public Color StdColour {get; set;} = new Color(255, 160, 0);
+    public Color PlatformColour {get; set;} = new Color(255, 160, 0);
     public Color DestinationColour {get; set;} = new Color(255, 160, 0);
     public Color CallingPointsColour {get; set;} = new Color(255, 160, 0);
     public Color CurrentTimeColour {get; set;} = new Color(255, 160, 0);

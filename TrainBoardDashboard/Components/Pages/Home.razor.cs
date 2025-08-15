@@ -25,6 +25,7 @@ public partial class Home: IAsyncDisposable
     private int TimeOffset { get; set; } = 0;
     private int TimeWindow { get; set; } = 0;
     private string StdColour { get; set; } = "#ffa000";
+    private string PlatformColour { get; set; } = "#ffa000";
     private string DestinationColour { get; set; } = "#ffa000";
     private string CallingPointsColour { get; set; } = "#ffa000";
     private string CurrentTimeColour { get; set; } = "#ffa000";
@@ -56,6 +57,7 @@ public partial class Home: IAsyncDisposable
             TimeWindow = TimeWindow,
             StdColour = StdColour,
             DestinationColour = DestinationColour,
+            PlatformColour = PlatformColour,
             CallingPointsColour = CallingPointsColour,
             CurrentTimeColour = CurrentTimeColour,
             DelayColour = DelayColour,
@@ -81,6 +83,7 @@ public partial class Home: IAsyncDisposable
         TimeWindow = config.TimeWindow;
         StdColour = config.StdColour;
         DestinationColour = config.DestinationColour;
+        PlatformColour = config.PlatformColour;
         CallingPointsColour = config.CallingPointsColour;
         CurrentTimeColour = config.CurrentTimeColour;
         DelayColour = config.DelayColour;
