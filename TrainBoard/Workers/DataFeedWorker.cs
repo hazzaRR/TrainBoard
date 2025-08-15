@@ -205,6 +205,7 @@ public class DataFeedWorker : BackgroundService
     private Color ConvertToColour(string hexString)
     {
         Color newColour; 
+        _logger.LogInformation($"{hexString.Length}");
         if (hexString.Length == 7)
         {
             string colour = hexString.Replace("#", "");
