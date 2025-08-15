@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using MQTTnet;
 using System.Text.Json;
+using RPiRgbLEDMatrix;
 
 namespace TrainBoard.Workers;
 
