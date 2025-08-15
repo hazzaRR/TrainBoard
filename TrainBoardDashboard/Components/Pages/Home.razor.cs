@@ -24,6 +24,12 @@ public partial class Home: IAsyncDisposable
     private string FilterType { get; set; } = "to";
     private int TimeOffset { get; set; } = 0;
     private int TimeWindow { get; set; } = 0;
+    private string StdColour { get; set; } = "#ffa000";
+    private string DestinationColour { get; set; } = "#ffa000";
+    private string CallingPointsColour { get; set; } = "#ffa000";
+    private string CurrentTimeColour { get; set; } = "#ffa000";
+    private string DelayColour { get; set; } = "#ff0f00";
+    private string OnTimeColour { get; set; } = "#00ff00";
     private bool ShowAlert { get; set; } = false;
     private List<Station> Stations { get; set; } = [];
 
@@ -47,7 +53,13 @@ public partial class Home: IAsyncDisposable
             FilterCrs = FilterCrs.ToUpper(),
             FilterType = FilterType,
             TimeOffset = TimeOffset,
-            TimeWindow = TimeWindow
+            TimeWindow = TimeWindow,
+            StdColour = StdColour,
+            DestinationColour = DestinationColour,
+            CallingPointsColour = CallingPointsColour,
+            CurrentTimeColour = CurrentTimeColour,
+            DelayColour = DelayColour,
+            OnTimeColour = OnTimeColour
         };
 
 
@@ -67,6 +79,12 @@ public partial class Home: IAsyncDisposable
         FilterType = config.FilterType;
         TimeOffset = config.TimeOffset;
         TimeWindow = config.TimeWindow;
+        StdColour = config.StdColour;
+        DestinationColour = config.DestinationColour;
+        CallingPointsColour = config.CallingPointsColour;
+        CurrentTimeColour = config.CurrentTimeColour;
+        DelayColour = config.DelayColour;
+        OnTimeColour = config.OnTimeColour;
 
         InvokeAsync(StateHasChanged);
     }

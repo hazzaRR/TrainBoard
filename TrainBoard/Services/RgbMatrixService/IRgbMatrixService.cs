@@ -10,5 +10,11 @@ public interface IRgbMatrixService
     int FontWidth {get;}
     int FontHeight {get;}
     bool IsInitialised {get;}
+    Color StdColour {get; set;} 
+    Color DestinationColour {get; set;} 
+    Color CallingPointsColour {get; set;} 
+    Color CurrentTimeColour {get; set;} 
+    Color DelayColour {get; set;}
+    Color OnTimeColour {get; set;}
 }
 

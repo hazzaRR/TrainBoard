@@ -52,6 +52,12 @@ public class DataFeedWorker : BackgroundService
             _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings);
         }
 
+        _matrixService.StdColour = ConvertToColour(_config.StdColour);
+        _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
+        _matrixService.CallingPointsColour = ConvertToColour(_config.CallingPointsColour);
+        _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
+        _matrixService.DelayColour = ConvertToColour(_config.DelayColour);
+        _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
 
         SetupMqttEventHandlers(stoppingToken);
         await PublishConfig(stoppingToken);
@@ -139,6 +145,12 @@ public class DataFeedWorker : BackgroundService
             if (e.ApplicationMessage.Topic.Equals("matrix_config"))
             {
                 _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString());
+                _matrixService.StdColour = ConvertToColour(_config.StdColour);
+                _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
+                _matrixService.CallingPointsColour = ConvertToColour(_config.CallingPointsColour);
+                _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
+                _matrixService.DelayColour = ConvertToColour( _config.DelayColour);
+                _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
                 _logger.LogInformation($"New config recieved: {_config}");
                 try
                 {
@@ -186,6 +198,35 @@ public class DataFeedWorker : BackgroundService
             _logger.LogError($"Connection failed: {ex.Message}");
         }
     }
+
+    private Color ConvertToColour(string hexString)
+    {
+        Color newColour; 
+        if (hexString.Count() == 7)
+        {
+            string colour = hexString.Replace("#", "");
+            newColour = new Color(Convert.ToInt32(colour.Substring(0, 2), 16), Convert.ToInt32(colour.Substring(2, 2), 16), Convert.ToInt32(colour.Substring(4, 2), 16));
+        }
+
+        if (hexString.Count() == 4)
+        {
+            string colour = hexString.Replace("#", "");
+            newColour = new Color(Convert.ToInt32($"{colour[0]}{colour[0]}", 16), Convert.ToInt32($"{colour[1]}{colour[1]}", 16), Convert.ToInt32(Convert.ToInt32($"{colour[2]}{colour[2]}", 16)));
+        }
+        else
+        {
+            newColour = new Color(255,255,255);
+        }
+
+        return newColour;
+    }
+
+    private string ConvertToColourHex(Color color)
+    {
+        return $"#{color.R.ToString("X2")}{color.G.ToString("X2")}{color.B.ToString("X2")}";
+    }
+
+    
 
 }
 

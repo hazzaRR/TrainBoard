@@ -12,6 +12,13 @@ public class RgbMatrixService : IRgbMatrixService
     public int FontWidth { get; private set;}
     public int FontHeight { get; private set;}
     public bool IsInitialised {get; private set;} = false; 
+    public Color StdColour {get; set;} = new Color(255, 160, 0);
+    public Color DestinationColour {get; set;} = new Color(255, 160, 0);
+    public Color CallingPointsColour {get; set;} = new Color(255, 160, 0);
+    public Color CurrentTimeColour {get; set;} = new Color(255, 160, 0);
+    public Color DelayColour {get; set;} = new Color(255, 15, 0);
+    public Color OnTimeColour {get; set;} = new Color(0, 255, 0);
+
 
 
     public RgbMatrixService() 

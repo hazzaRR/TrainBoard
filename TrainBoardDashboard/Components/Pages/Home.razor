@@ -66,6 +66,36 @@
             <input type="number" class="form-control" id="floatingTimeWindow" min="1" max="120" @bind="TimeWindow" />
             <label for="floatingTimeWindow">Time Window</label>
         </div>
+
+        <div class="form-floating mb-3">
+            <input type="color" class="form-control" id="floatingStdColour" @bind="StdColour" />
+            <label for="floatingStdColour">Departure Time Colour</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="color" class="form-control" id="floatingDestinationColour" @bind="DestinationColour" />
+            <label for="floatingDestinationColour">Destination Colour</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="color" class="form-control" id="floatingCallingPointsColour" @bind="CallingPointsColour" />
+            <label for="floatingDestinationColour">Calling Points Colour</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="color" class="form-control" id="floatingCurrentTimeColour" @bind="CurrentTimeColour" />
+            <label for="floatingDestinationColour">Current Time Colour</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="color" class="form-control" id="floatingOnTimeColour" @bind="OnTimeColour" />
+            <label for="floatingOnTimeColour">On Time Colour</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="color" class="form-control" id="floatingDelayColour" @bind="DelayColour" />
+            <label for="floatingDelayColour">Delay Colour</label>
+        </div>
     </div>
     <div class="card-footer text-end">
         <button @onclick="UpdateMatrixConfig" type="button" class="btn btn-primary">Update</button>

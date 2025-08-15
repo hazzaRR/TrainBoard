@@ -61,53 +61,53 @@ public class DisplayWorker : BackgroundService
 
                         string line1 = "There are";
                         int line1StartingPos = (_matrixService.Canvas.Width - line1.Length * _matrixService.FontWidth) / 2;
-                        _matrixService.Canvas.DrawText(_matrixService.Font, line1StartingPos, _matrixService.FontHeight, new Color(255, 160, 0), line1);
+                        _matrixService.Canvas.DrawText(_matrixService.Font, line1StartingPos, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
 
                         string line2 = "currently no";
                         int line2StartingPos = (_matrixService.Canvas.Width - line2.Length * _matrixService.FontWidth) / 2;
-                        _matrixService.Canvas.DrawText(_matrixService.Font, line2StartingPos, 12, new Color(255, 160, 0), line2);
+                        _matrixService.Canvas.DrawText(_matrixService.Font, line2StartingPos, 12, _matrixService.DestinationColour, line2);
 
                         string line3 = "services";
                         int line3StartingPos = (_matrixService.Canvas.Width - line3.Length * _matrixService.FontWidth) / 2;
-                        _matrixService.Canvas.DrawText(_matrixService.Font, line3StartingPos, 18, new Color(255, 160, 0), line3);
+                        _matrixService.Canvas.DrawText(_matrixService.Font, line3StartingPos, 18, _matrixService.DestinationColour, line3);
 
 
                     }
 
                     else
                     {
-                        _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, new Color(255, 160, 0), data.Std);
+                        _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.StdColour, data.Std);
 
 
                         if (_platformEtdService.ShowPlatform)
                         {
                             int posFromEndEtd = _matrixService.Canvas.Width - (data.Platform.Length * _matrixService.FontWidth);
-                            _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, new Color(255, 160, 0), data.Platform);
+                            _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, _matrixService.StdColour, data.Platform);
                         }
                         else
                         {
                             int posFromEndEtd = _matrixService.Canvas.Width - (data.Etd.Length * _matrixService.FontWidth);
-                            Color colourToDisplay = data.Etd == "On Time" ? new Color(0, 255, 0) : new Color(255, 15, 0);
+                            Color colourToDisplay = data.Etd == "On Time" ? _matrixService.OnTimeColour : _matrixService.DelayColour;
                             _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, colourToDisplay, data.Etd);
                         }
 
 
-                        _matrixService.Canvas.DrawText(_matrixService.Font, _destinationService.ScrollTextPos, 14, new Color(255, 160, 0), data.Destination);
+                        _matrixService.Canvas.DrawText(_matrixService.Font, _destinationService.ScrollTextPos, 14, _matrixService.DestinationColour, data.Destination);
 
                         if ((bool)data.IsCancelled && !string.IsNullOrEmpty(data.CancelReason))
                         {
-                            _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CancelReason);
+                            _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.CancelReason);
                         }
                         else
                         {
-                            _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, new Color(255, 160, 0), data.CallingPoints);
+                            _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.CallingPoints);
                         }
 
                     }
 
                     string currentTime = DateTime.Now.ToString("HH:mm:ss");
                     int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length * _matrixService.FontWidth) / 2;
-                    _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height - 1, new Color(255, 160, 0), currentTime);
+                    _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height - 1, _matrixService.CurrentTimeColour, currentTime);
 
 
                     _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
