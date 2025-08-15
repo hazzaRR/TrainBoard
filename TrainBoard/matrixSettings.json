@@ -4,5 +4,12 @@
     "filterCrs" : "",
     "filterType": "to",
     "timeOffset" : 2,
-    "timeWindow" : 120
+    "timeWindow" : 120,
+    "stdColour" : "#ffa000",
+    "PlatformColour" : "#ffa000",
+    "destinationColour" : "#ffa000",
+    "callingPointsColour" : "#ffa000",
+    "currentTimeColour" : "#ffa000",
+    "delayColour" : "#ff0f00",
+    "onTimeColour" : "#00ff00"
 }

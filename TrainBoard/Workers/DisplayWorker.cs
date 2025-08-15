@@ -76,7 +76,6 @@ public class DisplayWorker : BackgroundService
 
                     else
                     {
-                        Console.WriteLine($"{_matrixService.StdColour.R}{_matrixService.StdColour.G}{_matrixService.StdColour.B}");
                         _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.StdColour, data.Std);
 
 
