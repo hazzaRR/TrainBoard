@@ -52,7 +52,7 @@ public class DataFeedWorker : BackgroundService
         {
             _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings);
         }
-        Console.WriteLine($"string - {_config.StdColour}");
+        _logger.LogInformation($"string - {_config.StdColour}");
         _matrixService.StdColour = ConvertToColour(_config.StdColour);
         _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
         _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
@@ -60,7 +60,7 @@ public class DataFeedWorker : BackgroundService
         _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
         _matrixService.DelayColour = ConvertToColour(_config.DelayColour);
         _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
-        Console.WriteLine($" data feed {_matrixService.StdColour.R}{_matrixService.StdColour.G}{_matrixService.StdColour.B}");
+        _logger.LogInformation($" data feed {_matrixService.StdColour.R}{_matrixService.StdColour.G}{_matrixService.StdColour.B}");
 
         SetupMqttEventHandlers(stoppingToken);
         await PublishConfig(stoppingToken);
@@ -205,13 +205,13 @@ public class DataFeedWorker : BackgroundService
     private Color ConvertToColour(string hexString)
     {
         Color newColour; 
-        if (hexString.Count() == 7)
+        if (hexString.Length == 7)
         {
             string colour = hexString.Replace("#", "");
             newColour = new Color(Convert.ToInt32(colour.Substring(0, 2), 16), Convert.ToInt32(colour.Substring(2, 2), 16), Convert.ToInt32(colour.Substring(4, 2), 16));
         }
 
-        if (hexString.Count() == 4)
+        if (hexString.Length == 4)
         {
             string colour = hexString.Replace("#", "");
             newColour = new Color(Convert.ToInt32($"{colour[0]}{colour[0]}", 16), Convert.ToInt32($"{colour[1]}{colour[1]}", 16), Convert.ToInt32(Convert.ToInt32($"{colour[2]}{colour[2]}", 16)));
