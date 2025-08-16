@@ -22,8 +22,8 @@ public partial class Home: IAsyncDisposable
     private string Crs { get; set; } = "COL";
     private string FilterCrs { get; set; } = "";
     private string FilterType { get; set; } = "to";
-    private int TimeOffset { get; set; } = 0;
-    private int TimeWindow { get; set; } = 0;
+    private int TimeOffset { get; set; } = 2;
+    private int TimeWindow { get; set; } = 120;
     private string StdColour { get; set; } = "#ffa000";
     private string PlatformColour { get; set; } = "#ffa000";
     private string DestinationColour { get; set; } = "#ffa000";
@@ -51,8 +51,8 @@ public partial class Home: IAsyncDisposable
         Crs = "COL";
         FilterCrs = "";
         FilterType = "to";
-        TimeOffset = 0;
-        TimeWindow = 0;
+        TimeOffset = 2;
+        TimeWindow = 120;
         StdColour = "#ffa000";
         PlatformColour = "#ffa000";
         DestinationColour = "#ffa000";
