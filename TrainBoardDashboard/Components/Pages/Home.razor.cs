@@ -45,6 +45,24 @@ public partial class Home: IAsyncDisposable
         await base.OnInitializedAsync();
     }
 
+    protected async Task ResetMatrixConfig()
+    {
+        NumRows = 1;
+        Crs = "";
+        FilterCrs = "";
+        FilterType = "to";
+        TimeOffset = 0;
+        TimeWindow = 0;
+        StdColour = "#ffa000";
+        PlatformColour = "#ffa000";
+        DestinationColour = "#ffa000";
+        CallingPointsColour = "#ffa000";
+        CurrentTimeColour = "#ffa000";
+        DelayColour = "#ff0f00";
+        OnTimeColour = "#00ff00";
+
+        await UpdateMatrixConfig();
+    }
     protected async Task UpdateMatrixConfig()
     {
         var newConfiguration = new RgbMatrixConfiguration()

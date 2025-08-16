@@ -22,33 +22,33 @@ public class CallingPoint
     [XmlElement("at", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public string At { get; set; } = "";
 
-    [XmlElement("isCancelled")]
+    [XmlElement("isCancelled", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public bool? IsCancelled { get; set; }
     
     [XmlElement("length", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public int Length { get; set; }
 
-    [XmlElement("detachFront")]
+    [XmlElement("detachFront", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public bool? DetachFront { get; set;}
 
     [XmlElement("formation", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public Formation? Formation { get; set; }
 
-    [XmlElement("adhocAlerts")]
+    [XmlElement("adhocAlerts", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public List<string> AdhocAlerts { get; set; } = [];
 
-    [XmlElement("cancelReason")]
+    [XmlElement("cancelReason", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public string? CancelReason { get; set; }
-    [XmlElement("delayReason")]
+    [XmlElement("delayReason", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public string? DelayReason { get; set; }
 
-    [XmlElement("affectedByDiversion")]
+    [XmlElement("affectedByDiversion", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public string? AffectedByDiversion { get; set; }
 
-    [XmlElement("rerouteDelay")]
+    [XmlElement("rerouteDelay", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public int? RerouteDelay { get; set; }
 
-    [XmlElement("uncertainty")]
+    [XmlElement("uncertainty", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
     public Uncertainty? Uncertainty { get; set; }
 
 

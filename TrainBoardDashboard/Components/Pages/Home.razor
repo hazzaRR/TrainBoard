@@ -14,18 +14,14 @@
 }
 
 <div class="card">
-
     <div class="card-header">
         <h1 class="text-center card-title fw-bold my-auto">Trainboard Settings</h1>
     </div>
-
     <div class="card-body w-100 mx-auto">
-
         <div class="form-floating mb-3">
             <input type="number" class="form-control" id="floatingNumRows" min="1" max="10" @bind="NumRows"/>
             <label for="floatingNumRows">Number of Departure rows</label>
         </div>
-
         <div class="input-group mb-3">
             <div class="form-floating flex-grow-1">
                 <input list="stations" class="form-control" id="floatingCrs" @bind="Crs">
@@ -33,8 +29,6 @@
             </div>
             <button class="btn btn-primary" @onclick="() => Crs = string.Empty">Clear</button>
         </div>
-
-
         <div class="input-group mb-3">
             <div class="form-floating flex-grow-1">
                 <input list="stations" class="form-control  form-control-lg" id="floatingFilterCrs" min="1" @bind="FilterCrs"/>
@@ -42,7 +36,6 @@
             </div>
             <button class="btn btn-primary" @onclick="() => FilterCrs = string.Empty">Clear</button>
         </div>
-
         <div class="form-floating mb-3">
             <select type="text" class="form-control" id="floatingFilterCrs" min="1" @bind="FilterType">
                 <option value="to">
@@ -54,55 +47,45 @@
             </select>
             <label for="floatingFilterCrs">Filter Type</label>
         </div>
-
-
         <div class="form-floating mb-3">
             <input type="number" class="form-control" id="floatingTimeOffset" min="1" max="120" @bind="TimeOffset" />
             <label for="floatingTimeOffset">Time Offset</label>
         </div>
-
-
         <div class="form-floating mb-3">
             <input type="number" class="form-control" id="floatingTimeWindow" min="1" max="120" @bind="TimeWindow" />
             <label for="floatingTimeWindow">Time Window</label>
         </div>
-
         <div class="form-floating mb-3">
             <input type="color" class="form-control" id="floatingStdColour" @bind="StdColour" />
             <label for="floatingStdColour">Departure Time Colour</label>
         </div>
-
         <div class="form-floating mb-3">
             <input type="color" class="form-control" id="floatingPlatformColour" @bind="PlatformColour" />
             <label for="floatingPlatformColour">Platform Colour</label>
         </div>
-
         <div class="form-floating mb-3">
             <input type="color" class="form-control" id="floatingDestinationColour" @bind="DestinationColour" />
             <label for="floatingDestinationColour">Destination Colour</label>
         </div>
-
         <div class="form-floating mb-3">
             <input type="color" class="form-control" id="floatingCallingPointsColour" @bind="CallingPointsColour" />
             <label for="floatingDestinationColour">Calling Points Colour</label>
         </div>
-
         <div class="form-floating mb-3">
             <input type="color" class="form-control" id="floatingCurrentTimeColour" @bind="CurrentTimeColour" />
             <label for="floatingDestinationColour">Current Time Colour</label>
         </div>
-
         <div class="form-floating mb-3">
             <input type="color" class="form-control" id="floatingOnTimeColour" @bind="OnTimeColour" />
             <label for="floatingOnTimeColour">On Time Colour</label>
         </div>
-
         <div class="form-floating mb-3">
             <input type="color" class="form-control" id="floatingDelayColour" @bind="DelayColour" />
             <label for="floatingDelayColour">Delay Colour</label>
         </div>
     </div>
     <div class="card-footer text-end">
+        <button @onclick="ResetMatrixConfig" type="button" class="btn btn-secondary">Reset</button>
         <button @onclick="UpdateMatrixConfig" type="button" class="btn btn-primary">Update</button>
   </div>
 
