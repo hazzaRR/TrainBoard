@@ -19,7 +19,7 @@ public partial class Home: IAsyncDisposable
     [Inject]
     private StationService StationService {get; set;}
     private int NumRows { get; set; } = 1;
-    private string Crs { get; set; } = "";
+    private string Crs { get; set; } = "COL";
     private string FilterCrs { get; set; } = "";
     private string FilterType { get; set; } = "to";
     private int TimeOffset { get; set; } = 0;
@@ -48,7 +48,7 @@ public partial class Home: IAsyncDisposable
     protected async Task ResetMatrixConfig()
     {
         NumRows = 1;
-        Crs = "";
+        Crs = "COL";
         FilterCrs = "";
         FilterType = "to";
         TimeOffset = 0;
