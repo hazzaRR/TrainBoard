@@ -1,0 +1,22 @@
+@namespace TrainBoardDashboard
+@using TrainBoardDashboard.Entities
+@rendermode InteractiveServer
+
+<div class="w-100 mx-auto">
+<div class="pixel-matrix mx-auto" style="--cols: @MatrixPixels.GetLength(1);">
+    @for (int row = 0; row < MatrixPixels.GetLength(0); row++)
+    {
+        var currentRow = row;
+        @for (int col = 0; col < MatrixPixels.GetLength(1); col++)
+        {
+            var currentCol = col;
+            <div class="pixel" @onclick="() => SetPixelColor(currentRow, currentCol)"
+                 style="background-color: @MatrixPixels[row, col];">
+            </div>
+        }
+    }
+</div>
+
+    <input type="color" @bind="SelectedColor" />
+    <button  @onclick="ClearMatrix" class="btn btn-danger">Clear</button>
+</div>

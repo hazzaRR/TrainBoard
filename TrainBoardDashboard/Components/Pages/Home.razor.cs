@@ -32,6 +32,7 @@ public partial class Home: IAsyncDisposable
     private string DelayColour { get; set; } = "#ff0f00";
     private string OnTimeColour { get; set; } = "#00ff00";
     private bool ShowAlert { get; set; } = false;
+    private bool ShowCustom { get; set; } = false;
     private List<Station> Stations { get; set; } = [];
 
 

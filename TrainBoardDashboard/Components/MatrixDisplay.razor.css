@@ -1,0 +1,17 @@
+.pixel-matrix {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    width: calc( (15px * var(--cols)) + (2px * (var(--cols) - 1)) + 2px );
+    grid-gap: 1px;
+    border:  solid #000000;
+    padding: 1px; 
+}
+
+.pixel {
+    width: 15px; 
+    height: 15px; 
+}
+
+.pixel:hover {
+    cursor: pointer;
+}

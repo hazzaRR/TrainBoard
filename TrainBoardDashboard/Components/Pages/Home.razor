@@ -83,6 +83,14 @@
             <input type="color" class="form-control" id="floatingDelayColour" @bind="DelayColour" />
             <label for="floatingDelayColour">Delay Colour</label>
         </div>
+        <div class="form-check form-switch"></div>
+            <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault" @bind="ShowCustom">
+            <label class="form-check-label" for="switchCheckDefault">Custom display</label>
+        </div>
+        @if (ShowCustom)
+        {
+            <MatrixDisplay />
+        }
     </div>
     <div class="card-footer text-end">
         <button @onclick="ResetMatrixConfig" type="button" class="btn btn-secondary">Reset</button>
@@ -95,5 +103,6 @@
             <option value="@station.Crs">@station.Name (@station.Crs)</option>
         }
     </datalist>
+
   
 </div>
