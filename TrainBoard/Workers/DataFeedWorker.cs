@@ -203,8 +203,14 @@ public class DataFeedWorker : BackgroundService
         }
     }
 
-    private Color[] ConvertMatrixArrayHexStringToColour(string[,] hexstringMatrix)
+    private Color[] ConvertMatrixArrayHexStringToColour(string[,]? hexstringMatrix)
     {
+
+        if (hexstringMatrix == null)
+        {
+            hexstringMatrix = new string[32, 64];
+        }
+
         Color[] newMatrix = new Color[hexstringMatrix.GetLength(0) * hexstringMatrix.GetLength(1)];
 
         for (int i = 0; i < hexstringMatrix.GetLength(0); i++)
