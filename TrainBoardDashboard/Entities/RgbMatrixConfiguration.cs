@@ -2,12 +2,12 @@ namespace TrainBoardDashboard.Entities;
 
 public class RgbMatrixConfiguration
 {
-    public int NumRows {get; set;} = 1;
-    public string Crs {get; set;} = "COL";
-    public string FilterCrs {get; set;} = "";
-    public string FilterType  {get; set;} = "to";
+    public int NumRows { get; set; } = 1;
+    public string Crs { get; set; } = "COL";
+    public string FilterCrs { get; set; } = "";
+    public string FilterType { get; set; } = "to";
     public int TimeOffset { get; set; } = 2;
-    public int TimeWindow {get; set;} = 120;
+    public int TimeWindow { get; set; } = 120;
     public string StdColour { get; set; } = "#ffa000";
     public string PlatformColour { get; set; } = "#ffa000";
     public string DestinationColour { get; set; } = "#ffa000";
@@ -15,4 +15,6 @@ public class RgbMatrixConfiguration
     public string CurrentTimeColour { get; set; } = "#ffa000";
     public string DelayColour { get; set; } = "#ff0f00";
     public string OnTimeColour { get; set; } = "#00ff00";
+    public bool ShowCustomDisplay { get; set; } = false;
+    public string[,] MatrixPixels { get; set; } = new string[32, 64];
 }

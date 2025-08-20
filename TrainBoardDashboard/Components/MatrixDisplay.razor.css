@@ -15,3 +15,7 @@
 .pixel:hover {
     cursor: pointer;
 }
+
+.matrix-container {
+    height: fit-content;
+}

@@ -2,7 +2,7 @@
 @using TrainBoardDashboard.Entities
 @rendermode InteractiveServer
 
-<div class="w-100 mx-auto">
+<div class="matrix-container mx-auto">
 <div class="pixel-matrix mx-auto" style="--cols: @MatrixPixels.GetLength(1);">
     @for (int row = 0; row < MatrixPixels.GetLength(0); row++)
     {
@@ -11,6 +11,9 @@
         {
             var currentCol = col;
             <div class="pixel" @onclick="() => SetPixelColor(currentRow, currentCol)"
+                @oncontextmenu:preventDefault="true"
+                @oncontextmenu="() => ResetPixelColor(currentRow, currentCol)"
+                @onmousemove="(e) => DragDraw(e, currentRow, currentCol)"
                  style="background-color: @MatrixPixels[row, col];">
             </div>
         }

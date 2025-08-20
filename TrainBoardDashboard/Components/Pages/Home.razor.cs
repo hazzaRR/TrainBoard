@@ -32,16 +32,26 @@ public partial class Home: IAsyncDisposable
     private string DelayColour { get; set; } = "#ff0f00";
     private string OnTimeColour { get; set; } = "#00ff00";
     private bool ShowAlert { get; set; } = false;
-    private bool ShowCustom { get; set; } = false;
+    private bool ShowCustomDisplay { get; set; } = false;
+    public string[,] MatrixPixels { get; set; } = new string[32, 64];
     private List<Station> Stations { get; set; } = [];
 
 
     protected override async Task OnInitializedAsync()
     {
 
+        for (int i = 0; i < MatrixPixels.GetLength(0); i++)
+        {
+            for (int j = 0; j < MatrixPixels.GetLength(1); j++)
+            {
+                MatrixPixels[i, j] = "#000000";
+            }
+        }
+        
         MqttService.OnMessageReceived += UpdateConfiguration;
         UpdateConfiguration(MqttService.CurrentConfig);
         Stations = await StationService.GetStationsAsync();
+
 
         await base.OnInitializedAsync();
     }
@@ -61,8 +71,6 @@ public partial class Home: IAsyncDisposable
         CurrentTimeColour = "#ffa000";
         DelayColour = "#ff0f00";
         OnTimeColour = "#00ff00";
-
-        await UpdateMatrixConfig();
     }
     protected async Task UpdateMatrixConfig()
     {
@@ -80,7 +88,9 @@ public partial class Home: IAsyncDisposable
             CallingPointsColour = CallingPointsColour,
             CurrentTimeColour = CurrentTimeColour,
             DelayColour = DelayColour,
-            OnTimeColour = OnTimeColour
+            OnTimeColour = OnTimeColour,
+            ShowCustomDisplay = ShowCustomDisplay,
+            MatrixPixels = MatrixPixels,
         };
 
 
@@ -107,6 +117,8 @@ public partial class Home: IAsyncDisposable
         CurrentTimeColour = config.CurrentTimeColour;
         DelayColour = config.DelayColour;
         OnTimeColour = config.OnTimeColour;
+        ShowCustomDisplay = config.ShowCustomDisplay;
+        MatrixPixels = config.MatrixPixels;
 
         InvokeAsync(StateHasChanged);
     }
