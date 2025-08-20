@@ -216,7 +216,7 @@ public class DataFeedWorker : BackgroundService
         {
             for (int j = 0; j < hexstringMatrix.GetLength(1); j++)
             {
-                if (hexstringMatrix[i, j] == string.Empty)
+                if (hexstringMatrix[i, j] == string.Empty || hexstringMatrix[i, j] == null)
                 {
                     newMatrix[i*j] = new Color(0, 0, 0);
                 }
