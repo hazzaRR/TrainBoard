@@ -14,7 +14,7 @@
                 @oncontextmenu:preventDefault="true"
                 @oncontextmenu="() => ResetPixelColor(currentRow, currentCol)"
                 @onmousemove="(e) => DragDraw(e, currentRow, currentCol)"
-                 style="background-color: @MatrixPixels[row, col];">
+                 style="background-color: @MatrixPixels[row][col];">
             </div>
         }
     }

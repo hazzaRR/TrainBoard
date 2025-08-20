@@ -202,27 +202,32 @@ public class DataFeedWorker : BackgroundService
         }
     }
 
-    private Color[] ConvertMatrixArrayHexStringToColour(string[,]? hexstringMatrix)
+    private Color[] ConvertMatrixArrayHexStringToColour(string[][]? hexstringMatrix)
     {
 
         if (hexstringMatrix == null || hexstringMatrix.GetLength(0) == 0)
         {
-            hexstringMatrix = new string[32, 64];
+            hexstringMatrix = new string[32][];
         }
 
         Color[] newMatrix = new Color[hexstringMatrix.GetLength(0) * hexstringMatrix.GetLength(1)];
 
         for (int i = 0; i < hexstringMatrix.GetLength(0); i++)
         {
+            if (hexstringMatrix[i] == null)
+            {
+                hexstringMatrix[i] = new string[64]; 
+            }
             for (int j = 0; j < hexstringMatrix.GetLength(1); j++)
             {
-                if (hexstringMatrix[i, j] == string.Empty || hexstringMatrix[i, j] == null)
+                if (hexstringMatrix[i][j] == string.Empty || hexstringMatrix[i][j] == null)
                 {
-                    newMatrix[i*j] = new Color(0, 0, 0);
+                    newMatrix[i * j] = new Color(0, 0, 0);
+                    hexstringMatrix[i][j] = "#000000";
                 }
                 else
                 {
-                    newMatrix[i*j] = ConvertToColour(hexstringMatrix[i, j]);
+                    newMatrix[i * j] = ConvertToColour(hexstringMatrix[i][j]);
                 }
             }
         }

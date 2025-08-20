@@ -33,7 +33,7 @@ public partial class Home: IAsyncDisposable
     private string OnTimeColour { get; set; } = "#00ff00";
     private bool ShowAlert { get; set; } = false;
     private bool ShowCustomDisplay { get; set; } = false;
-    public string[,] MatrixPixels { get; set; } = new string[32, 64];
+    public string[][] MatrixPixels { get; set; } = new string[32][];
     private List<Station> Stations { get; set; } = [];
 
 
@@ -42,9 +42,10 @@ public partial class Home: IAsyncDisposable
 
         for (int i = 0; i < MatrixPixels.GetLength(0); i++)
         {
+            MatrixPixels[i] = new string[64];
             for (int j = 0; j < MatrixPixels.GetLength(1); j++)
             {
-                MatrixPixels[i, j] = "#000000";
+                MatrixPixels[i][j] = "#000000";
             }
         }
         

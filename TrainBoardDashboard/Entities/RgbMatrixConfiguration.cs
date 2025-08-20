@@ -16,5 +16,5 @@ public class RgbMatrixConfiguration
     public string DelayColour { get; set; } = "#ff0f00";
     public string OnTimeColour { get; set; } = "#00ff00";
     public bool ShowCustomDisplay { get; set; } = false;
-    public string[,] MatrixPixels { get; set; } = new string[32, 64];
+    public string[][] MatrixPixels { get; set; } = new string[32][];
 }
