@@ -52,7 +52,6 @@ public class DataFeedWorker : BackgroundService
         {
             _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings);
         }
-        _logger.LogInformation($"string - {_config.StdColour}");
         _matrixService.StdColour = ConvertToColour(_config.StdColour);
         _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
         _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
@@ -206,7 +205,7 @@ public class DataFeedWorker : BackgroundService
     private Color[] ConvertMatrixArrayHexStringToColour(string[,]? hexstringMatrix)
     {
 
-        if (hexstringMatrix == null)
+        if (hexstringMatrix == null || hexstringMatrix.GetLength(0) == 0)
         {
             hexstringMatrix = new string[32, 64];
         }
