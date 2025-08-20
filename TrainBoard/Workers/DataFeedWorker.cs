@@ -60,7 +60,8 @@ public class DataFeedWorker : BackgroundService
         _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
         _matrixService.DelayColour = ConvertToColour(_config.DelayColour);
         _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
-        _logger.LogInformation($" data feed {_matrixService.StdColour.R}{_matrixService.StdColour.G}{_matrixService.StdColour.B}");
+        _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
+        _matrixService.MatrixPixels = ConvertMatrixArrayHexStringToColour(_config.MatrixPixels);
 
         SetupMqttEventHandlers(stoppingToken);
         await PublishConfig(stoppingToken);
@@ -80,10 +81,7 @@ public class DataFeedWorker : BackgroundService
                 GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
 
                 List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
-
-
                 List<string> callingPoints = new List<string>();
-
                 ScreenData service;
 
                 ServiceWithCallingPoints? nextService = services.FirstOrDefault();
@@ -155,6 +153,8 @@ public class DataFeedWorker : BackgroundService
                 _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
                 _matrixService.DelayColour = ConvertToColour( _config.DelayColour);
                 _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
+                _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
+                _matrixService.MatrixPixels = ConvertMatrixArrayHexStringToColour(_config.MatrixPixels);
                 _logger.LogInformation($"New config recieved: {_config}");
                 try
                 {
@@ -203,6 +203,28 @@ public class DataFeedWorker : BackgroundService
         }
     }
 
+    private Color[] ConvertMatrixArrayHexStringToColour(string[,] hexstringMatrix)
+    {
+        Color[] newMatrix = new Color[hexstringMatrix.GetLength(0) * hexstringMatrix.GetLength(1)];
+
+        for (int i = 0; i < hexstringMatrix.GetLength(0); i++)
+        {
+            for (int j = 0; j < hexstringMatrix.GetLength(1); j++)
+            {
+                if (hexstringMatrix[i, j] == string.Empty)
+                {
+                    newMatrix[i*j] = new Color(0, 0, 0);
+                }
+                else
+                {
+                    newMatrix[i*j] = ConvertToColour(hexstringMatrix[i, j]);
+                }
+            }
+        }
+
+        return newMatrix;
+    }
+
     private Color ConvertToColour(string hexString)
     {
         if (hexString.Length == 7)
@@ -218,7 +240,7 @@ public class DataFeedWorker : BackgroundService
         }
         else
         {
-            return new Color(255,255,255);
+            return new Color(255, 255, 255);
         }
     }
 

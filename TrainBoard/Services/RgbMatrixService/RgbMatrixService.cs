@@ -19,8 +19,10 @@ public class RgbMatrixService : IRgbMatrixService
     public Color CurrentTimeColour {get; set;} = new Color(255, 160, 0);
     public Color DelayColour {get; set;} = new Color(255, 15, 0);
     public Color OnTimeColour {get; set;} = new Color(0, 255, 0);
+    public bool ShowCustomDisplay { get; set; } = false;
+    public Color[] MatrixPixels { get; set; } = new Color[32*64];
 
-    public RgbMatrixService() 
+    public RgbMatrixService()
     {
 
         RGBLedMatrixOptions options = new RGBLedMatrixOptions
