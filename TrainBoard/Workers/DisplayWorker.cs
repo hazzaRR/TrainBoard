@@ -71,6 +71,7 @@ public class DisplayWorker : BackgroundService
             }
             else if (_matrixService.IsInitialised && _matrixService.ShowCustomDisplay)
             {
+                _matrixService.Canvas.Clear();
                 _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
             }
 
@@ -117,7 +118,6 @@ public class DisplayWorker : BackgroundService
         }
         else
         {
-            _matrixService.Canvas.Clear();
             _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.CallingPoints);
         }
     }
