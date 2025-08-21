@@ -205,20 +205,20 @@ public class DataFeedWorker : BackgroundService
     private Color[] ConvertMatrixArrayHexStringToColour(string[][]? hexstringMatrix)
     {
 
-        if (hexstringMatrix == null || hexstringMatrix.GetLength(0) == 0)
+        if (hexstringMatrix == null || hexstringMatrix.Length == 0)
         {
             hexstringMatrix = new string[32][];
         }
 
-        Color[] newMatrix = new Color[hexstringMatrix.GetLength(0) * hexstringMatrix.GetLength(1)];
+        Color[] newMatrix = new Color[32 * 64];
 
-        for (int i = 0; i < hexstringMatrix.GetLength(0); i++)
+        for (int i = 0; i < hexstringMatrix.Length; i++)
         {
             if (hexstringMatrix[i] == null)
             {
                 hexstringMatrix[i] = new string[64]; 
             }
-            for (int j = 0; j < hexstringMatrix.GetLength(1); j++)
+            for (int j = 0; j < hexstringMatrix[i].Length; j++)
             {
                 if (hexstringMatrix[i][j] == string.Empty || hexstringMatrix[i][j] == null)
                 {

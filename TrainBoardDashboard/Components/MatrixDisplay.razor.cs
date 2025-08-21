@@ -40,9 +40,9 @@ public partial class MatrixDisplay: IAsyncDisposable
 
     protected void ClearMatrix()
     {
-        for (int i = 0; i < MatrixPixels.GetLength(0); i++)
+        for (int i = 0; i < MatrixPixels.Length; i++)
         {
-            for (int j = 0; j < MatrixPixels.GetLength(1); j++)
+            for (int j = 0; j < MatrixPixels[i].Length; j++)
             {
                 MatrixPixels[i][j] = "#000000";
             }

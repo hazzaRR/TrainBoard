@@ -40,10 +40,10 @@ public partial class Home: IAsyncDisposable
     protected override async Task OnInitializedAsync()
     {
 
-        for (int i = 0; i < MatrixPixels.GetLength(0); i++)
+        for (int i = 0; i < MatrixPixels.Length; i++)
         {
             MatrixPixels[i] = new string[64];
-            for (int j = 0; j < MatrixPixels.GetLength(1); j++)
+            for (int j = 0; j < MatrixPixels[i].Length; j++)
             {
                 MatrixPixels[i][j] = "#000000";
             }
