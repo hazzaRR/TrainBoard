@@ -214,7 +214,7 @@ public class DataFeedWorker : BackgroundService
 
         for (int i = 0; i < hexstringMatrix.Length; i++)
         {
-            if (hexstringMatrix[i] == null)
+            if (hexstringMatrix[i] == null || hexstringMatrix[i].Length == 0)
             {
                 hexstringMatrix[i] = new string[64]; 
             }

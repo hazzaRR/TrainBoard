@@ -6,7 +6,7 @@ using TrainBoardDashboard.Services;
 
 namespace TrainBoardDashboard;
 
-public partial class Home: IAsyncDisposable
+public partial class Home : IAsyncDisposable
 {
     [Inject]
     private NavigationManager Navigation { get; set; }
@@ -15,9 +15,9 @@ public partial class Home: IAsyncDisposable
     private ILogger<Home> Logger { get; set; }
 
     [Inject]
-    private MqttService MqttService {get; set;}
+    private MqttService MqttService { get; set; }
     [Inject]
-    private StationService StationService {get; set;}
+    private StationService StationService { get; set; }
     private int NumRows { get; set; } = 1;
     private string Crs { get; set; } = "COL";
     private string FilterCrs { get; set; } = "";
@@ -39,16 +39,7 @@ public partial class Home: IAsyncDisposable
 
     protected override async Task OnInitializedAsync()
     {
-
-        for (int i = 0; i < MatrixPixels.Length; i++)
-        {
-            MatrixPixels[i] = new string[64];
-            for (int j = 0; j < MatrixPixels[i].Length; j++)
-            {
-                MatrixPixels[i][j] = "#000000";
-            }
-        }
-        
+        InitialiseArray();
         MqttService.OnMessageReceived += UpdateConfiguration;
         UpdateConfiguration(MqttService.CurrentConfig);
         Stations = await StationService.GetStationsAsync();
@@ -102,7 +93,7 @@ public partial class Home: IAsyncDisposable
         await Task.Delay(10000);
         ShowAlert = false;
     }
-    
+
     protected void UpdateConfiguration(RgbMatrixConfiguration config)
     {
         NumRows = config.NumRows;
@@ -120,18 +111,39 @@ public partial class Home: IAsyncDisposable
         OnTimeColour = config.OnTimeColour;
         ShowCustomDisplay = config.ShowCustomDisplay;
         MatrixPixels = config.MatrixPixels;
-
+        InitialiseArray();
         InvokeAsync(StateHasChanged);
     }
 
+    protected void InitialiseArray()
+    {
+        if (MatrixPixels == null || MatrixPixels.Length == 0 )
+        {
+            MatrixPixels = new string[32][]; 
+        }
+
+        for (int i = 0; i < MatrixPixels.Length; i++)
+            {
+                if (MatrixPixels[i] == null || MatrixPixels[i].Length == 0)
+                {
+                    MatrixPixels[i] = new string[64];
+                    for (int j = 0; j < MatrixPixels[i].Length; j++)
+                    {
+                        MatrixPixels[i][j] = "#000000";
+                    }
+                }
+            }
+        InvokeAsync(StateHasChanged);
+    }
     public async ValueTask DisposeAsync()
     {
-    if (MqttService != null)
-    {
-        MqttService.OnMessageReceived -= UpdateConfiguration;
-    }
+        if (MqttService != null)
+        {
+            MqttService.OnMessageReceived -= UpdateConfiguration;
+        }
 
-    GC.SuppressFinalize(this);
-    await Task.CompletedTask;
+
+        GC.SuppressFinalize(this);
+        await Task.CompletedTask;
     }
 }
