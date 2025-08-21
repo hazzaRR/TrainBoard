@@ -117,6 +117,7 @@ public class DisplayWorker : BackgroundService
         }
         else
         {
+            _matrixService.Canvas.Clear();
             _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.CallingPoints);
         }
     }
