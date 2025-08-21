@@ -222,12 +222,12 @@ public class DataFeedWorker : BackgroundService
             {
                 if (hexstringMatrix[i][j] == string.Empty || hexstringMatrix[i][j] == null)
                 {
-                    newMatrix[i * j] = new Color(0, 0, 0);
+                    newMatrix[i + j] = new Color(0, 0, 0);
                     hexstringMatrix[i][j] = "#000000";
                 }
                 else
                 {
-                    newMatrix[i * j] = ConvertToColour(hexstringMatrix[i][j]);
+                    newMatrix[i + j] = ConvertToColour(hexstringMatrix[i][j]);
                 }
             }
         }
