@@ -73,6 +73,7 @@ public class DisplayWorker : BackgroundService
             {
                 _matrixService.Canvas.Clear();
                 _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
+                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
             }
 
             await Task.Delay(10, stoppingToken);
