@@ -225,7 +225,7 @@ public class DataFeedWorker : BackgroundService
                 {
                     colourMatrix[i] = new int[cols];
                 }
-                colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[i][j]);
+                colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[j][i]);
                 pixel++;
             }
         }
