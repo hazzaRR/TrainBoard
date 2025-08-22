@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using TrainBoardDashboard.Entities;
+using TrainBoardDashboard.Utilities;
 namespace TrainBoardDashboard;
 
 public partial class MatrixDisplay: IAsyncDisposable
@@ -9,11 +11,11 @@ public partial class MatrixDisplay: IAsyncDisposable
     private ILogger<Home> Logger { get; set; }
     
     [Parameter]
-    public string[][] MatrixPixels { get; set; }
+    public int[][] MatrixPixels { get; set; }
     
     [Parameter]
-    public EventCallback<string[][]> MatrixPixelsChanged { get; set; }
-    public string SelectedColor { get; set; } = "#ff0000ff";
+    public EventCallback<int[][]> MatrixPixelsChanged { get; set; }
+    public string SelectedColor { get; set; } = "#ff0000";
 
     protected override async Task OnInitializedAsync()
     {
@@ -25,7 +27,7 @@ public partial class MatrixDisplay: IAsyncDisposable
 
     protected void SetPixelColor(int row, int col)
     {
-        MatrixPixels[row][col] = SelectedColor;
+        MatrixPixels[row][col] = ColourConverter.HexToInt(SelectedColor);
         StateHasChanged();
         MatrixPixelsChanged.InvokeAsync(MatrixPixels);
 
@@ -33,7 +35,7 @@ public partial class MatrixDisplay: IAsyncDisposable
 
     protected void ResetPixelColor(int row, int col)
     {
-        MatrixPixels[row][col] = "#000000";
+        MatrixPixels[row][col] = 0;
         StateHasChanged();
         MatrixPixelsChanged.InvokeAsync(MatrixPixels);
     }
@@ -44,7 +46,7 @@ public partial class MatrixDisplay: IAsyncDisposable
         {
             for (int j = 0; j < MatrixPixels[i].Length; j++)
             {
-                MatrixPixels[i][j] = "#000000";
+                MatrixPixels[i][j] = 0;
             }
         }
         MatrixPixelsChanged.InvokeAsync(MatrixPixels);

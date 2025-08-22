@@ -3,6 +3,7 @@ using TrainBoardDashboard.Entities;
 using MQTTnet;
 using System.Text.Json;
 using TrainBoardDashboard.Services;
+using TrainBoardDashboard.Utilities;
 
 namespace TrainBoardDashboard;
 
@@ -33,7 +34,7 @@ public partial class Home : IAsyncDisposable
     private string OnTimeColour { get; set; } = "#00ff00";
     private bool ShowAlert { get; set; } = false;
     private bool ShowCustomDisplay { get; set; } = false;
-    public string[][] MatrixPixels { get; set; } = new string[32][];
+    public int[][] MatrixPixels { get; set; } = new int[32][];
     private List<Station> Stations { get; set; } = [];
 
 
@@ -74,13 +75,13 @@ public partial class Home : IAsyncDisposable
             FilterType = FilterType,
             TimeOffset = TimeOffset,
             TimeWindow = TimeWindow,
-            StdColour = StdColour,
-            DestinationColour = DestinationColour,
-            PlatformColour = PlatformColour,
-            CallingPointsColour = CallingPointsColour,
-            CurrentTimeColour = CurrentTimeColour,
-            DelayColour = DelayColour,
-            OnTimeColour = OnTimeColour,
+            StdColour = ColourConverter.HexToInt(StdColour),
+            DestinationColour = ColourConverter.HexToInt(DestinationColour),
+            PlatformColour = ColourConverter.HexToInt(PlatformColour),
+            CallingPointsColour = ColourConverter.HexToInt(CallingPointsColour),
+            CurrentTimeColour = ColourConverter.HexToInt(CurrentTimeColour),
+            DelayColour = ColourConverter.HexToInt(DelayColour),
+            OnTimeColour = ColourConverter.HexToInt(OnTimeColour),
             ShowCustomDisplay = ShowCustomDisplay,
             MatrixPixels = MatrixPixels,
         };
@@ -102,13 +103,13 @@ public partial class Home : IAsyncDisposable
         FilterType = config.FilterType;
         TimeOffset = config.TimeOffset;
         TimeWindow = config.TimeWindow;
-        StdColour = config.StdColour;
-        DestinationColour = config.DestinationColour;
-        PlatformColour = config.PlatformColour;
-        CallingPointsColour = config.CallingPointsColour;
-        CurrentTimeColour = config.CurrentTimeColour;
-        DelayColour = config.DelayColour;
-        OnTimeColour = config.OnTimeColour;
+        StdColour = ColourConverter.IntToHex(config.StdColour);
+        DestinationColour = ColourConverter.IntToHex(config.DestinationColour);
+        PlatformColour = ColourConverter.IntToHex(config.PlatformColour);
+        CallingPointsColour = ColourConverter.IntToHex(config.CallingPointsColour);
+        CurrentTimeColour = ColourConverter.IntToHex(config.CurrentTimeColour);
+        DelayColour = ColourConverter.IntToHex(config.DelayColour);
+        OnTimeColour = ColourConverter.IntToHex(config.OnTimeColour);
         ShowCustomDisplay = config.ShowCustomDisplay;
         MatrixPixels = config.MatrixPixels;
         InitialiseArray();
@@ -119,18 +120,18 @@ public partial class Home : IAsyncDisposable
     {
         if (MatrixPixels == null || MatrixPixels.Length == 0 )
         {
-            MatrixPixels = new string[32][]; 
+            MatrixPixels = new int[32][]; 
         }
 
         for (int i = 0; i < MatrixPixels.Length; i++)
             {
                 if (MatrixPixels[i] == null || MatrixPixels[i].Length == 0)
                 {
-                    MatrixPixels[i] = new string[64];
-                    for (int j = 0; j < MatrixPixels[i].Length; j++)
-                    {
-                        MatrixPixels[i][j] = "#000000";
-                    }
+                    MatrixPixels[i] = new int[64];
+                //     for (int j = 0; j < MatrixPixels[i].Length; j++)
+                //     {
+                //         MatrixPixels[i][j] = new Color(0, 0, 0);
+                //     }
                 }
             }
         InvokeAsync(StateHasChanged);

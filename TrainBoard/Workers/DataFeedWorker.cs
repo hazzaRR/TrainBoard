@@ -7,6 +7,7 @@ using System.Globalization;
 using MQTTnet;
 using System.Text.Json;
 using RPiRgbLEDMatrix;
+using TrainBoard.Utilities;
 
 namespace TrainBoard.Workers;
 
@@ -52,15 +53,15 @@ public class DataFeedWorker : BackgroundService
         {
             _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings);
         }
-        _matrixService.StdColour = ConvertToColour(_config.StdColour);
-        _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
-        _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
-        _matrixService.CallingPointsColour = ConvertToColour(_config.CallingPointsColour);
-        _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
-        _matrixService.DelayColour = ConvertToColour(_config.DelayColour);
-        _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
+        _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
+        _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
+        _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
+        _matrixService.CallingPointsColour = ColourConverter.IntToRgb(_config.CallingPointsColour);
+        _matrixService.CurrentTimeColour = ColourConverter.IntToRgb(_config.CurrentTimeColour);
+        _matrixService.DelayColour = ColourConverter.IntToRgb(_config.DelayColour);
+        _matrixService.OnTimeColour = ColourConverter.IntToRgb(_config.OnTimeColour);
         _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
-        _matrixService.MatrixPixels = ConvertMatrixArrayHexStringToColour(_config.MatrixPixels);
+        _matrixService.MatrixPixels = Flattern2dColourMatrix(_config.MatrixPixels);
 
         SetupMqttEventHandlers(stoppingToken);
         await PublishConfig(stoppingToken);
@@ -145,15 +146,15 @@ public class DataFeedWorker : BackgroundService
             if (e.ApplicationMessage.Topic.Equals("matrix_config"))
             {
                 _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString());
-                _matrixService.StdColour = ConvertToColour(_config.StdColour);
-                _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
-                _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
-                _matrixService.CallingPointsColour = ConvertToColour(_config.CallingPointsColour);
-                _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
-                _matrixService.DelayColour = ConvertToColour( _config.DelayColour);
-                _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
+                _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
+                _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
+                _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
+                _matrixService.CallingPointsColour = ColourConverter.IntToRgb(_config.CallingPointsColour);
+                _matrixService.CurrentTimeColour = ColourConverter.IntToRgb(_config.CurrentTimeColour);
+                _matrixService.DelayColour = ColourConverter.IntToRgb( _config.DelayColour);
+                _matrixService.OnTimeColour = ColourConverter.IntToRgb(_config.OnTimeColour);
                 _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
-                _matrixService.MatrixPixels = ConvertMatrixArrayHexStringToColour(_config.MatrixPixels);
+                _matrixService.MatrixPixels = Flattern2dColourMatrix(_config.MatrixPixels);
                 _logger.LogInformation($"New config recieved: {_config}");
                 try
                 {
@@ -202,66 +203,33 @@ public class DataFeedWorker : BackgroundService
         }
     }
 
-    private Color[] ConvertMatrixArrayHexStringToColour(string[][]? hexstringMatrix)
+    private Color[] Flattern2dColourMatrix(int[][]? colourMatrix)
     {
+        int rows = 32;
+        int cols = 64;
 
-        if (hexstringMatrix == null || hexstringMatrix.Length == 0)
+        if (colourMatrix == null || colourMatrix.Length == 0)
         {
-            hexstringMatrix = new string[32][];
+            colourMatrix = new int[rows][];
         }
 
-        Color[] newMatrix = new Color[32 * 64];
+        Color[] colourArray = new Color[rows * cols];
 
-        for (int i = 0; i < hexstringMatrix.Length; i++)
+        int pixel = 0;
+
+        for (int i = 0; i < cols; i++)
         {
-            if (hexstringMatrix[i] == null || hexstringMatrix[i].Length == 0)
+            for (int j = 0; j < rows; j++)
             {
-                hexstringMatrix[i] = new string[64]; 
-            }
-            for (int j = 0; j < hexstringMatrix[i].Length; j++)
-            {
-                if (hexstringMatrix[i][j] == string.Empty || hexstringMatrix[i][j] == null)
+                if (colourMatrix[i] == null || colourMatrix[i].Length == 0)
                 {
-                    newMatrix[i + j] = new Color(0, 0, 0);
-                    hexstringMatrix[i][j] = "#000000";
+                    colourMatrix[i] = new int[cols];
                 }
-                else
-                {
-                    newMatrix[i + j] = ConvertToColour(hexstringMatrix[i][j]);
-                }
+                colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[i][j]);
+                pixel++;
             }
         }
 
-        return newMatrix;
+        return colourArray;
     }
-
-    private Color ConvertToColour(string hexString)
-    {
-        if (hexString.Length == 7)
-        {
-            string colour = hexString.Replace("#", "");
-            return new Color(Convert.ToInt32(colour.Substring(0, 2), 16), Convert.ToInt32(colour.Substring(2, 2), 16), Convert.ToInt32(colour.Substring(4, 2), 16));
-        }
-
-        if (hexString.Length == 4)
-        {
-            string colour = hexString.Replace("#", "");
-            return new Color(Convert.ToInt32($"{colour[0]}{colour[0]}", 16), Convert.ToInt32($"{colour[1]}{colour[1]}", 16), Convert.ToInt32(Convert.ToInt32($"{colour[2]}{colour[2]}", 16)));
-        }
-        else
-        {
-            return new Color(255, 255, 255);
-        }
-    }
-
-    private string ConvertToColourHex(Color color)
-    {
-        return $"#{color.R.ToString("X2")}{color.G.ToString("X2")}{color.B.ToString("X2")}";
-    }
-
-    
-
 }
-
-
-
