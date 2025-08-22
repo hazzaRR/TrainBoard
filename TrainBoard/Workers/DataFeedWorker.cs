@@ -217,14 +217,14 @@ public class DataFeedWorker : BackgroundService
 
         int pixel = 0;
 
-        for (int col = 0; col < cols; col++)
+        for (int row = 0; row < rows; row++)
         {
-            for (int row = 0; row < rows; row++)
+            if (colourMatrix[row] == null || colourMatrix[row].Length != cols)
             {
-                if (colourMatrix[row] == null || colourMatrix[row].Length != cols)
-                {
-                    colourMatrix[row] = new int[cols];
-                }
+                colourMatrix[row] = new int[cols];
+            }
+            for (int col = 0; col < cols; col++)
+            {
                 colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[row][col]);
                 pixel++;
             }
