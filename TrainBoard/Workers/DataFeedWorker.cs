@@ -221,7 +221,7 @@ public class DataFeedWorker : BackgroundService
         {
             for (int j = 0; j < rows; j++)
             {
-                if (colourMatrix[i] == null || colourMatrix[i].Length == 0)
+                if (colourMatrix[i] == null || colourMatrix[i].Length != cols)
                 {
                     colourMatrix[i] = new int[cols];
                 }
