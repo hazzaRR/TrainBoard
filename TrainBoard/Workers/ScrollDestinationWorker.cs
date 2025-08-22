@@ -28,9 +28,13 @@ public class ScrollDestinationWorker : BackgroundService
             if (_destinationService.IsDestinationScrollable)
             {
                 _destinationService.ScrollTextPos -= 1;
+                await Task.Delay(100, stoppingToken);
+            }
+            else
+            {
+               await Task.Delay(2000, stoppingToken); 
             }
 
-            await Task.Delay(100, stoppingToken);
         }
     }
 }
