@@ -221,10 +221,12 @@ public class DataFeedWorker : BackgroundService
         {
             for (int j = 0; j < rows; j++)
             {
+                _logger.LogInformation($"row = {j}, col = {i}");
                 if (colourMatrix[i] == null || colourMatrix[i].Length != cols)
                 {
                     colourMatrix[i] = new int[cols];
                 }
+                _logger.LogInformation($"colour = {colourMatrix[j][i]}");
                 colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[j][i]);
                 pixel++;
             }
