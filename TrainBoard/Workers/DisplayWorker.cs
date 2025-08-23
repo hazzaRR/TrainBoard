@@ -76,7 +76,7 @@ public class DisplayWorker : BackgroundService
                 _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
             }
 
-            await Task.Delay(30, stoppingToken);
+            await Task.Delay(40, stoppingToken);
         }
     }
 
