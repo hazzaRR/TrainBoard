@@ -7,6 +7,7 @@ using System.Globalization;
 using MQTTnet;
 using System.Text.Json;
 using RPiRgbLEDMatrix;
+using TrainBoard.Utilities;
 
 namespace TrainBoard.Workers;
 
@@ -52,15 +53,15 @@ public class DataFeedWorker : BackgroundService
         {
             _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings);
         }
-        _logger.LogInformation($"string - {_config.StdColour}");
-        _matrixService.StdColour = ConvertToColour(_config.StdColour);
-        _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
-        _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
-        _matrixService.CallingPointsColour = ConvertToColour(_config.CallingPointsColour);
-        _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
-        _matrixService.DelayColour = ConvertToColour(_config.DelayColour);
-        _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
-        _logger.LogInformation($" data feed {_matrixService.StdColour.R}{_matrixService.StdColour.G}{_matrixService.StdColour.B}");
+        _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
+        _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
+        _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
+        _matrixService.CallingPointsColour = ColourConverter.IntToRgb(_config.CallingPointsColour);
+        _matrixService.CurrentTimeColour = ColourConverter.IntToRgb(_config.CurrentTimeColour);
+        _matrixService.DelayColour = ColourConverter.IntToRgb(_config.DelayColour);
+        _matrixService.OnTimeColour = ColourConverter.IntToRgb(_config.OnTimeColour);
+        _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
+        _matrixService.MatrixPixels = Flattern2dColourMatrix(_config.MatrixPixels);
 
         SetupMqttEventHandlers(stoppingToken);
         await PublishConfig(stoppingToken);
@@ -80,10 +81,7 @@ public class DataFeedWorker : BackgroundService
                 GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
 
                 List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
-
-
                 List<string> callingPoints = new List<string>();
-
                 ScreenData service;
 
                 ServiceWithCallingPoints? nextService = services.FirstOrDefault();
@@ -148,13 +146,15 @@ public class DataFeedWorker : BackgroundService
             if (e.ApplicationMessage.Topic.Equals("matrix_config"))
             {
                 _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString());
-                _matrixService.StdColour = ConvertToColour(_config.StdColour);
-                _matrixService.PlatformColour = ConvertToColour(_config.PlatformColour);
-                _matrixService.DestinationColour = ConvertToColour(_config.DestinationColour);
-                _matrixService.CallingPointsColour = ConvertToColour(_config.CallingPointsColour);
-                _matrixService.CurrentTimeColour = ConvertToColour(_config.CurrentTimeColour);
-                _matrixService.DelayColour = ConvertToColour( _config.DelayColour);
-                _matrixService.OnTimeColour = ConvertToColour(_config.OnTimeColour);
+                _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
+                _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
+                _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
+                _matrixService.CallingPointsColour = ColourConverter.IntToRgb(_config.CallingPointsColour);
+                _matrixService.CurrentTimeColour = ColourConverter.IntToRgb(_config.CurrentTimeColour);
+                _matrixService.DelayColour = ColourConverter.IntToRgb( _config.DelayColour);
+                _matrixService.OnTimeColour = ColourConverter.IntToRgb(_config.OnTimeColour);
+                _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
+                _matrixService.MatrixPixels = Flattern2dColourMatrix(_config.MatrixPixels);
                 _logger.LogInformation($"New config recieved: {_config}");
                 try
                 {
@@ -203,33 +203,33 @@ public class DataFeedWorker : BackgroundService
         }
     }
 
-    private Color ConvertToColour(string hexString)
+    private Color[] Flattern2dColourMatrix(int[][]? colourMatrix)
     {
-        if (hexString.Length == 7)
+        int rows = 32;
+        int cols = 64;
+
+        if (colourMatrix == null || colourMatrix.Length == 0)
         {
-            string colour = hexString.Replace("#", "");
-            return new Color(Convert.ToInt32(colour.Substring(0, 2), 16), Convert.ToInt32(colour.Substring(2, 2), 16), Convert.ToInt32(colour.Substring(4, 2), 16));
+            colourMatrix = new int[rows][];
         }
 
-        if (hexString.Length == 4)
+        Color[] colourArray = new Color[rows * cols];
+
+        int pixel = 0;
+
+        for (int row = 0; row < rows; row++)
         {
-            string colour = hexString.Replace("#", "");
-            return new Color(Convert.ToInt32($"{colour[0]}{colour[0]}", 16), Convert.ToInt32($"{colour[1]}{colour[1]}", 16), Convert.ToInt32(Convert.ToInt32($"{colour[2]}{colour[2]}", 16)));
+            if (colourMatrix[row] == null || colourMatrix[row].Length != cols)
+            {
+                colourMatrix[row] = new int[cols];
+            }
+            for (int col = 0; col < cols; col++)
+            {
+                colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[row][col]);
+                pixel++;
+            }
         }
-        else
-        {
-            return new Color(255,255,255);
-        }
+
+        return colourArray;
     }
-
-    private string ConvertToColourHex(Color color)
-    {
-        return $"#{color.R.ToString("X2")}{color.G.ToString("X2")}{color.B.ToString("X2")}";
-    }
-
-    
-
 }
-
-
-

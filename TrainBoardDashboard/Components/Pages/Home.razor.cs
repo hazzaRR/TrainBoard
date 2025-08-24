@@ -3,10 +3,11 @@ using TrainBoardDashboard.Entities;
 using MQTTnet;
 using System.Text.Json;
 using TrainBoardDashboard.Services;
+using TrainBoardDashboard.Utilities;
 
 namespace TrainBoardDashboard;
 
-public partial class Home: IAsyncDisposable
+public partial class Home : IAsyncDisposable
 {
     [Inject]
     private NavigationManager Navigation { get; set; }
@@ -15,9 +16,9 @@ public partial class Home: IAsyncDisposable
     private ILogger<Home> Logger { get; set; }
 
     [Inject]
-    private MqttService MqttService {get; set;}
+    private MqttService MqttService { get; set; }
     [Inject]
-    private StationService StationService {get; set;}
+    private StationService StationService { get; set; }
     private int NumRows { get; set; } = 1;
     private string Crs { get; set; } = "COL";
     private string FilterCrs { get; set; } = "";
@@ -32,15 +33,18 @@ public partial class Home: IAsyncDisposable
     private string DelayColour { get; set; } = "#ff0f00";
     private string OnTimeColour { get; set; } = "#00ff00";
     private bool ShowAlert { get; set; } = false;
+    private bool ShowCustomDisplay { get; set; } = false;
+    public int[][] MatrixPixels { get; set; } = new int[32][];
     private List<Station> Stations { get; set; } = [];
 
 
     protected override async Task OnInitializedAsync()
     {
-
+        InitialiseArray();
         MqttService.OnMessageReceived += UpdateConfiguration;
         UpdateConfiguration(MqttService.CurrentConfig);
         Stations = await StationService.GetStationsAsync();
+
 
         await base.OnInitializedAsync();
     }
@@ -60,8 +64,6 @@ public partial class Home: IAsyncDisposable
         CurrentTimeColour = "#ffa000";
         DelayColour = "#ff0f00";
         OnTimeColour = "#00ff00";
-
-        await UpdateMatrixConfig();
     }
     protected async Task UpdateMatrixConfig()
     {
@@ -73,13 +75,15 @@ public partial class Home: IAsyncDisposable
             FilterType = FilterType,
             TimeOffset = TimeOffset,
             TimeWindow = TimeWindow,
-            StdColour = StdColour,
-            DestinationColour = DestinationColour,
-            PlatformColour = PlatformColour,
-            CallingPointsColour = CallingPointsColour,
-            CurrentTimeColour = CurrentTimeColour,
-            DelayColour = DelayColour,
-            OnTimeColour = OnTimeColour
+            StdColour = ColourConverter.HexToInt(StdColour),
+            DestinationColour = ColourConverter.HexToInt(DestinationColour),
+            PlatformColour = ColourConverter.HexToInt(PlatformColour),
+            CallingPointsColour = ColourConverter.HexToInt(CallingPointsColour),
+            CurrentTimeColour = ColourConverter.HexToInt(CurrentTimeColour),
+            DelayColour = ColourConverter.HexToInt(DelayColour),
+            OnTimeColour = ColourConverter.HexToInt(OnTimeColour),
+            ShowCustomDisplay = ShowCustomDisplay,
+            MatrixPixels = MatrixPixels,
         };
 
 
@@ -90,7 +94,7 @@ public partial class Home: IAsyncDisposable
         await Task.Delay(10000);
         ShowAlert = false;
     }
-    
+
     protected void UpdateConfiguration(RgbMatrixConfiguration config)
     {
         NumRows = config.NumRows;
@@ -99,25 +103,48 @@ public partial class Home: IAsyncDisposable
         FilterType = config.FilterType;
         TimeOffset = config.TimeOffset;
         TimeWindow = config.TimeWindow;
-        StdColour = config.StdColour;
-        DestinationColour = config.DestinationColour;
-        PlatformColour = config.PlatformColour;
-        CallingPointsColour = config.CallingPointsColour;
-        CurrentTimeColour = config.CurrentTimeColour;
-        DelayColour = config.DelayColour;
-        OnTimeColour = config.OnTimeColour;
-
+        StdColour = ColourConverter.IntToHex(config.StdColour);
+        DestinationColour = ColourConverter.IntToHex(config.DestinationColour);
+        PlatformColour = ColourConverter.IntToHex(config.PlatformColour);
+        CallingPointsColour = ColourConverter.IntToHex(config.CallingPointsColour);
+        CurrentTimeColour = ColourConverter.IntToHex(config.CurrentTimeColour);
+        DelayColour = ColourConverter.IntToHex(config.DelayColour);
+        OnTimeColour = ColourConverter.IntToHex(config.OnTimeColour);
+        ShowCustomDisplay = config.ShowCustomDisplay;
+        MatrixPixels = config.MatrixPixels;
+        InitialiseArray();
         InvokeAsync(StateHasChanged);
     }
 
+    protected void InitialiseArray()
+    {
+        if (MatrixPixels == null || MatrixPixels.Length == 0 )
+        {
+            MatrixPixels = new int[32][]; 
+        }
+
+        for (int i = 0; i < MatrixPixels.Length; i++)
+            {
+                if (MatrixPixels[i] == null || MatrixPixels[i].Length == 0)
+                {
+                    MatrixPixels[i] = new int[64];
+                //     for (int j = 0; j < MatrixPixels[i].Length; j++)
+                //     {
+                //         MatrixPixels[i][j] = new Color(0, 0, 0);
+                //     }
+                }
+            }
+        InvokeAsync(StateHasChanged);
+    }
     public async ValueTask DisposeAsync()
     {
-    if (MqttService != null)
-    {
-        MqttService.OnMessageReceived -= UpdateConfiguration;
-    }
+        if (MqttService != null)
+        {
+            MqttService.OnMessageReceived -= UpdateConfiguration;
+        }
 
-    GC.SuppressFinalize(this);
-    await Task.CompletedTask;
+
+        GC.SuppressFinalize(this);
+        await Task.CompletedTask;
     }
 }

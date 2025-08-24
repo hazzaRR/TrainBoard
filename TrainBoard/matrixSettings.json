@@ -5,11 +5,11 @@
     "filterType": "to",
     "timeOffset" : 2,
     "timeWindow" : 120,
-    "stdColour" : "#ffa000",
-    "PlatformColour" : "#ffa000",
-    "destinationColour" : "#ffa000",
-    "callingPointsColour" : "#ffa000",
-    "currentTimeColour" : "#ffa000",
-    "delayColour" : "#ff0f00",
-    "onTimeColour" : "#00ff00"
+    "stdColour" : 16758784,
+    "PlatformColour" : 16758784,
+    "destinationColour" : 16758784,
+    "callingPointsColour" : 16758784,
+    "currentTimeColour" : 16758784,
+    "delayColour" : 16711680,
+    "onTimeColour" : 65280
 }
