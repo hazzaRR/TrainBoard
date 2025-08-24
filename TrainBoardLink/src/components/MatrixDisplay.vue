@@ -27,21 +27,13 @@
 
 <script setup>
 import { ref } from 'vue';
+import { hexToInt, intToHex } from '@/utils/ColourConverter';
 const cols = 64;
 const rows = 32;
 
 const matrixPixels = defineModel('matrixPixels', {type: Array})
 
 const selectedColor = ref("#ff0000");
-
-const intToHex = (colourInt) => {
-    return `#${(Number(colourInt).toString(16)).padStart(6, '0')}`;
-}
-
-const hexToInt = (hexString) => {
-    hexString = hexString.replace('#', '');
-    return parseInt(hexString, 16);
-}
 
 const setPixelColor = (row, col) => {
     matrixPixels.value[row][col] = hexToInt(selectedColor.value);

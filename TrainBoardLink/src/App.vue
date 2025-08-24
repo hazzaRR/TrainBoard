@@ -190,8 +190,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import MatrixDisplay from './components/MatrixDisplay.vue';
+import mqtt from 'mqtt';
+import { intToHex, hexToInt } from './utils/ColourConverter';
 
 const showAlert = ref(false);
 const showCustomDisplay = ref(false);
@@ -210,6 +212,62 @@ const delayColour = ref("#ff0f00");
 const onTimeColour = ref("#00ff00");
 const stations = ref([]);
 const matrixPixels = ref([]);
+
+const status = ref('Connecting...');
+const message = ref('');
+let client = null; // Use a regular variable for the client instance
+
+const connectToBroker = () => {
+  const host = 'ws://pizero.local:9001';
+  const topic = 'matrix_config';
+  
+  try {
+    client = mqtt.connect(host);
+
+    client.on('connect', () => {
+      status.value = 'Connected!';
+      console.log('Connected to MQTT broker!');
+      
+      client.subscribe(topic, (err) => {
+        if (!err) {
+          console.log(`Subscribed to topic: ${topic}`);
+        }
+      });
+    });
+
+    client.on('message', (receivedTopic, payload) => {
+      if (receivedTopic === topic) {
+        message.value = payload.toString();
+        console.log(`Received message: ${message.value}`);
+        updateConfiguration(JSON.parse(JSON.stringify(payload.toString())));
+      }
+    });
+
+    client.on('error', (err) => {
+      status.value = `Error: ${err.message}`;
+      console.error('MQTT error:', err);
+    });
+
+    client.on('close', () => {
+      status.value = 'Disconnected.';
+      console.log('Disconnected from MQTT broker.');
+    });
+
+  } catch (err) {
+    status.value = `Failed to connect: ${err.message}`;
+    console.error('Connection failed:', err);
+  }
+};
+
+onMounted(() => {
+  connectToBroker();
+});
+
+onBeforeUnmount(() => {
+  if (client) {
+    client.end();
+  }
+});
 
 const resetMatrixConfig = () => {
   numRows.value = 1;
@@ -246,7 +304,11 @@ const updateMatrixConfig = async () => {
       "matrixPixels": matrixPixels.value
     };
     
-    // await MqttService.PublishAsync("matrix_config", newConfiguration);
+    client.publish(topic, JSON.stringify(newConfiguration), { qos: 0, retain: 1 }, (error) => {
+      if (error) {
+        console.error(error);
+      }
+    })
     
   showAlert.value = true;
   setTimeout(() => {
@@ -255,6 +317,7 @@ const updateMatrixConfig = async () => {
 }
 
 const updateConfiguration = (config) => {
+  console.log(config)
   numRows.value = config.numRows;
   crs.value = config.crs;
   filterCrs.value = config.filterCrs;
