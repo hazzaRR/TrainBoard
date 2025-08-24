@@ -27,7 +27,7 @@ public class ScrollCallingPointsWorker : BackgroundService
                     _callingPointService.IsScrollComplete = true;
                     await Task.Delay(1000, stoppingToken);
                 }
-            await Task.Delay(40, stoppingToken);
+            await Task.Delay(50, stoppingToken);
         }
     }
 }

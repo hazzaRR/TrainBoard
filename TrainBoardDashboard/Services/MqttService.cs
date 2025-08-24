@@ -82,7 +82,12 @@ public class MqttService : BackgroundService
             {
                 try
                 {
-                    CurrentConfig = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString());
+                    var serializeOptions = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                        WriteIndented = true
+                    };
+                    CurrentConfig = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
 
                     OnMessageReceived?.Invoke(CurrentConfig);
                     _logger.LogInformation("Configuration Received and processed.");

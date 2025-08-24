@@ -20,6 +20,11 @@ public class DataFeedWorker : BackgroundService
     private readonly IMqttClient _mqttClient;
     private readonly MqttClientOptions _options;
     private RgbMatrixConfiguration _config;
+    private JsonSerializerOptions serializeOptions = new JsonSerializerOptions
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true
+    };
 
     public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache, ILdbwsClient client)
     {
@@ -47,11 +52,11 @@ public class DataFeedWorker : BackgroundService
         {
             _config = new();
             _logger.LogInformation($"No matrix settings found, writing default settings to file");
-            await File.WriteAllTextAsync("./matrixSettings.json", JsonSerializer.Serialize(_config), stoppingToken);
+            await File.WriteAllTextAsync("./matrixSettings.json", JsonSerializer.Serialize(_config, serializeOptions), stoppingToken);
         }
         else
         {
-            _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings);
+            _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings, serializeOptions);
         }
         _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
         _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
@@ -145,7 +150,7 @@ public class DataFeedWorker : BackgroundService
         {
             if (e.ApplicationMessage.Topic.Equals("matrix_config"))
             {
-                _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString());
+                _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
                 _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
                 _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
                 _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
@@ -187,11 +192,12 @@ public class DataFeedWorker : BackgroundService
     {
         try 
         {
+            
             await _mqttClient.ConnectAsync(_options, stoppingToken);
 
             var applicationMessage = new MqttApplicationMessageBuilder()
             .WithTopic("matrix_config")
-            .WithPayload(JsonSerializer.Serialize(_config))
+            .WithPayload(JsonSerializer.Serialize(_config, serializeOptions))
             .WithRetainFlag()
             .Build();
 

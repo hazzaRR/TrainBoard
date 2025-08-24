@@ -216,10 +216,10 @@ const matrixPixels = ref([]);
 const status = ref('Connecting...');
 const message = ref('');
 let client = null; // Use a regular variable for the client instance
+const host = 'ws://pizero.local:9001';
+const topic = 'matrix_config';
 
 const connectToBroker = () => {
-  const host = 'ws://pizero.local:9001';
-  const topic = 'matrix_config';
   
   try {
     client = mqtt.connect(host);
@@ -293,13 +293,13 @@ const updateMatrixConfig = async () => {
     "filterType": filterType.value,
       "timeOffset": timeOffset.value,
       "timeWindow": timeWindow.value,
-      "StdColour": HexToInt(stdColour.value),
-      "destinationColour": HexToInt(destinationColour.value),
-      "platformColour": HexToInt(platformColour.value),
-      "callingPointsColour": HexToInt(callingPointsColour.value),
-      "currentTimeColour": HexToInt(currentTimeColour.value),
-      "delayColour": HexToInt(delayColour.value),
-      "onTimeColour": HexToInt(onTimeColour.value),
+      "StdColour": hexToInt(stdColour.value),
+      "destinationColour": hexToInt(destinationColour.value),
+      "platformColour": hexToInt(platformColour.value),
+      "callingPointsColour": hexToInt(callingPointsColour.value),
+      "currentTimeColour": hexToInt(currentTimeColour.value),
+      "delayColour": hexToInt(delayColour.value),
+      "onTimeColour": hexToInt(onTimeColour.value),
       "showCustomDisplay": showCustomDisplay.value,
       "matrixPixels": matrixPixels.value
     };
@@ -317,7 +317,6 @@ const updateMatrixConfig = async () => {
 }
 
 const updateConfiguration = (config) => {
-  console.log(config)
   numRows.value = config.numRows;
   crs.value = config.crs;
   filterCrs.value = config.filterCrs;
