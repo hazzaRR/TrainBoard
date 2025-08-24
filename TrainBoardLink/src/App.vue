@@ -1,9 +1,5 @@
 <template>
   <div class="container mb-5">
-    <div v-if="showAlert" class="alert alert-success alert-dismissible fade show" role="alert">
-      <strong>Matrix settings sent</strong> The board will update within the
-      next 30 seconds
-    </div>
     <div class="card m-4">
       <div class="card-header">
         <h1 class="text-center card-title fw-bold my-auto">
@@ -11,6 +7,10 @@
         </h1>
       </div>
       <div class="card-body w-100 mx-auto">
+        <div v-if="showAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+          <strong>Matrix settings sent</strong> The board will update within the
+          next 30 seconds
+        </div>
         <div class="form-floating mb-3">
           <input
             type="number"
@@ -239,7 +239,7 @@ const connectToBroker = () => {
       if (receivedTopic === topic) {
         message.value = payload.toString();
         console.log(`Received message: ${message.value}`);
-        updateConfiguration(JSON.parse(JSON.stringify(payload.toString())));
+        updateConfiguration(JSON.parse(payload.toString()));
       }
     });
 
@@ -293,7 +293,7 @@ const updateMatrixConfig = async () => {
     "filterType": filterType.value,
       "timeOffset": timeOffset.value,
       "timeWindow": timeWindow.value,
-      "StdColour": hexToInt(stdColour.value),
+      "stdColour": hexToInt(stdColour.value),
       "destinationColour": hexToInt(destinationColour.value),
       "platformColour": hexToInt(platformColour.value),
       "callingPointsColour": hexToInt(callingPointsColour.value),
