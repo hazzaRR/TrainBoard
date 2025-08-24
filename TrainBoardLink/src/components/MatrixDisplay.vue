@@ -57,7 +57,7 @@ const clearMatrix = () => {
 <style lang="scss" scoped>
 .pixel-matrix {
   display: grid;
-//   grid-template-columns: repeat(var(--cols), 1fr);
+  // grid-template-columns: repeat(var(--cols), 1fr);
   width: fit-content;
 //   width: calc((15px * var(--cols)) + (2px * (var(--cols) - 1)) + 2px);
 //   grid-gap: 1px;
@@ -66,8 +66,8 @@ const clearMatrix = () => {
 }
 
 .pixel {
-  width: 15px !important;
-  height: 15px !important;
+  width: 1rem !important;
+  height: 1rem !important;
   margin: 1px;
   aspect-ratio: 1 / 1;
   border: 1px solid #ccc;
@@ -79,6 +79,7 @@ const clearMatrix = () => {
 }
 
 .matrix-container {
-  height: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
 }
 </style>
