@@ -18,10 +18,10 @@
         ></div>
     </div>
     </div>
-    <div class="container mx-auto">
-      <input type="color" v-model="selectedColor" />
+    <div class="mx-auto d-flex align-items-center me-4 mt-2 justify-content-end">
+      <input type="color" class="form-control form-control-color" v-model="selectedColor" />
       <button @click="clearMatrix" class="btn btn-danger">Clear</button>
-    </div>
+  </div>
   </div>
 </template>
 
