@@ -18,8 +18,11 @@
         ></div>
     </div>
     </div>
-    <div class="mx-auto d-flex align-items-center me-4 mt-2 justify-content-end">
-      <input type="color" class="form-control form-control-color" v-model="selectedColor" />
+    <div class="mx-auto d-flex align-items-center ms-4 mt-2 justify-content-start">
+      <button class="btn btn-primary me-1" type="button" @click="open">
+        Upload Image
+      </button>
+      <input type="color" class="form-control form-control-color me-1" v-model="selectedColor" />
       <button @click="clearMatrix" class="btn btn-danger">Clear</button>
   </div>
   </div>
@@ -28,6 +31,7 @@
 <script setup>
 import { ref } from 'vue';
 import { hexToInt, intToHex } from '@/utils/ColourConverter';
+import { useFileDialog } from '@vueuse/core'
 const cols = 64;
 const rows = 32;
 
@@ -51,6 +55,57 @@ const clearMatrix = () => {
     }
   }
 }
+
+const { files, open, reset, onCancel, onChange } = useFileDialog({
+  accept: 'image/*',
+})
+
+onChange((files) => {
+  const file = files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      processImage(img);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+})
+
+onCancel(() => {
+  /** do something on cancel */
+})
+
+const processImage = (img) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = cols;
+  canvas.height = rows;
+  const ctx = canvas.getContext('2d');
+
+  ctx.drawImage(img, 0, 0, cols, rows);
+
+  const imageData = ctx.getImageData(0, 0, cols, rows).data;
+
+  const pixels = [];
+  for (let i = 0; i < imageData.length; i += 4) {
+    const r = imageData[i];
+    const g = imageData[i + 1];
+    const b = imageData[i + 2];
+    const a = imageData[i + 3];
+
+    const intValue = (r << 16) | (g << 8) | b;
+
+    // Calculate the row and column from the 1D index
+    const pixelIndex = i / 4;
+    const row = Math.floor(pixelIndex / cols);
+    const col = pixelIndex % cols;
+
+    matrixPixels.value[row][col] = intValue;
+  }
+};
 
 </script>
 
