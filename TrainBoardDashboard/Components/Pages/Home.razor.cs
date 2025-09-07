@@ -37,7 +37,6 @@ public partial class Home : IAsyncDisposable
     public int[][] MatrixPixels { get; set; } = new int[32][];
     private List<Station> Stations { get; set; } = [];
 
-
     protected override async Task OnInitializedAsync()
     {
         InitialiseArray();
@@ -86,8 +85,13 @@ public partial class Home : IAsyncDisposable
             MatrixPixels = MatrixPixels,
         };
 
+        var serializeOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true
+        };
 
-        var payload = JsonSerializer.Serialize(newConfiguration);
+        var payload = JsonSerializer.Serialize(newConfiguration, serializeOptions);
         await MqttService.PublishAsync("matrix_config", payload);
 
         ShowAlert = true;
