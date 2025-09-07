@@ -23,6 +23,7 @@
     <ProjectReference Include="../RPiRgbLEDMatrix/RPiRgbLEDMatrix.csproj" />
     <ProjectReference Include="../OpenLDBWS/OpenLDBWS.csproj" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1-*" />
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.2" />
     <PackageReference Include="MQTTnet" Version="5.0.1.1416" />
   </ItemGroup>
 </Project>

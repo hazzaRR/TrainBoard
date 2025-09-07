@@ -6,8 +6,6 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using MQTTnet;
 using System.Text.Json;
-using RPiRgbLEDMatrix;
-using TrainBoard.Utilities;
 
 namespace TrainBoard.Workers;
 
@@ -16,6 +14,7 @@ public class DataFeedWorker : BackgroundService
     private readonly ILogger<DataFeedWorker> _logger;
     private readonly IMemoryCache _cache;
     private readonly IRgbMatrixService _matrixService;
+    private readonly INetworkConnectivityService _networkConnectivityService;
     private readonly ILdbwsClient _client;
     private readonly IMqttClient _mqttClient;
     private readonly MqttClientOptions _options;
@@ -26,10 +25,11 @@ public class DataFeedWorker : BackgroundService
         WriteIndented = true
     };
 
-    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache, ILdbwsClient client)
+    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, INetworkConnectivityService networkConnectivityService, IMemoryCache cache, ILdbwsClient client)
     {
         _logger = logger;
         _matrixService = matrixService;
+        _networkConnectivityService = networkConnectivityService;
         _cache = cache;
         _client = client;
 
@@ -58,15 +58,7 @@ public class DataFeedWorker : BackgroundService
         {
             _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings, serializeOptions);
         }
-        _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
-        _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
-        _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
-        _matrixService.CallingPointsColour = ColourConverter.IntToRgb(_config.CallingPointsColour);
-        _matrixService.CurrentTimeColour = ColourConverter.IntToRgb(_config.CurrentTimeColour);
-        _matrixService.DelayColour = ColourConverter.IntToRgb(_config.DelayColour);
-        _matrixService.OnTimeColour = ColourConverter.IntToRgb(_config.OnTimeColour);
-        _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
-        _matrixService.MatrixPixels = Flattern2dColourMatrix(_config.MatrixPixels);
+        _matrixService.SetUserOptions(_config);
 
         SetupMqttEventHandlers(stoppingToken);
         await PublishConfig(stoppingToken);
@@ -79,60 +71,10 @@ public class DataFeedWorker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-
             if (_matrixService.IsInitialised)
             {
-
-                GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
-
-                List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
-                List<string> callingPoints = new List<string>();
-                ScreenData service;
-
-                ServiceWithCallingPoints? nextService = services.FirstOrDefault();
-
-                if (nextService != null)
-                {
-                    for (int i = 0; i < nextService.SubsequentCallingPoints.CallingPoints.Count; i++)
-                    {
-                        callingPoints.Add($" {nextService.SubsequentCallingPoints.CallingPoints[i].LocationName} ({nextService.SubsequentCallingPoints.CallingPoints[i].St})");
-                    }
-
-                    string destination = "";
-                    stationAliases.TryGetValue(nextService.Destination[0].LocationName, out destination);
-
-                    service = new()
-                    {
-                        Std = nextService.Std,
-                        Etd = nextService.Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
-                        nextService.Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
-                        nextService.Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ? 
-                        textInfo.ToTitleCase(nextService.Etd) : $"Exp.{nextService.Etd}",
-                        Platform = $"Plat {nextService.Platform}",
-                        Destination = !string.IsNullOrEmpty(destination) ? destination : nextService.Destination[0].LocationName,
-                        CallingPoints = string.Join(",", callingPoints),
-                        IsCancelled = nextService.IsCancelled,
-                        DelayReason = nextService.DelayReason,
-                    };
-
-                }
-                else 
-                {
-                    service = new()
-                    {
-                        NoServices = true
-                    };
-                }
-
-                    _cache.Set("departureBoard", service);
-
-
+                await GetNewDepartureBoardDetails(textInfo, stationAliases, stoppingToken);
             }
-
-            // if (_logger.IsEnabled(LogLevel.Information))
-            // {
-            //     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            // }
 
             await Task.Delay(30000, stoppingToken);
         }
@@ -151,15 +93,7 @@ public class DataFeedWorker : BackgroundService
             if (e.ApplicationMessage.Topic.Equals("matrix_config"))
             {
                 _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
-                _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
-                _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
-                _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
-                _matrixService.CallingPointsColour = ColourConverter.IntToRgb(_config.CallingPointsColour);
-                _matrixService.CurrentTimeColour = ColourConverter.IntToRgb(_config.CurrentTimeColour);
-                _matrixService.DelayColour = ColourConverter.IntToRgb( _config.DelayColour);
-                _matrixService.OnTimeColour = ColourConverter.IntToRgb(_config.OnTimeColour);
-                _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
-                _matrixService.MatrixPixels = Flattern2dColourMatrix(_config.MatrixPixels);
+                _matrixService.SetUserOptions(_config);
                 _logger.LogInformation($"New config recieved: {_config}");
                 try
                 {
@@ -188,11 +122,57 @@ public class DataFeedWorker : BackgroundService
 
     }
 
+    private async Task GetNewDepartureBoardDetails(TextInfo textInfo, Dictionary<string, string> stationAliases, CancellationToken stoppingToken)
+    {
+        GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
+
+        List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
+        List<string> callingPoints = new List<string>();
+        ScreenData service;
+
+        ServiceWithCallingPoints? nextService = services.FirstOrDefault();
+
+        if (nextService != null)
+        {
+            for (int i = 0; i < nextService.SubsequentCallingPoints.CallingPoints.Count; i++)
+            {
+                callingPoints.Add($" {nextService.SubsequentCallingPoints.CallingPoints[i].LocationName} ({nextService.SubsequentCallingPoints.CallingPoints[i].St})");
+            }
+
+            string destination = "";
+            stationAliases.TryGetValue(nextService.Destination[0].LocationName, out destination);
+
+            service = new()
+            {
+                Std = nextService.Std,
+                Etd = nextService.Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
+                nextService.Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
+                nextService.Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ? 
+                textInfo.ToTitleCase(nextService.Etd) : $"Exp.{nextService.Etd}",
+                Platform = $"Plat {nextService.Platform}",
+                Destination = !string.IsNullOrEmpty(destination) ? destination : nextService.Destination[0].LocationName,
+                CallingPoints = string.Join(",", callingPoints),
+                IsCancelled = nextService.IsCancelled,
+                DelayReason = nextService.DelayReason,
+            };
+
+        }
+        else 
+        {
+            service = new()
+            {
+                NoServices = true
+            };
+        }
+
+        _cache.Set("departureBoard", service);
+    }
+
     private async Task PublishConfig(CancellationToken stoppingToken)
     {
-        try 
+        try
         {
-            
+
             await _mqttClient.ConnectAsync(_options, stoppingToken);
 
             var applicationMessage = new MqttApplicationMessageBuilder()
@@ -207,35 +187,5 @@ public class DataFeedWorker : BackgroundService
         {
             _logger.LogError($"Connection failed: {ex.Message}");
         }
-    }
-
-    private Color[] Flattern2dColourMatrix(int[][]? colourMatrix)
-    {
-        int rows = 32;
-        int cols = 64;
-
-        if (colourMatrix == null || colourMatrix.Length == 0)
-        {
-            colourMatrix = new int[rows][];
-        }
-
-        Color[] colourArray = new Color[rows * cols];
-
-        int pixel = 0;
-
-        for (int row = 0; row < rows; row++)
-        {
-            if (colourMatrix[row] == null || colourMatrix[row].Length != cols)
-            {
-                colourMatrix[row] = new int[cols];
-            }
-            for (int col = 0; col < cols; col++)
-            {
-                colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[row][col]);
-                pixel++;
-            }
-        }
-
-        return colourArray;
     }
 }

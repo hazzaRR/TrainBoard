@@ -1,4 +1,5 @@
 using RPiRgbLEDMatrix;
+using TrainBoard.Entities;
 
 namespace TrainBoard.Services;
 
@@ -19,5 +20,6 @@ public interface IRgbMatrixService
     Color OnTimeColour { get; set; }
     bool ShowCustomDisplay { get; set; }
     Color[] MatrixPixels { get; set; }
+    void SetUserOptions(RgbMatrixConfiguration config);
 }
 
