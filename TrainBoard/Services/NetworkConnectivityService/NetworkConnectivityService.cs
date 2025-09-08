@@ -12,7 +12,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
     public ObjectPath hotspotPath { get; set; }
     public Dictionary<string, AvailableNetwork> AvailableNetworks { get; set; } = [];
 
-    private NetworkConnectivityService(ILogger<NetworkConnectivityService> logger)
+    public NetworkConnectivityService(ILogger<NetworkConnectivityService> logger)
     {
         _logger = logger;
     }
