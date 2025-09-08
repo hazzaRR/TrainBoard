@@ -1,4 +1,3 @@
-using RPiRgbLEDMatrix;
 using Tmds.DBus.Protocol;
 
 namespace TrainBoard.Entities;

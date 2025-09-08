@@ -14,6 +14,7 @@ public class RgbMatrixService : IRgbMatrixService
     public int FontWidth { get; private set; }
     public int FontHeight { get; private set; }
     public bool IsInitialised { get; private set; } = false;
+    public bool IsInParingMode { get; set; } = false;
     public Color StdColour { get; set; } = new Color(255, 160, 0);
     public Color PlatformColour { get; set; } = new Color(255, 160, 0);
     public Color DestinationColour { get; set; } = new Color(255, 160, 0);

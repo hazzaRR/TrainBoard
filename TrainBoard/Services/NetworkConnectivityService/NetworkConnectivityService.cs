@@ -9,7 +9,8 @@ public class NetworkConnectivityService : INetworkConnectivityService
 
     private readonly ILogger<NetworkConnectivityService> _logger;
     public bool IsOnline { get; set; }
-    public ObjectPath hotspotPath { get; set; }
+    public ObjectPath HotspotPath { get; set; }
+    public Dictionary<string, ObjectPath> SavedConnections { get; set; }
     public Dictionary<string, AvailableNetwork> AvailableNetworks { get; set; } = [];
 
     private NetworkConnectivityService(ILogger<NetworkConnectivityService> logger)
@@ -57,7 +58,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
         return string.Join(" ", security);
     }
 
-    async Task<bool> IsInternetConnected(int retries, TimeSpan delay)
+    public async Task IsInternetConnected(int retries, TimeSpan delay)
     {
         using (var httpClient = new HttpClient())
         {
@@ -70,7 +71,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
 
                     if (response.IsSuccessStatusCode)
                     {
-                        return true;
+                        IsOnline = true;
                     }
                 }
                 catch (Exception)
@@ -79,11 +80,14 @@ public class NetworkConnectivityService : INetworkConnectivityService
                 await Task.Delay(delay);
             }
         }
-        return false;
     }
 
-    public async Task AddNewConnection(NetworkManagerService nmService, Settings settingsService, NetworkManager.DBus.NetworkManager networkManager, string ssid, string password, ObjectPath wirelessDevicePath, ObjectPath apPath)
+    public async Task AddNewConnection(Tmds.DBus.Protocol.Connection connection, string ssid, string password, ObjectPath apPath)
     {
+        NetworkManagerService nmService = new NetworkManagerService(connection, "org.freedesktop.NetworkManager");
+        NetworkManager.DBus.NetworkManager networkManager = nmService.CreateNetworkManager("/org/freedesktop/NetworkManager");
+        ObjectPath wirelessDevicePath = await networkManager.GetDeviceByIpIfaceAsync("wlan0");
+        Settings settingsService = nmService.CreateSettings("/org/freedesktop/NetworkManager/Settings");
         var wifiSettings = new Dictionary<string, Dictionary<string, VariantValue>>
         {
             ["connection"] = new Dictionary<string, VariantValue>
@@ -125,11 +129,14 @@ public class NetworkConnectivityService : INetworkConnectivityService
         _logger.LogInformation($"Connection activated: {activeConn}");
     }
 
-    public async Task<(Dictionary<string, ObjectPath> savedConnections, ObjectPath? hotspotConnPath)> GetSavedConnections(NetworkManagerService nmService, Settings settingsService)
+    public async Task GetSavedConnections(Tmds.DBus.Protocol.Connection connection)
     {
+
+        NetworkManagerService nmService = new NetworkManagerService(connection, "org.freedesktop.NetworkManager");
+        Settings settingsService = nmService.CreateSettings("/org/freedesktop/NetworkManager/Settings");
+
         var savedConnections = new Dictionary<string, ObjectPath>();
         ObjectPath[] allSavedConnections = await settingsService.ListConnectionsAsync();
-        ObjectPath? hotspotConnPath = null;
 
         foreach (var connPath in allSavedConnections)
         {
@@ -142,10 +149,11 @@ public class NetworkConnectivityService : INetworkConnectivityService
                 settings.TryGetValue("802-11-wireless", out var wifiSection) &&
                 wifiSection.TryGetValue("ssid", out var ssidValue))
             {
+                //fetch from appSettings for ssid
                 string ssid = Encoding.UTF8.GetString(ssidValue.GetArray<byte>());
-                if (ssid == "harry_pi")
+                if (ssid == "BRboard")
                 {
-                    hotspotConnPath = connPath;
+                    HotspotPath = connPath;
                     break;
                 }
                 else if (!savedConnections.ContainsKey(ssid))
@@ -154,15 +162,20 @@ public class NetworkConnectivityService : INetworkConnectivityService
                 }
             }
         }
-
-        return (savedConnections, hotspotConnPath);
+        SavedConnections = savedConnections;
     }
 
-    public async Task<Dictionary<string, AvailableNetwork>> GetAvailableNetworks(NetworkManagerService nmService, Wireless wirelessDevice, Dictionary<string, ObjectPath> savedConnections)
+    public async Task GetAvailableNetworks(Tmds.DBus.Protocol.Connection connection)
     {
+
+        NetworkManagerService nmService = new NetworkManagerService(connection, "org.freedesktop.NetworkManager");
+        NetworkManager.DBus.NetworkManager networkManager = nmService.CreateNetworkManager("/org/freedesktop/NetworkManager");
+        ObjectPath wlan0Path = await networkManager.GetDeviceByIpIfaceAsync("wlan0");
+        Wireless wirelessDevice = nmService.CreateWireless(wlan0Path);
+
         _logger.LogInformation("Scanning for available Wi-Fi networks...");
         await wirelessDevice.RequestScanAsync(new Dictionary<string, VariantValue>());
-        await Task.Delay(5000);
+        // await Task.Delay(5000); //Is this even need anymore??
         _logger.LogInformation("Scan complete. Retrieving access points...");
 
         ObjectPath[] availableAccessPointsPaths = await wirelessDevice.GetAccessPointsAsync();
@@ -189,7 +202,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
                 Signal = strength,
                 Bars = GetSignalBars(strength),
                 Security = GetSecurityString((NM80211ApSecurityFlags)await accessPoint.GetRsnFlagsAsync() | (NM80211ApSecurityFlags)await accessPoint.GetWpaFlagsAsync() | (NM80211ApSecurityFlags)await accessPoint.GetFlagsAsync()),
-                IsSaved = savedConnections.ContainsKey(ssid),
+                IsSaved = SavedConnections.ContainsKey(ssid),
                 IsActive = apPath == activeApPath,
                 ApPath = apPath
             };
@@ -198,6 +211,42 @@ public class NetworkConnectivityService : INetworkConnectivityService
 
         }
 
-        return combinedNetworks;
+        AvailableNetworks = combinedNetworks;
+    }
+    public async Task JoinSavedNetwork(Tmds.DBus.Protocol.Connection connection, ObjectPath savedConnPath)
+    {
+
+        NetworkManagerService nmService = new NetworkManagerService(connection, "org.freedesktop.NetworkManager");
+        NetworkManager.DBus.NetworkManager networkManager = nmService.CreateNetworkManager("/org/freedesktop/NetworkManager");
+        ObjectPath wlan0Path = await networkManager.GetDeviceByIpIfaceAsync("wlan0");
+
+        var activeConn = await networkManager.ActivateConnectionAsync(
+            savedConnPath,
+            wlan0Path,
+            savedConnPath
+        );
+        _logger.LogInformation($"Connection activated: {activeConn}");
+    }
+
+    public async Task EnableHotspot(Tmds.DBus.Protocol.Connection connection)
+    {
+
+        NetworkManagerService nmService = new NetworkManagerService(connection, "org.freedesktop.NetworkManager");
+        NetworkManager.DBus.NetworkManager networkManager = nmService.CreateNetworkManager("/org/freedesktop/NetworkManager");
+        ObjectPath wlan0Path = await networkManager.GetDeviceByIpIfaceAsync("wlan0");
+
+        try
+        {
+            await networkManager.ActivateConnectionAsync(
+                HotspotPath,
+                wlan0Path,
+                null!
+            );
+            _logger.LogInformation("Hotspot activated. Connect to it from another device.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Failed to activate hotspot: {ex.Message}");
+        }
     }
 }
