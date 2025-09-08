@@ -6,6 +6,8 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using MQTTnet;
 using System.Text.Json;
+using NetworkManager.DBus;
+using Tmds.DBus.Protocol;
 
 namespace TrainBoard.Workers;
 
@@ -19,6 +21,9 @@ public class DataFeedWorker : BackgroundService
     private readonly IMqttClient _mqttClient;
     private readonly MqttClientOptions _options;
     private RgbMatrixConfiguration _config;
+    private Dictionary<string, string> stationAliases;
+    private TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+    private Tmds.DBus.Protocol.Connection connection;
     private JsonSerializerOptions serializeOptions = new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -61,22 +66,39 @@ public class DataFeedWorker : BackgroundService
         _matrixService.SetUserOptions(_config);
 
         SetupMqttEventHandlers(stoppingToken);
-        await PublishConfig(stoppingToken);
-        Dictionary<string, string> stationAliases = new ()
+        await PublishConfig("matrix_config", _config, stoppingToken);
+        stationAliases = new()
         {
             {"London Liverpool Street", "London Liv St."}
         };
 
-        TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+        await _networkConnectivityService.IsInternetConnected(6, TimeSpan.FromSeconds(5));
+
+        connection = new (Address.System!);
+        await _networkConnectivityService.GetSavedConnections(connection);
+        await connection.ConnectAsync();
+        await _networkConnectivityService.GetAvailableNetworks(connection);
+
+        await PublishConfig("wifi_networks", _networkConnectivityService.AvailableNetworks, stoppingToken);
+
+        if (!_networkConnectivityService.IsOnline)
+        {
+            await _networkConnectivityService.EnableHotspot(connection);
+            _matrixService.IsInParingMode = true;
+        }
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_matrixService.IsInitialised)
+            if (_matrixService.IsInitialised && _networkConnectivityService.IsOnline)
             {
-                await GetNewDepartureBoardDetails(textInfo, stationAliases, stoppingToken);
+                await GetNewDepartureBoardDetails(stationAliases, stoppingToken);
+                await Task.Delay(30000, stoppingToken);
+            }
+            else
+            {
+                await Task.Delay(5000, stoppingToken);
             }
 
-            await Task.Delay(30000, stoppingToken);
         }
     }
 
@@ -98,6 +120,28 @@ public class DataFeedWorker : BackgroundService
                 try
                 {
                     await File.WriteAllTextAsync("./matrixSettings.json", e.ApplicationMessage.ConvertPayloadToString(), stoppingToken);
+                    await GetNewDepartureBoardDetails(stationAliases, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"{ex}");
+                }
+            }
+            else if (e.ApplicationMessage.Topic.Equals("add_connection"))
+            {
+                NewConnection newConnection = JsonSerializer.Deserialize<NewConnection>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
+                _logger.LogInformation($"New connection config recieved: {newConnection}");
+                try
+                {
+                    _networkConnectivityService.AvailableNetworks.TryGetValue(newConnection.Key, out var apConnection);
+                    if (newConnection.UseSaved)
+                    {
+                        await _networkConnectivityService.JoinSavedNetwork(connection, apConnection.ApPath.Value!);
+                    }
+                    else
+                    {
+                        _networkConnectivityService.AddNewConnection(connection, apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -122,7 +166,7 @@ public class DataFeedWorker : BackgroundService
 
     }
 
-    private async Task GetNewDepartureBoardDetails(TextInfo textInfo, Dictionary<string, string> stationAliases, CancellationToken stoppingToken)
+    private async Task GetNewDepartureBoardDetails(Dictionary<string, string> stationAliases, CancellationToken stoppingToken)
     {
         GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
 
@@ -168,7 +212,7 @@ public class DataFeedWorker : BackgroundService
         _cache.Set("departureBoard", service);
     }
 
-    private async Task PublishConfig(CancellationToken stoppingToken)
+    private async Task PublishConfig<T>(string topic, T payload, CancellationToken stoppingToken)
     {
         try
         {
@@ -176,8 +220,8 @@ public class DataFeedWorker : BackgroundService
             await _mqttClient.ConnectAsync(_options, stoppingToken);
 
             var applicationMessage = new MqttApplicationMessageBuilder()
-            .WithTopic("matrix_config")
-            .WithPayload(JsonSerializer.Serialize(_config, serializeOptions))
+            .WithTopic(topic)
+            .WithPayload(JsonSerializer.Serialize(payload, serializeOptions))
             .WithRetainFlag()
             .Build();
 

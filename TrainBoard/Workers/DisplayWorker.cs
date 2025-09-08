@@ -27,6 +27,12 @@ public class DisplayWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
 
+        while (_matrixService.IsInParingMode)
+        {
+            DisplayPairingMode();
+            await Task.Delay(5000, stoppingToken);
+        }
+
         while (!_cache.TryGetValue("departureBoard", out data))
         {
             await Task.Delay(1000, stoppingToken);
@@ -40,7 +46,6 @@ public class DisplayWorker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-
             if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
             {
                 if (_callingPointService.IsScrollComplete)
@@ -68,15 +73,16 @@ public class DisplayWorker : BackgroundService
                 _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height - 1, _matrixService.CurrentTimeColour, currentTime);
 
                 _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
+                await Task.Delay(25, stoppingToken);
             }
             else if (_matrixService.IsInitialised && _matrixService.ShowCustomDisplay)
             {
                 _matrixService.Canvas.Clear();
                 _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
                 _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
+                await Task.Delay(1000, stoppingToken);
             }
 
-            await Task.Delay(25, stoppingToken);
         }
     }
 
@@ -93,6 +99,21 @@ public class DisplayWorker : BackgroundService
         string line3 = "services";
         int line3StartingPos = (_matrixService.Canvas.Width - line3.Length * _matrixService.FontWidth) / 2;
         _matrixService.Canvas.DrawText(_matrixService.Font, line3StartingPos, 18, _matrixService.DestinationColour, line3);
+    }
+
+    private void DisplayPairingMode()
+    {
+        string line1 = "Pairing Mode";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
+
+        string line2 = "WiFi: BRboard";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 12, _matrixService.DestinationColour, line2);
+
+        string line3 = "PW: train2go!";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 18, _matrixService.DestinationColour, line3);
+
+        string line4 = "IURL: trainboard.local";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 24, _matrixService.DestinationColour, line4);
     }
 
     private void DisplayDepartureService()
