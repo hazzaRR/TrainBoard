@@ -8,10 +8,11 @@ public interface INetworkConnectivityService
     bool IsOnline { get; set; }
     ObjectPath HotspotPath { get; set; }
     Dictionary<string, AvailableNetwork> AvailableNetworks { get; set; }
+    Task InitialiseNetworkManager();
     Task IsInternetConnected(int retries, TimeSpan delay);
-    Task AddNewConnection(Connection connection, string ssid, string password, ObjectPath apPath);
-    Task GetSavedConnections(Connection connection);
-    Task GetAvailableNetworks(Connection connection);
-    Task JoinSavedNetwork(Connection connection, ObjectPath savedConnPath);
-    Task EnableHotspot(Tmds.DBus.Protocol.Connection connection);
+    Task AddNewConnection(string ssid, string password, ObjectPath apPath);
+    Task GetSavedConnections();
+    Task GetAvailableNetworks();
+    Task JoinSavedNetwork(ObjectPath savedConnPath);
+    Task EnableHotspot();
 }

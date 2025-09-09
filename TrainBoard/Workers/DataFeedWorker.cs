@@ -6,8 +6,6 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using MQTTnet;
 using System.Text.Json;
-using NetworkManager.DBus;
-using Tmds.DBus.Protocol;
 
 namespace TrainBoard.Workers;
 
@@ -23,7 +21,6 @@ public class DataFeedWorker : BackgroundService
     private RgbMatrixConfiguration _config;
     private Dictionary<string, string> stationAliases;
     private TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
-    private Tmds.DBus.Protocol.Connection connection;
     private JsonSerializerOptions serializeOptions = new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -73,17 +70,15 @@ public class DataFeedWorker : BackgroundService
         };
 
         await _networkConnectivityService.IsInternetConnected(6, TimeSpan.FromSeconds(5));
-
-        connection = new (Address.System!);
-        await _networkConnectivityService.GetSavedConnections(connection);
-        await connection.ConnectAsync();
-        await _networkConnectivityService.GetAvailableNetworks(connection);
+        await _networkConnectivityService.InitialiseNetworkManager();
+        await _networkConnectivityService.GetSavedConnections();
+        await _networkConnectivityService.GetAvailableNetworks();
 
         await PublishConfig("wifi_networks", _networkConnectivityService.AvailableNetworks, stoppingToken);
 
         if (!_networkConnectivityService.IsOnline)
         {
-            await _networkConnectivityService.EnableHotspot(connection);
+            await _networkConnectivityService.EnableHotspot();
             _matrixService.IsInParingMode = true;
         }
 
@@ -136,11 +131,11 @@ public class DataFeedWorker : BackgroundService
                     _networkConnectivityService.AvailableNetworks.TryGetValue(newConnection.Key, out var apConnection);
                     if (newConnection.UseSaved)
                     {
-                        await _networkConnectivityService.JoinSavedNetwork(connection, apConnection.ApPath.Value!);
+                        await _networkConnectivityService.JoinSavedNetwork(apConnection.ApPath.Value!);
                     }
                     else
                     {
-                        _networkConnectivityService.AddNewConnection(connection, apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
+                        _networkConnectivityService.AddNewConnection(apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
                     }
                 }
                 catch (Exception ex)
