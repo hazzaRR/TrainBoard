@@ -210,7 +210,7 @@ import stations from "./assets/national-rail-stations.json";
 const showAlert = ref(false);
 const showCustomDisplay = ref(false);
 const numRows = ref(1);
-const crs = ref({ name: "Colchester", crs: "COL" });
+const crs = ref({ name: "Colchester", crs: "COL", owner: "Greater Anglia", latitiude: "51.900711", longitude: "0.892598" });
 const filterCrs = ref(null);
 const filterType = ref("to");
 const timeOffset = ref(2);
