@@ -19,7 +19,7 @@ public class DataFeedWorker : BackgroundService
     private readonly IMqttClient _mqttClient;
     private readonly MqttClientOptions _options;
     private RgbMatrixConfiguration _config;
-    private Dictionary<string, string> stationAliases;
+    private Dictionary<string, string> _stationAliases;
     private TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
     private JsonSerializerOptions serializeOptions = new JsonSerializerOptions
     {
@@ -63,8 +63,9 @@ public class DataFeedWorker : BackgroundService
         _matrixService.SetUserOptions(_config);
 
         SetupMqttEventHandlers(stoppingToken);
+        await _mqttClient.ConnectAsync(_options, stoppingToken);
         await PublishConfig("matrix_config", _config, stoppingToken);
-        stationAliases = new()
+        _stationAliases = new()
         {
             {"London Liverpool Street", "London Liv St."}
         };
@@ -86,7 +87,7 @@ public class DataFeedWorker : BackgroundService
         {
             if (_matrixService.IsInitialised && _networkConnectivityService.IsOnline)
             {
-                await GetNewDepartureBoardDetails(stationAliases, stoppingToken);
+                await GetNewDepartureBoardDetails(stoppingToken);
                 await Task.Delay(30000, stoppingToken);
             }
             else
@@ -115,7 +116,7 @@ public class DataFeedWorker : BackgroundService
                 try
                 {
                     await File.WriteAllTextAsync("./matrixSettings.json", e.ApplicationMessage.ConvertPayloadToString(), stoppingToken);
-                    await GetNewDepartureBoardDetails(stationAliases, stoppingToken);
+                    await GetNewDepartureBoardDetails(stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -161,7 +162,7 @@ public class DataFeedWorker : BackgroundService
 
     }
 
-    private async Task GetNewDepartureBoardDetails(Dictionary<string, string> stationAliases, CancellationToken stoppingToken)
+    private async Task GetNewDepartureBoardDetails(CancellationToken stoppingToken)
     {
         GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
 
@@ -179,7 +180,7 @@ public class DataFeedWorker : BackgroundService
             }
 
             string destination = "";
-            stationAliases.TryGetValue(nextService.Destination[0].LocationName, out destination);
+            _stationAliases.TryGetValue(nextService.Destination[0].LocationName, out destination);
 
             service = new()
             {
@@ -211,9 +212,6 @@ public class DataFeedWorker : BackgroundService
     {
         try
         {
-
-            await _mqttClient.ConnectAsync(_options, stoppingToken);
-
             var applicationMessage = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(JsonSerializer.Serialize(payload, serializeOptions))

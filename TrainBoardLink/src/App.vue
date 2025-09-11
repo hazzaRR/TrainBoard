@@ -242,11 +242,19 @@ const connectToBroker = () => {
           console.log(`Subscribed to topic: ${topic}`);
         }
       });
+      client.subscribe("wifi_networks", (err) => {
+        if (!err) {
+          console.log(`Subscribed to topic: ${wifi_networks}`);
+        }
+      });
     });
 
     client.on("message", (receivedTopic, payload) => {
       if (receivedTopic === topic) {
         updateConfiguration(JSON.parse(payload.toString()));
+      }
+      if (receivedTopic === "wifi_networks") {
+        console.log(JSON.parse(payload.toString()));
       }
     });
 
