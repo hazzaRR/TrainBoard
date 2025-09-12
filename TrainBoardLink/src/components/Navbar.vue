@@ -3,7 +3,7 @@
     <div class="container-fluid d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center">
         <a class="navbar-brand d-flex align-items-center" href="/">
-          <h3 class="text-white">BR Board</h3>
+          <h3 class="text-white">Train Board</h3>
           <img src="/train.svg" alt="Logo" width="64" height="64" class="ms-2" />
         </a>
         <img

@@ -36,6 +36,7 @@
               :custom-label="(station) => `${station.name} (${station.crs})`"
               :options="stations"
               :close-on-select="true"
+              :allow-empty="false"
               track-by="crs"
             />
             <button class="btn btn-primary" @click="() => (crs = null)">

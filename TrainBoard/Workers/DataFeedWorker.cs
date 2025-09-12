@@ -74,7 +74,6 @@ public class DataFeedWorker : BackgroundService
         await _networkConnectivityService.InitialiseNetworkManager();
         await _networkConnectivityService.GetSavedConnections();
         await _networkConnectivityService.GetAvailableNetworks();
-
         await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, stoppingToken);
 
         if (!_networkConnectivityService.IsOnline)
@@ -139,6 +138,10 @@ public class DataFeedWorker : BackgroundService
                     {
                         _networkConnectivityService.AddNewConnection(apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
                     }
+                    
+                    await _networkConnectivityService.GetSavedConnections();
+                    await _networkConnectivityService.GetAvailableNetworks();
+                    await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, stoppingToken);
                 }
                 catch (Exception ex)
                 {
