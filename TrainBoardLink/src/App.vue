@@ -244,7 +244,7 @@ const connectToBroker = () => {
       });
       client.subscribe("wifi_networks", (err) => {
         if (!err) {
-          console.log(`Subscribed to topic: ${wifi_networks}`);
+          console.log(`Subscribed to topic: wifi_networks`);
         }
       });
     });
