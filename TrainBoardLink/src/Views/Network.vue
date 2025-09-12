@@ -7,6 +7,7 @@
                 </h1>
             </div>
             <div class="card-body w-100 mx-auto">
+                <h5 class="text-center" v-if="!mqttStore.availableNetworks">No networks found!</h5>
                 <div v-for="(network, key) in mqttStore.availableNetworks" :key="key" :class="[
                     'card',
                     'network',
@@ -66,8 +67,6 @@ const mqttStore = useMqttStore();
 const password = ref(null);
 const selectedNetwork = ref(null);
 const selectedKey = ref(null);
-
-
 
 const networkClicked = (network, key) => {
     if (network.isActive) {

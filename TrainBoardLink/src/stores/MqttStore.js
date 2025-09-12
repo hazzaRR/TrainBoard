@@ -10,7 +10,22 @@ let client = null;
 const host = "ws://pizero.local:9001";
 const matrixConfigTopic = "matrix/config";
 const availableNetworksTopic = "network/available";
-const matrixConfig = ref(null);
+const matrixConfig = ref({
+  numRows: 1,
+  crs: "COL",
+  filterCrs: null,
+  filterType: "to",
+  timeOffset: 2,
+  timeWindow: 120,
+  stdColour: 16758784,
+  platformColour: 16758784,
+  destinationColour: 16758784,
+  callingPointsColour: 16758784,
+  currentTimeColour: 16758784,
+  delayColour: 16711680,
+  onTimeColour: 65280,
+  matrixPixels: []
+});
 const availableNetworks = ref(null);
 
 const connectToBroker = () => {

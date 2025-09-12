@@ -200,7 +200,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import MatrixDisplay from "../components/MatrixDisplay.vue";
 import Multiselect from "vue-multiselect";
 import { intToHex, hexToInt } from "../utils/ColourConverter";
@@ -210,10 +210,16 @@ import { useMqttStore } from "../stores/MqttStore";
 const mqttStore = useMqttStore();
 
 onMounted(() => {
-  if (mqttStore?.availableNetworks) {
-    // updateConfiguration(mqttStore?.availableNetworks?.value);
+  if (mqttStore?.matrixConfig) {
+    updateConfiguration(mqttStore?.matrixConfig);
   }
 });
+
+watch(mqttStore.matrixConfig, () => {
+  if (mqttStore?.matrixConfig) {
+    updateConfiguration(mqttStore?.matrixConfig);
+  }
+}, {deep: true});
 
 const emit = defineEmits("publishConfig");
 
