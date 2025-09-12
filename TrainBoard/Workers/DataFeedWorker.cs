@@ -64,7 +64,7 @@ public class DataFeedWorker : BackgroundService
 
         SetupMqttEventHandlers(stoppingToken);
         await _mqttClient.ConnectAsync(_options, stoppingToken);
-        await PublishConfig("matrix_config", _config, stoppingToken);
+        await PublishConfig("matrix/config", _config, stoppingToken);
         _stationAliases = new()
         {
             {"London Liverpool Street", "London Liv St."}
@@ -75,7 +75,7 @@ public class DataFeedWorker : BackgroundService
         await _networkConnectivityService.GetSavedConnections();
         await _networkConnectivityService.GetAvailableNetworks();
 
-        await PublishConfig("wifi_networks", _networkConnectivityService.AvailableNetworks, stoppingToken);
+        await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, stoppingToken);
 
         if (!_networkConnectivityService.IsOnline)
         {
@@ -103,12 +103,13 @@ public class DataFeedWorker : BackgroundService
 
         _mqttClient.ConnectedAsync += async e => 
         {
-            await _mqttClient.SubscribeAsync("matrix_config", cancellationToken: stoppingToken);
+            await _mqttClient.SubscribeAsync("matrix/config", cancellationToken: stoppingToken);
+            await _mqttClient.SubscribeAsync("network/manage", cancellationToken: stoppingToken);
         };
 
         _mqttClient.ApplicationMessageReceivedAsync += async e =>
         {
-            if (e.ApplicationMessage.Topic.Equals("matrix_config"))
+            if (e.ApplicationMessage.Topic.Equals("matrix/config"))
             {
                 _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
                 _matrixService.SetUserOptions(_config);
@@ -123,7 +124,7 @@ public class DataFeedWorker : BackgroundService
                     _logger.LogError($"{ex}");
                 }
             }
-            else if (e.ApplicationMessage.Topic.Equals("add_connection"))
+            else if (e.ApplicationMessage.Topic.Equals("network/manage"))
             {
                 NewConnection newConnection = JsonSerializer.Deserialize<NewConnection>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
                 _logger.LogInformation($"New connection config recieved: {newConnection}");

@@ -42,10 +42,10 @@
             />
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-medium text-white" href="/">Train Settings</a>
+            <RouterLink class="nav-link fw-medium text-white" to="/">Train Settings</RouterLink>
           </li>
           <li class="nav-item">
-            <a class="nav-link fw-medium text-white" href="/network">Networking</a>
+            <RouterLink class="nav-link fw-medium text-white" to="/network">Networking</RouterLink>
           </li>
         </ul>
       </div>
@@ -55,6 +55,7 @@
 
 <script setup>
 import cloud from '@/assets/cloud-check-solid-full.svg'
+import { RouterLink } from 'vue-router'
 import { useMqttStore } from '@/stores/MqttStore';
 import { computed } from 'vue';
 

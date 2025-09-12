@@ -11,7 +11,7 @@ const host = "ws://pizero.local:9001";
 const matrixConfigTopic = "matrix/config";
 const availableNetworksTopic = "network/available";
 const matrixConfig = ref(null);
-const availableNetworks = ref();
+const availableNetworks = ref(null);
 
 const connectToBroker = () => {
   try {

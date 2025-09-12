@@ -13,8 +13,7 @@
                     'card-body',
                     'm-1',
                     network.isActive ? 'bg-primary text-white mb-2 activeNetwork' : ''
-                ]"
-                    @click="networkClicked(network, key)">
+                ]" @click="networkClicked(network, key)">
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div class="d-flex align-items-center flex-wrap">
                             <span v-if="network.isSaved" class="badge bg-success me-2">
@@ -40,19 +39,16 @@
                         <h1 class="modal-title fs-5" id="networkManageLabel">{{ selectedNetwork?.ssid }}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body">
-                    <div class="form-floating mb-3">
-                        <input
-                            type="password"
-                            class="form-control"
-                            id="floatingNumRows"
-                            v-model="password"
-                        />
-                        <label for="floatingNumRows">Password</label>
-                    </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" @click="connectToNetwork" class="btn btn-primary">Connect</button>
+                        <div v-if="!selectedNetwork?.isSaved" class="form-floating mb-3">
+                            <input type="password" class="form-control" id="floatingNumRows" v-model="password" />
+                            <label for="floatingNumRows">Password</label>
+                        </div>
+                        <button type="button" @click="connectToNetwork"
+                            :class="['btn', 'btn-primary', 'w-100']">
+                            Connect
+                        </button>
                     </div>
                 </div>
             </div>
@@ -79,8 +75,7 @@ const networkClicked = (network, key) => {
     }
     selectedNetwork.value = network;
     selectedKey.value = key;
-    
-    console.log("gee")
+
     const modalInstance = Modal.getOrCreateInstance('#manageNetwork');
     if (modalInstance) {
         modalInstance.show();
