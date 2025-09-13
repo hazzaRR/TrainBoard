@@ -204,7 +204,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
     {
         _logger.LogInformation("Scanning for available Wi-Fi networks...");
         await _wirelessDevice.RequestScanAsync(new Dictionary<string, VariantValue>());
-        // await Task.Delay(5000); //Is this even need anymore??
+        await Task.Delay(5000);
         _logger.LogInformation("Scan complete. Retrieving access points...");
 
         ObjectPath[] availableAccessPointsPaths = await _wirelessDevice.GetAccessPointsAsync();
