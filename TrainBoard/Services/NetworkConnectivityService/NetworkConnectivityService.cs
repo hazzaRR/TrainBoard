@@ -246,6 +246,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
     }
     public async Task JoinSavedNetwork(ObjectPath savedConnPath, CancellationToken stoppingToken = default)
     {
+        _logger.LogInformation($"joining network: {savedConnPath}");
         try
         {
             var activeConn = await _networkManager.ActivateConnectionAsync(

@@ -48,7 +48,9 @@ public class DisplayWorker : BackgroundService
         {
             if (_matrixService.IsInitialised && _matrixService.IsInPairingMode)
             {
+                _matrixService.Canvas.Clear();
                 DisplayPairingMode();
+                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
                 await Task.Delay(1000, stoppingToken);
             }
             else if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
