@@ -240,7 +240,7 @@ public class DataFeedWorker : BackgroundService
 
     private async Task CheckNetworkConnectivity(CancellationToken stoppingToken = default)
     {
-        await _networkConnectivityService.IsInternetConnected(6, TimeSpan.FromSeconds(5));
+        await _networkConnectivityService.IsInternetConnected(4, TimeSpan.FromSeconds(5));
         await _networkConnectivityService.GetSavedConnections(stoppingToken);
         await _networkConnectivityService.GetAvailableNetworks(stoppingToken);
         await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);

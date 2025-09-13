@@ -90,6 +90,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
                     if (response.IsSuccessStatusCode)
                     {
                         IsOnline = true;
+                        return;
                     }
                 }
                 catch (Exception)
@@ -97,6 +98,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
                 }
                 await Task.Delay(delay);
             }
+            IsOnline = false;
         }
     }
 
