@@ -112,7 +112,7 @@ public class DisplayWorker : BackgroundService
         string line3 = "PW: train2go!";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 18, _matrixService.DestinationColour, line3);
 
-        string line4 = "IURL: trainboard.local";
+        string line4 = "URL: trainboard.local";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 24, _matrixService.DestinationColour, line4);
     }
 

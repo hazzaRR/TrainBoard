@@ -70,24 +70,23 @@ public class DataFeedWorker : BackgroundService
             {"London Liverpool Street", "London Liv St."}
         };
 
-        await _networkConnectivityService.IsInternetConnected(6, TimeSpan.FromSeconds(5));
         await _networkConnectivityService.InitialiseNetworkManager();
-        await _networkConnectivityService.GetSavedConnections();
-        await _networkConnectivityService.GetAvailableNetworks();
-        await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
-
-        if (!_networkConnectivityService.IsOnline)
-        {
-            await _networkConnectivityService.EnableHotspot();
-            _matrixService.IsInParingMode = true;
-        }
+        await CheckNetworkConnectivity(stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
             if (_matrixService.IsInitialised && _networkConnectivityService.IsOnline)
             {
-                await GetNewDepartureBoardDetails(stoppingToken);
-                await Task.Delay(30000, stoppingToken);
+                try
+                {
+                    await GetNewDepartureBoardDetails(stoppingToken);
+                    await Task.Delay(30000, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"failed to get departure data: {ex.Message}");
+                    await CheckNetworkConnectivity(stoppingToken);
+                }
             }
             else
             {
@@ -100,7 +99,7 @@ public class DataFeedWorker : BackgroundService
     private void SetupMqttEventHandlers(CancellationToken stoppingToken)
     {
 
-        _mqttClient.ConnectedAsync += async e => 
+        _mqttClient.ConnectedAsync += async e =>
         {
             await _mqttClient.SubscribeAsync("matrix/config", cancellationToken: stoppingToken);
             await _mqttClient.SubscribeAsync("network/manage", cancellationToken: stoppingToken);
@@ -116,7 +115,15 @@ public class DataFeedWorker : BackgroundService
                 try
                 {
                     await File.WriteAllTextAsync("./matrixSettings.json", e.ApplicationMessage.ConvertPayloadToString(), stoppingToken);
-                    await GetNewDepartureBoardDetails(stoppingToken);
+                    try
+                    {
+                        await GetNewDepartureBoardDetails(stoppingToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"failed to get departure data: {ex.Message}");
+                        await CheckNetworkConnectivity(stoppingToken);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -139,7 +146,7 @@ public class DataFeedWorker : BackgroundService
                         string outcome = await _networkConnectivityService.AddNewConnection(apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
                         await PublishConfig("network/outcome", outcome, false, stoppingToken);
                     }
-                    
+
                     await _networkConnectivityService.GetSavedConnections();
                     await _networkConnectivityService.GetAvailableNetworks();
                     await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
@@ -151,7 +158,7 @@ public class DataFeedWorker : BackgroundService
             }
         };
 
-        _mqttClient.DisconnectedAsync += async e => 
+        _mqttClient.DisconnectedAsync += async e =>
         {
             await Task.Delay(5000);
 
@@ -192,7 +199,7 @@ public class DataFeedWorker : BackgroundService
                 Std = nextService.Std,
                 Etd = nextService.Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
                 nextService.Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
-                nextService.Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ? 
+                nextService.Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ?
                 textInfo.ToTitleCase(nextService.Etd) : $"Exp.{nextService.Etd}",
                 Platform = $"Plat {nextService.Platform}",
                 Destination = !string.IsNullOrEmpty(destination) ? destination : nextService.Destination[0].LocationName,
@@ -202,7 +209,7 @@ public class DataFeedWorker : BackgroundService
             };
 
         }
-        else 
+        else
         {
             service = new()
             {
@@ -228,6 +235,20 @@ public class DataFeedWorker : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError($"Connection failed: {ex.Message}");
+        }
+    }
+
+    private async Task CheckNetworkConnectivity(CancellationToken stoppingToken = default)
+    {
+        await _networkConnectivityService.IsInternetConnected(6, TimeSpan.FromSeconds(5));
+        await _networkConnectivityService.GetSavedConnections(stoppingToken);
+        await _networkConnectivityService.GetAvailableNetworks(stoppingToken);
+        await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
+
+        if (!_networkConnectivityService.IsOnline)
+        {
+            await _networkConnectivityService.EnableHotspot(stoppingToken);
+            _matrixService.IsInParingMode = true;
         }
     }
 }

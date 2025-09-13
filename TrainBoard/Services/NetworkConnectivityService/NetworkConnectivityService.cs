@@ -24,7 +24,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
         _logger = logger;
     }
 
-    public async Task InitialiseNetworkManager()
+    public async Task InitialiseNetworkManager(CancellationToken stoppingToken = default)
     {
         _connection = new(Address.System!);
         await _connection.ConnectAsync();
@@ -76,7 +76,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
         return string.Join(" ", security);
     }
 
-    public async Task IsInternetConnected(int retries, TimeSpan delay)
+    public async Task IsInternetConnected(int retries, TimeSpan delay, CancellationToken stoppingToken = default)
     {
         using (var httpClient = new HttpClient())
         {
@@ -100,7 +100,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
         }
     }
 
-    public async Task<string> AddNewConnection(string ssid, string password, ObjectPath apPath)
+    public async Task<string> AddNewConnection(string ssid, string password, ObjectPath apPath, CancellationToken stoppingToken = default)
     {
         try
         {
@@ -168,7 +168,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
         }
     }
 
-    public async Task GetSavedConnections()
+    public async Task GetSavedConnections(CancellationToken stoppingToken = default)
     {
         var savedConnections = new Dictionary<string, ObjectPath>();
         ObjectPath[] allSavedConnections = await _settingsService.ListConnectionsAsync();
@@ -200,7 +200,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
         SavedConnections = savedConnections;
     }
 
-    public async Task GetAvailableNetworks()
+    public async Task GetAvailableNetworks(CancellationToken stoppingToken = default)
     {
         _logger.LogInformation("Scanning for available Wi-Fi networks...");
         await _wirelessDevice.RequestScanAsync(new Dictionary<string, VariantValue>());
@@ -242,7 +242,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
 
         AvailableNetworks = combinedNetworks;
     }
-    public async Task JoinSavedNetwork(ObjectPath savedConnPath)
+    public async Task JoinSavedNetwork(ObjectPath savedConnPath, CancellationToken stoppingToken = default)
     {
         try
         {
@@ -260,10 +260,11 @@ public class NetworkConnectivityService : INetworkConnectivityService
 
     }
 
-    public async Task EnableHotspot()
+    public async Task EnableHotspot(CancellationToken stoppingToken = default)
     {
         try
         {
+            _logger.LogInformation("Attempting to activate hotspot...");
             await _networkManager.ActivateConnectionAsync(
                 HotspotPath,
                 _wirelessDevicePath,
