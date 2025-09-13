@@ -27,7 +27,7 @@ public class DisplayWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
 
-        while (_matrixService.IsInParingMode)
+        while (_matrixService.IsInPairingMode)
         {
             DisplayPairingMode();
             await Task.Delay(5000, stoppingToken);
@@ -46,7 +46,12 @@ public class DisplayWorker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
+            if (_matrixService.IsInitialised && _matrixService.IsInPairingMode)
+            {
+                DisplayPairingMode();
+                await Task.Delay(1000, stoppingToken);
+            }
+            else if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
             {
                 if (_callingPointService.IsScrollComplete)
                 {
@@ -82,7 +87,6 @@ public class DisplayWorker : BackgroundService
                 _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
                 await Task.Delay(1000, stoppingToken);
             }
-
         }
     }
 

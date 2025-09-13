@@ -134,6 +134,7 @@ public class DataFeedWorker : BackgroundService
             {
                 NewConnection newConnection = JsonSerializer.Deserialize<NewConnection>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
                 _logger.LogInformation($"New connection config recieved: {newConnection}");
+                _logger.LogInformation($"{newConnection?.Key}, {newConnection?.UseSaved}, {newConnection?.Password}");
                 try
                 {
                     _networkConnectivityService.AvailableNetworks.TryGetValue(newConnection.Key, out var apConnection);
@@ -248,7 +249,7 @@ public class DataFeedWorker : BackgroundService
         if (!_networkConnectivityService.IsOnline)
         {
             await _networkConnectivityService.EnableHotspot(stoppingToken);
-            _matrixService.IsInParingMode = true;
+            _matrixService.IsInPairingMode = true;
         }
     }
 }

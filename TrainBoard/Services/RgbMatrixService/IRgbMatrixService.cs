@@ -11,7 +11,7 @@ public interface IRgbMatrixService
     int FontWidth { get; }
     int FontHeight { get; }
     bool IsInitialised { get; }
-    bool IsInParingMode { get; set; }
+    bool IsInPairingMode { get; set; }
     Color StdColour { get; set; }
     Color PlatformColour { get; set; }
     Color DestinationColour { get; set; }
