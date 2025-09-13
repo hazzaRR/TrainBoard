@@ -64,7 +64,7 @@ public class DataFeedWorker : BackgroundService
 
         SetupMqttEventHandlers(stoppingToken);
         await _mqttClient.ConnectAsync(_options, stoppingToken);
-        await PublishConfig("matrix/config", _config, stoppingToken);
+        await PublishConfig("matrix/config", _config, true, stoppingToken);
         _stationAliases = new()
         {
             {"London Liverpool Street", "London Liv St."}
@@ -74,7 +74,7 @@ public class DataFeedWorker : BackgroundService
         await _networkConnectivityService.InitialiseNetworkManager();
         await _networkConnectivityService.GetSavedConnections();
         await _networkConnectivityService.GetAvailableNetworks();
-        await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, stoppingToken);
+        await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
 
         if (!_networkConnectivityService.IsOnline)
         {
@@ -136,12 +136,12 @@ public class DataFeedWorker : BackgroundService
                     }
                     else
                     {
-                        _networkConnectivityService.AddNewConnection(apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
+                        await _networkConnectivityService.AddNewConnection(apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
                     }
                     
                     await _networkConnectivityService.GetSavedConnections();
                     await _networkConnectivityService.GetAvailableNetworks();
-                    await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, stoppingToken);
+                    await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -212,14 +212,14 @@ public class DataFeedWorker : BackgroundService
         _cache.Set("departureBoard", service);
     }
 
-    private async Task PublishConfig<T>(string topic, T payload, CancellationToken stoppingToken)
+    private async Task PublishConfig<T>(string topic, T payload, bool retain = true, CancellationToken stoppingToken = default)
     {
         try
         {
             var applicationMessage = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
             .WithPayload(JsonSerializer.Serialize(payload, serializeOptions))
-            .WithRetainFlag()
+            .WithRetainFlag(retain)
             .Build();
 
             await _mqttClient.PublishAsync(applicationMessage, stoppingToken);

@@ -134,6 +134,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
         _logger.LogInformation($"Attempting to connect to new network '{ssid}'...");
 
         ObjectPath wifiConnPath = await _settingsService.AddConnectionAsync(wifiSettings);
+         _logger.LogInformation($"Connection made {wifiConnPath}");
         var activeConn = await _networkManager.ActivateConnectionAsync(
             wifiConnPath,
             _wirelessDevicePath,
