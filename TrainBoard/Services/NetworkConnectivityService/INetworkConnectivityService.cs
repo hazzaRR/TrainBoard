@@ -13,6 +13,6 @@ public interface INetworkConnectivityService
     Task<string> AddNewConnection(string ssid, string password, ObjectPath apPath, CancellationToken stoppingToken = default);
     Task GetSavedConnections(CancellationToken stoppingToken = default);
     Task GetAvailableNetworks(CancellationToken stoppingToken = default);
-    Task JoinSavedNetwork(ObjectPath savedConnPath, CancellationToken stoppingToken = default);
+    Task JoinSavedNetwork(ObjectPath savedConnPath, ObjectPath savedApPath, CancellationToken stoppingToken = default);
     Task EnableHotspot(CancellationToken stoppingToken = default);
 }

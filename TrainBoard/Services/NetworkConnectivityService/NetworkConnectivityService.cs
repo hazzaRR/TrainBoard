@@ -225,17 +225,18 @@ public class NetworkConnectivityService : INetworkConnectivityService
             string uniqueKey = $"{ssid}-{bssid}";
             byte strength = await accessPoint.GetStrengthAsync();
 
+            SavedConnections.TryGetValue(ssid, out var connPath);
+
             AvailableNetwork availableNetwork = new()
             {
                 Ssid = Encoding.UTF8.GetString(ssidBytes),
                 Mode = "Infra",
-                Rate = await accessPoint.GetMaxBitrateAsync(),
                 Signal = strength,
-                Bars = GetSignalBars(strength),
                 Security = GetSecurityString((NM80211ApSecurityFlags)await accessPoint.GetRsnFlagsAsync() | (NM80211ApSecurityFlags)await accessPoint.GetWpaFlagsAsync() | (NM80211ApSecurityFlags)await accessPoint.GetFlagsAsync()),
                 IsSaved = SavedConnections.ContainsKey(ssid),
                 IsActive = apPath == activeApPath,
-                ApPath = apPath
+                ApPath = apPath,
+                ConnPath = connPath
             };
 
             combinedNetworks.TryAdd(uniqueKey, availableNetwork);
@@ -244,7 +245,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
 
         AvailableNetworks = combinedNetworks;
     }
-    public async Task JoinSavedNetwork(ObjectPath savedConnPath, CancellationToken stoppingToken = default)
+    public async Task JoinSavedNetwork(ObjectPath savedConnPath, ObjectPath savedApPath, CancellationToken stoppingToken = default)
     {
         _logger.LogInformation($"joining network: {savedConnPath}");
         try
@@ -252,7 +253,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
             var activeConn = await _networkManager.ActivateConnectionAsync(
                 savedConnPath,
                 _wirelessDevicePath,
-                savedConnPath
+                savedApPath
             );
             _logger.LogInformation($"Connection activated: {activeConn}");
         }
@@ -271,7 +272,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
             await _networkManager.ActivateConnectionAsync(
                 HotspotPath,
                 _wirelessDevicePath,
-                null!
+                HotspotPath
             );
             _logger.LogInformation("Hotspot activated. Connect to it from another device.");
         }

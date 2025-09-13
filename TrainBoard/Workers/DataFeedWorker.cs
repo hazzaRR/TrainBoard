@@ -71,7 +71,7 @@ public class DataFeedWorker : BackgroundService
         };
 
         await _networkConnectivityService.InitialiseNetworkManager();
-        await CheckNetworkConnectivity(stoppingToken);
+        _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -85,12 +85,12 @@ public class DataFeedWorker : BackgroundService
                 catch (Exception ex)
                 {
                     _logger.LogError($"failed to get departure data: {ex.Message}");
-                    await CheckNetworkConnectivity(stoppingToken);
+                    _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
                 }
             }
             else
             {
-                await CheckNetworkConnectivity(stoppingToken);
+                _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
                 await Task.Delay(5000, stoppingToken);
             }
 
@@ -123,7 +123,7 @@ public class DataFeedWorker : BackgroundService
                     catch (Exception ex)
                     {
                         _logger.LogError($"failed to get departure data: {ex.Message}");
-                        await CheckNetworkConnectivity(stoppingToken);
+                        _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
                     }
                 }
                 catch (Exception ex)
@@ -141,7 +141,7 @@ public class DataFeedWorker : BackgroundService
                     _networkConnectivityService.AvailableNetworks.TryGetValue(newConnection.Key, out var apConnection);
                     if (newConnection.UseSaved)
                     {
-                        await _networkConnectivityService.JoinSavedNetwork(apConnection.ApPath.Value!);
+                        await _networkConnectivityService.JoinSavedNetwork(apConnection.ConnPath.Value!, apConnection.ApPath.Value!);
                     }
                     else
                     {
@@ -240,21 +240,17 @@ public class DataFeedWorker : BackgroundService
         }
     }
 
-    private async Task CheckNetworkConnectivity(CancellationToken stoppingToken = default)
+    private async Task<bool> CheckNetworkConnectivity(CancellationToken stoppingToken = default)
     {
         await _networkConnectivityService.IsInternetConnected(4, TimeSpan.FromSeconds(5));
         await _networkConnectivityService.GetSavedConnections(stoppingToken);
         await _networkConnectivityService.GetAvailableNetworks(stoppingToken);
         await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
 
-        if (!_networkConnectivityService.IsOnline)
+        if (!_networkConnectivityService.IsOnline && !_matrixService.IsInPairingMode)
         {
             await _networkConnectivityService.EnableHotspot(stoppingToken);
-            _matrixService.IsInPairingMode = true;
         }
-        else
-        {
-            _matrixService.IsInPairingMode = false;
-        }
+        return _networkConnectivityService.IsOnline;
     }
 }
