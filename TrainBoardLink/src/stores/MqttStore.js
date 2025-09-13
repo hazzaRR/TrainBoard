@@ -15,6 +15,7 @@ let client = null;
 const host = "ws://pizero.local:9001";
 const matrixConfigTopic = "matrix/config";
 const availableNetworksTopic = "network/available";
+const networkOutcomeTopic = "network/outcome";
 const matrixConfig = ref({
   numRows: 1,
   crs: "COL",
@@ -50,6 +51,11 @@ const connectToBroker = () => {
           console.log(`Subscribed to topic: ${availableNetworksTopic}`);
         }
       });
+      client.subscribe(networkOutcomeTopic, (err) => {
+        if (!err) {
+          console.log(`Subscribed to topic: ${networkOutcomeTopic}`);
+        }
+      });
     });
 
     client.on("message", (receivedTopic, payload) => {
@@ -58,6 +64,10 @@ const connectToBroker = () => {
       }
       if (receivedTopic === availableNetworksTopic) {
         availableNetworks.value = JSON.parse(payload.toString());
+      }
+      if (receivedTopic === networkOutcomeTopic) {
+        updateAlert(1, true, JSON.parse(payload.toString()));
+        setTimeout(() => dismissAlert(), 10000);
       }
     });
 

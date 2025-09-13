@@ -100,48 +100,72 @@ public class NetworkConnectivityService : INetworkConnectivityService
         }
     }
 
-    public async Task AddNewConnection(string ssid, string password, ObjectPath apPath)
+    public async Task<string> AddNewConnection(string ssid, string password, ObjectPath apPath)
     {
-        var wifiSettings = new Dictionary<string, Dictionary<string, VariantValue>>
+        try
         {
-            ["connection"] = new Dictionary<string, VariantValue>
+            var wifiSettings = new Dictionary<string, Dictionary<string, VariantValue>>
             {
-                ["id"] = $"wifi-{ssid}",
-                ["type"] = "802-11-wireless",
-                ["interface-name"] = "wlan0",
-                ["autoconnect"] = true
-            },
-            ["802-11-wireless"] = new Dictionary<string, VariantValue>
+                ["connection"] = new Dictionary<string, VariantValue>
+                {
+                    ["id"] = $"wifi-{ssid}",
+                    ["type"] = "802-11-wireless",
+                    ["interface-name"] = "wlan0",
+                    ["autoconnect"] = true
+                },
+                ["802-11-wireless"] = new Dictionary<string, VariantValue>
+                {
+                    ["ssid"] = VariantValue.Array(Encoding.UTF8.GetBytes(ssid)),
+                    ["mode"] = "infrastructure"
+                },
+                ["802-11-wireless-security"] = new Dictionary<string, VariantValue>
+                {
+                    ["key-mgmt"] = "wpa-psk",
+                    ["psk"] = password
+                },
+                ["ipv4"] = new Dictionary<string, VariantValue>
+                {
+                    ["method"] = "auto"
+                },
+                ["ipv6"] = new Dictionary<string, VariantValue>
+                {
+                    ["method"] = "ignore"
+                }
+            };
+
+            _logger.LogInformation($"Attempting to connect to new network '{ssid}'...");
+
+            ObjectPath wifiConnPath = await _settingsService.AddConnectionAsync(wifiSettings);
+            _logger.LogInformation($"Connection made {wifiConnPath}");
+            var activeConn = await _networkManager.ActivateConnectionAsync(
+                wifiConnPath,
+                _wirelessDevicePath,
+                apPath
+            );
+
+            _logger.LogInformation($"Connection activated: {activeConn}");
+
+            return $"successfully connected to: {ssid}";
+
+        }
+        catch (DBusException ex)
+        {
+            if (ex.Message.Contains("802-11-wireless-security.psk: property is invalid"))
             {
-                ["ssid"] = VariantValue.Array(Encoding.UTF8.GetBytes(ssid)),
-                ["mode"] = "infrastructure"
-            },
-            ["802-11-wireless-security"] = new Dictionary<string, VariantValue>
-            {
-                ["key-mgmt"] = "wpa-psk",
-                ["psk"] = password
-            },
-            ["ipv4"] = new Dictionary<string, VariantValue>
-            {
-                ["method"] = "auto"
-            },
-            ["ipv6"] = new Dictionary<string, VariantValue>
-            {
-                ["method"] = "ignore"
+                _logger.LogError($"Failed to add connection for SSID: {ssid}. An incorrect password was entered.");
+                return $"password provided was incorrect";
             }
-        };
-
-        _logger.LogInformation($"Attempting to connect to new network '{ssid}'...");
-
-        ObjectPath wifiConnPath = await _settingsService.AddConnectionAsync(wifiSettings);
-         _logger.LogInformation($"Connection made {wifiConnPath}");
-        var activeConn = await _networkManager.ActivateConnectionAsync(
-            wifiConnPath,
-            _wirelessDevicePath,
-            apPath
-        );
-
-        _logger.LogInformation($"Connection activated: {activeConn}");
+            else
+            {
+                _logger.LogError(ex, $"An unexpected D-Bus error occurred while adding connection for SSID: {ssid}.");
+                return $"Error connecting to {ssid}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"An unknown error occurred while adding connection for SSID: {ssid}.");
+            return $"Error connecting to {ssid}";
+        }
     }
 
     public async Task GetSavedConnections()
@@ -220,12 +244,20 @@ public class NetworkConnectivityService : INetworkConnectivityService
     }
     public async Task JoinSavedNetwork(ObjectPath savedConnPath)
     {
-        var activeConn = await _networkManager.ActivateConnectionAsync(
-            savedConnPath,
-            _wirelessDevicePath,
-            savedConnPath
-        );
-        _logger.LogInformation($"Connection activated: {activeConn}");
+        try
+        {
+            var activeConn = await _networkManager.ActivateConnectionAsync(
+                savedConnPath,
+                _wirelessDevicePath,
+                savedConnPath
+            );
+            _logger.LogInformation($"Connection activated: {activeConn}");
+        }
+        catch (DBusException ex)
+        {
+            _logger.LogError(ex, $"An unexpected D-Bus error occurred while connecting to: {savedConnPath}.");
+        }
+
     }
 
     public async Task EnableHotspot()
@@ -238,6 +270,10 @@ public class NetworkConnectivityService : INetworkConnectivityService
                 null!
             );
             _logger.LogInformation("Hotspot activated. Connect to it from another device.");
+        }
+        catch (DBusException ex)
+        {
+            _logger.LogError($"Failed to activate hotspot: {ex.Message}");
         }
         catch (Exception ex)
         {

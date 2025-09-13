@@ -136,7 +136,8 @@ public class DataFeedWorker : BackgroundService
                     }
                     else
                     {
-                        await _networkConnectivityService.AddNewConnection(apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
+                        string outcome = await _networkConnectivityService.AddNewConnection(apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
+                        await PublishConfig("network/outcome", outcome, false, stoppingToken);
                     }
                     
                     await _networkConnectivityService.GetSavedConnections();

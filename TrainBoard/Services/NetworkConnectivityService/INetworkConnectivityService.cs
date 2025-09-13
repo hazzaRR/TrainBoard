@@ -10,7 +10,7 @@ public interface INetworkConnectivityService
     Dictionary<string, AvailableNetwork> AvailableNetworks { get; set; }
     Task InitialiseNetworkManager();
     Task IsInternetConnected(int retries, TimeSpan delay);
-    Task AddNewConnection(string ssid, string password, ObjectPath apPath);
+    Task<string> AddNewConnection(string ssid, string password, ObjectPath apPath);
     Task GetSavedConnections();
     Task GetAvailableNetworks();
     Task JoinSavedNetwork(ObjectPath savedConnPath);
