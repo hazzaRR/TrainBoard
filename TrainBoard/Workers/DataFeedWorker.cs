@@ -251,5 +251,9 @@ public class DataFeedWorker : BackgroundService
             await _networkConnectivityService.EnableHotspot(stoppingToken);
             _matrixService.IsInPairingMode = true;
         }
+        else
+        {
+            _matrixService.IsInPairingMode = false;
+        }
     }
 }

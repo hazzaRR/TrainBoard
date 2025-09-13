@@ -267,7 +267,7 @@ public class NetworkConnectivityService : INetworkConnectivityService
     {
         try
         {
-            _logger.LogInformation("Attempting to activate hotspot...");
+            _logger.LogInformation($"Attempting to activate hotspot {HotspotPath}");
             await _networkManager.ActivateConnectionAsync(
                 HotspotPath,
                 _wirelessDevicePath,

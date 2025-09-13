@@ -84,7 +84,7 @@ const networkClicked = (network, key) => {
 const connectToNetwork = () => {
     const connectToNetwork = {
         key: selectedKey.value,
-        UseSaved: selectedNetwork.value.isSaved,
+        useSaved: selectedNetwork.value.isSaved,
         password: password.value
     }
     mqttStore.publishPayload("network/manage", connectToNetwork, `Attempting to connect to ${selectedNetwork?.value?.ssid}`, 0);

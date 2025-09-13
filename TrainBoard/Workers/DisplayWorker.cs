@@ -113,13 +113,16 @@ public class DisplayWorker : BackgroundService
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
 
         string line2 = "WiFi: BRboard";
-        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 12, _matrixService.DestinationColour, line2);
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 13, _matrixService.DestinationColour, line2);
 
         string line3 = "PW: train2go!";
-        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 18, _matrixService.DestinationColour, line3);
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 19, _matrixService.DestinationColour, line3);
 
-        string line4 = "URL: trainboard.local";
-        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 24, _matrixService.DestinationColour, line4);
+        string line4 = "URL:";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 25, _matrixService.DestinationColour, line4);
+
+        string line5 = "trainboard.local";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 31, _matrixService.DestinationColour, line5);
     }
 
     private void DisplayDepartureService()
