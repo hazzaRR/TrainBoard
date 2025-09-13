@@ -90,6 +90,7 @@ public class DataFeedWorker : BackgroundService
             }
             else
             {
+                await CheckNetworkConnectivity(stoppingToken);
                 await Task.Delay(5000, stoppingToken);
             }
 
