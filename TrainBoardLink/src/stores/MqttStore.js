@@ -86,11 +86,11 @@ const connectToBroker = () => {
   }
 };
 
-const publishPayload = async (topic, payload, alertMessage) => {
+const publishPayload = async (topic, payload, alertMessage, retain) => {
   client.publish(
     topic,
     JSON.stringify(payload),
-    { qos: 0, retain: 1 },
+    { qos: 0, retain: retain },
     (error) => {
       if (error) {
         console.error(error);

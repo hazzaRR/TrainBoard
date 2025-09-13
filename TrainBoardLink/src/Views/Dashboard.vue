@@ -267,7 +267,7 @@ async function updateMatrixConfig () {
   };
 
   mqttStore.publishPayload("matrix/config", newConfiguration,
-   "Matrix settings sent! The board will update within the next 30 seconds");
+   "Matrix settings sent! The board will update within the next 30 seconds", 1);
 };
 
 function updateConfiguration(config) {

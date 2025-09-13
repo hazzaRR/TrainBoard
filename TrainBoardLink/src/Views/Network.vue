@@ -87,7 +87,7 @@ const connectToNetwork = () => {
         UseSaved: selectedNetwork.value,
         password: password.value
     }
-    mqttStore.publishPayload("network/manage", connectToNetwork, `Attempting to connect to ${selectedNetwork?.value?.ssid}`);
+    mqttStore.publishPayload("network/manage", connectToNetwork, `Attempting to connect to ${selectedNetwork?.value?.ssid}`, 0);
 
     const modalInstance = Modal.getOrCreateInstance('#manageNetwork');
     if (modalInstance) {
