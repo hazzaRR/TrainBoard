@@ -5,7 +5,12 @@ import mqtt from "mqtt";
 export const useMqttStore = defineStore('mqtt', () => {
 
 const status = ref(0);
-const alertMessage = ref(null);
+const alert = ref({
+  status: 0,
+  show: false,
+  message: '',
+});
+
 let client = null;
 const host = "ws://pizero.local:9001";
 const matrixConfigTopic = "matrix/config";
@@ -83,21 +88,34 @@ const publishPayload = async (topic, payload, alertMessage) => {
     }
   );
 
-  alertMessage.value = alertMessage;
-
-  showAlert.value = true;
-  setTimeout(() => {
-    showAlert.value = false;
-    alertMessage.value = null;
-  }, 10000);
+  updateAlert(1, true, alertMessage);
+  setTimeout(() => dismissAlert(), 10000);
 };
 
+function updateAlert(status, show, message) {
+    alert.value = {
+      status,
+      show,
+      message,
+    }
+}
+
+function dismissAlert() {
+  alert.value = {
+      status: 0,
+      show: false,
+      message: '',
+    }
+}
 
 return {
+    alert,
     status,
     matrixConfig,
     availableNetworks,
     connectToBroker,
-    publishPayload
+    publishPayload,
+    updateAlert,
+    dismissAlert
   }
 })

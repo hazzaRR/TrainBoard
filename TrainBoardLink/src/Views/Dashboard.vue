@@ -7,14 +7,6 @@
         </h1>
       </div>
       <div class="card-body w-100 mx-auto">
-        <div
-          v-if="showAlert"
-          class="alert alert-success alert-dismissible fade show"
-          role="alert"
-        >
-          <strong>Matrix settings sent</strong> The board will update within the
-          next 30 seconds
-        </div>
         <div class="form-floating mb-3">
           <input
             type="number"
@@ -27,7 +19,7 @@
           />
           <label for="floatingNumRows">Number of Departure rows</label>
         </div>
-        <div :class="['form-floating', 'mb-3', 'input-group']">
+        <div :class="['form-floating', 'mb-3']">
           <div :class="['form-control', 'multiSelect']">
             <Multiselect
               id="crsStationMultiSelect"
@@ -39,9 +31,6 @@
               :allow-empty="false"
               track-by="crs"
             />
-            <button class="btn btn-primary" @click="() => (crs = null)">
-              Clear
-            </button>
           </div>
           <label for="crsStationMultiSelect" class="form-label"
             >Station CRS</label
@@ -224,7 +213,6 @@ watch(mqttStore.matrixConfig, () => {
 
 const emit = defineEmits("publishConfig");
 
-const showAlert = ref(false);
 const showCustomDisplay = ref(false);
 const numRows = ref(1);
 const crs = ref({ name: "Colchester", crs: "COL", owner: "Greater Anglia", latitiude: "51.900711", longitude: "0.892598" });
@@ -278,13 +266,7 @@ const updateMatrixConfig = async () => {
 
 
   mqttStore.publishPayload("matrix/config", newConfiguration,
-   "Matrix settings sent The board will update within the next 30 seconds");
-
-  showAlert.value = true;
-  setTimeout(() => {
-    showAlert.value = false;
-  }, 10000);
-
+   "Matrix settings sent! The board will update within the next 30 seconds");
 };
 
 function updateConfiguration(config) {
