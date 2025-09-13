@@ -200,16 +200,12 @@ import { useMqttStore } from "../stores/MqttStore";
 const mqttStore = useMqttStore();
 
 onMounted(() => {
+  initialiseArray();
   if (mqttStore?.matrixConfig) {
+    console.log(mqttStore?.matrixConfig);
     updateConfiguration(mqttStore?.matrixConfig);
   }
 });
-
-watch(mqttStore.matrixConfig, () => {
-  if (mqttStore?.matrixConfig) {
-    updateConfiguration(mqttStore?.matrixConfig);
-  }
-}, {deep: true});
 
 const emit = defineEmits("publishConfig");
 
@@ -229,7 +225,13 @@ const delayColour = ref("#ff0f00");
 const onTimeColour = ref("#00ff00");
 const matrixPixels = ref([]);
 
-const resetMatrixConfig = () => {
+watch(() => mqttStore.matrixConfig, () => {
+  if (mqttStore?.matrixConfig) {
+    updateConfiguration(mqttStore?.matrixConfig);
+  }
+}, {deep: true, immediate: true});
+
+function resetMatrixConfig() {
   numRows.value = 1;
   crs.value = { name: "Colchester", crs: "COL", owner: "Greater Anglia", latitiude: "51.900711", longitude: "0.892598" };
   filterCrs.value = null;
@@ -245,7 +247,7 @@ const resetMatrixConfig = () => {
   onTimeColour.value = "#00ff00";
 };
 
-const updateMatrixConfig = async () => {
+async function updateMatrixConfig () {
   const newConfiguration = {
     numRows: numRows.value,
     crs: crs.value.crs.toUpperCase(),
@@ -263,7 +265,6 @@ const updateMatrixConfig = async () => {
     showCustomDisplay: showCustomDisplay.value,
     matrixPixels: matrixPixels.value,
   };
-
 
   mqttStore.publishPayload("matrix/config", newConfiguration,
    "Matrix settings sent! The board will update within the next 30 seconds");
@@ -289,7 +290,7 @@ function updateConfiguration(config) {
   initialiseArray();
 };
 
-const initialiseArray = () => {
+function initialiseArray () {
   if (matrixPixels.value == null || matrixPixels.value.length == 0) {
     matrixPixels.value = new Array(32);
   }
@@ -303,7 +304,6 @@ const initialiseArray = () => {
   }
 };
 
-initialiseArray();
 </script>
 
 <style scoped>

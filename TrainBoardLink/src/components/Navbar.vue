@@ -4,7 +4,7 @@
       <div class="d-flex align-items-center">
         <a class="navbar-brand d-flex align-items-center" href="/">
           <h3 class="text-white">Train Board</h3>
-          <img src="/train.svg" alt="Logo" width="64" height="64" class="ms-2" />
+          <img src="/train.svg" alt="Logo" width="32" height="32" class="ms-2" />
         </a>
         <img
         v-if="isConnected > 0"
