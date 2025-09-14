@@ -208,6 +208,7 @@ public class DataFeedWorker : BackgroundService
                 CallingPoints = string.Join(",", callingPoints),
                 IsCancelled = nextService.IsCancelled,
                 DelayReason = nextService.DelayReason,
+                CancelReason = nextService.CancelReason,
             };
 
         }
