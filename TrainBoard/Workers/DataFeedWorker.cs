@@ -207,6 +207,7 @@ public class DataFeedWorker : BackgroundService
                 Destination = !string.IsNullOrEmpty(destination) ? destination : nextService.Destination[0].LocationName,
                 CallingPoints = string.Join(",", callingPoints),
                 IsCancelled = nextService.IsCancelled,
+                IsBusReplacement = nextService.ServiceType.Equals("bus", StringComparison.OrdinalIgnoreCase),
                 DelayReason = nextService.DelayReason,
                 CancelReason = nextService.CancelReason,
             };
