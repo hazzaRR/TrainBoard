@@ -3,14 +3,14 @@ using System.Xml.Serialization;
 namespace OpenLDBWS.Entities;
 
 
-[XmlRoot(ElementName = "location", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+[XmlRoot(ElementName = "location", Namespace = LdbNamespaces.Lt4)]
 public class ServiceLocation 
 {
 
-    [XmlElement(ElementName = "locationName", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+    [XmlElement(ElementName = "locationName", Namespace = LdbNamespaces.Lt4)]
     public string LocationName {get; set;} = "";
 
-    [XmlElement(ElementName = "crs", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+    [XmlElement(ElementName = "crs", Namespace = LdbNamespaces.Lt4)]
     public string Crs {get; set;} = "";
 
     [XmlElement(ElementName = "via")]

@@ -7,6 +7,6 @@ public class DepartureWithDetails
     [XmlAttribute("crs")]
     public string Crs { get; set; } = "";
 
-    [XmlElement("service", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("service", Namespace = LdbNamespaces.Lt8)]
     public List<ServiceWithCallingPoints> Service { get; set;} = [];
 }

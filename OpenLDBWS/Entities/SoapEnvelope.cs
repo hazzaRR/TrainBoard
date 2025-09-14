@@ -5,15 +5,15 @@ using System.Xml.Serialization;
 namespace OpenLDBWS.Entities;
 
 
-[XmlRoot(ElementName = "Envelope", Namespace = "http://www.w3.org/2003/05/soap-envelope")]
+[XmlRoot(ElementName = "Envelope", Namespace = LdbNamespaces.Soap)]
 public class SoapEnvelope
 {
-    [XmlElement(ElementName = "Body")]
+    [XmlElement(ElementName = "Body", Namespace = LdbNamespaces.Soap)]
     public required SoapBody Body { get; set; }
 }
 
 
-[XmlRoot(ElementName = "Body")]
+[XmlRoot(ElementName = "Body", Namespace = LdbNamespaces.Ldb)]
 public class SoapBody
 {
     [XmlAnyElement]

@@ -3,52 +3,52 @@ using System.Xml.Serialization;
 namespace OpenLDBWS.Entities;
 
 
-[XmlRoot("callingPoint", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+[XmlRoot("callingPoint", Namespace = LdbNamespaces.Lt8)]
 public class CallingPoint
 {
 
-    [XmlElement("locationName", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("locationName", Namespace = LdbNamespaces.Lt8)]
     public string LocationName { get; set; } = "";
 
-    [XmlElement("crs", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("crs", Namespace = LdbNamespaces.Lt8)]
     public string Crs { get; set; } = "";
 
-    [XmlElement("st", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("st", Namespace = LdbNamespaces.Lt8)]
     public string St { get; set; } = "";
 
-    [XmlElement("et", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("et", Namespace = LdbNamespaces.Lt8)]
     public string Et { get; set; } = "";
 
-    [XmlElement("at", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("at", Namespace = LdbNamespaces.Lt8)]
     public string At { get; set; } = "";
 
-    [XmlElement("isCancelled", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("isCancelled", Namespace = LdbNamespaces.Lt8)]
     public bool? IsCancelled { get; set; }
     
-    [XmlElement("length", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("length", Namespace = LdbNamespaces.Lt8)]
     public int Length { get; set; }
 
-    [XmlElement("detachFront", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("detachFront", Namespace = LdbNamespaces.Lt8)]
     public bool? DetachFront { get; set;}
 
-    [XmlElement("formation", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("formation", Namespace = LdbNamespaces.Lt8)]
     public Formation? Formation { get; set; }
 
-    [XmlElement("adhocAlerts", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("adhocAlerts", Namespace = LdbNamespaces.Lt8)]
     public List<string> AdhocAlerts { get; set; } = [];
 
-    [XmlElement("cancelReason", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("cancelReason", Namespace = LdbNamespaces.Lt8)]
     public string? CancelReason { get; set; }
-    [XmlElement("delayReason", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("delayReason", Namespace = LdbNamespaces.Lt8)]
     public string? DelayReason { get; set; }
 
-    [XmlElement("affectedByDiversion", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("affectedByDiversion", Namespace = LdbNamespaces.Lt8)]
     public string? AffectedByDiversion { get; set; }
 
-    [XmlElement("rerouteDelay", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("rerouteDelay", Namespace = LdbNamespaces.Lt8)]
     public int? RerouteDelay { get; set; }
 
-    [XmlElement("uncertainty", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("uncertainty", Namespace = LdbNamespaces.Lt8)]
     public Uncertainty? Uncertainty { get; set; }
 
 

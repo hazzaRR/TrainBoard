@@ -4,10 +4,10 @@ public class Formation
 {
 
 
-    [XmlElement("loadingCategory", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("loadingCategory", Namespace = LdbNamespaces.Lt8)]
     public LoadingCategory? LoadingCategory {get; set; }
-    [XmlArray("coaches", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
-    [XmlArrayItem("coach", Namespace = "http://thalesgroup.com/RTTI/2017-10-01/ldb/types")]
+    [XmlArray("coaches", Namespace = LdbNamespaces.Lt8)]
+    [XmlArrayItem("coach", Namespace = LdbNamespaces.Lt7)]
     public List<Coach> Coaches {get; set;} = [];
 
 }

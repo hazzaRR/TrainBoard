@@ -3,21 +3,21 @@ using System.Xml.Serialization;
 namespace OpenLDBWS.Entities;
 
 
-[XmlRoot("coach", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+[XmlRoot("coach", Namespace = LdbNamespaces.Lt8)]
 public class Coach
 {
-    [XmlAttribute("number", Namespace = "http://thalesgroup.com/RTTI/2017-10-01/ldb/types")]
+    [XmlAttribute("number", Namespace = LdbNamespaces.Lt7)]
     public string? Number { get; set; }
 
-    [XmlElement("coachClass", Namespace = "http://thalesgroup.com/RTTI/2017-10-01/ldb/types")]
+    [XmlElement("coachClass", Namespace = LdbNamespaces.Lt7)]
     public string? CoachClass { get; set; }
 
-    [XmlElement("loading", Namespace = "http://thalesgroup.com/RTTI/2017-10-01/ldb/types")]
+    [XmlElement("loading", Namespace = LdbNamespaces.Lt7)]
     public int? Loading { get; set; }
 
-    [XmlElement("loadingSpecified", Namespace = "http://thalesgroup.com/RTTI/2017-10-01/ldb/types")]
+    [XmlElement("loadingSpecified", Namespace = LdbNamespaces.Lt7)]
     public bool LoadingSpecified { get; set; }
 
-    [XmlElement("toilet", Namespace = "http://thalesgroup.com/RTTI/2017-10-01/ldb/types")]
+    [XmlElement("toilet", Namespace = LdbNamespaces.Lt7)]
     public ToiletAvailability? Toilet { get; set; }
 }

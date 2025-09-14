@@ -4,29 +4,29 @@ namespace OpenLDBWS.Entities;
 
 public class BaseDeparturesBoard
 {
-    [XmlElement("generatedAt", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+    [XmlElement("generatedAt", Namespace = LdbNamespaces.Lt4)]
     public string GeneratedAt { get; set; } = "";
 
-    [XmlElement("locationName", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+    [XmlElement("locationName", Namespace = LdbNamespaces.Lt4)]
     public string LocationName { get; set; } = "";
 
-    [XmlElement("crs", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+    [XmlElement("crs", Namespace = LdbNamespaces.Lt4)]
     public string Crs { get; set; } = "";
 
-    [XmlElement("filterLocationName", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+    [XmlElement("filterLocationName", Namespace = LdbNamespaces.Lt4)]
     public string FilterLocationName { get; set; } = "";
 
-    [XmlElement("filtercrs", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+    [XmlElement("filtercrs", Namespace = LdbNamespaces.Lt4)]
     public string FilterCrs { get; set; } = "";
 
     [XmlElement("filterType")]
     public string FilterType { get; set; } = "";
 
-    [XmlArray("nrccMessages", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
-    [XmlArrayItem("message")]
+    [XmlArray("nrccMessages", Namespace = LdbNamespaces.Lt4)]
+    [XmlArrayItem("message", Namespace = LdbNamespaces.Lt)]
     public List<string> NrccMessages { get; set; } = [];
 
-    [XmlElement("platformAvailable", Namespace = "http://thalesgroup.com/RTTI/2015-11-27/ldb/types")]
+    [XmlElement("platformAvailable", Namespace = LdbNamespaces.Lt4)]
     public bool? PlatformAvailable { get; set; }
 
     [XmlElement("areServicesAvailable")]
