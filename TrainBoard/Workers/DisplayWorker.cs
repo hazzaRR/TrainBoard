@@ -59,7 +59,7 @@ public class DisplayWorker : BackgroundService
                 {
                     _cache.TryGetValue("departureBoard", out data);
                     _callingPointService.IsScrollComplete = false;
-                    _callingPointService.showDelayReason = data.DelayReason.Length > 0 && !_callingPointService.showDelayReason;
+                    _callingPointService.showDelayReason = data.DelayReason?.Length > 0 && !_callingPointService.showDelayReason;
                     _destinationService.ScrollTextPos = 0;
                     _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
                     _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels > _matrixService.Canvas.Width;
@@ -132,8 +132,8 @@ public class DisplayWorker : BackgroundService
 
         if (_platformEtdService.ShowPlatform && (bool)data.IsBusReplacement)
         {
-            int posFromEndEtd = _matrixService.Canvas.Width - (3 * _matrixService.FontWidth);
-            _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, _matrixService.PlatformColour, "Bus");
+            int posFromEndEtd = _matrixService.Canvas.Width - (9 * _matrixService.FontWidth);
+            _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, _matrixService.PlatformColour, "Rail Repl");
         }
         else if (_platformEtdService.ShowPlatform)
         {
