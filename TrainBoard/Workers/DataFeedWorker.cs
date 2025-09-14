@@ -180,6 +180,7 @@ public class DataFeedWorker : BackgroundService
         GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
 
         List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
+        services.AddRange(response.StationBoardWithDetails.BusServices);
         List<string> callingPoints = new List<string>();
         ScreenData service;
 
