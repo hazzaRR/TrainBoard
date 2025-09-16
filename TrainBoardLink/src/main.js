@@ -9,7 +9,7 @@ import router from './router';
 import App from './App.vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { FontAwesomeIcon, } from '@fortawesome/vue-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import {
     faCheck,
@@ -18,10 +18,14 @@ import {
 
 library.add(faCheck, faWifi);
 
-
+import "vue3-openlayers/styles.css";
+import OpenLayersMap from "vue3-openlayers";
+import { useGeographic } from 'ol/proj.js';
+useGeographic();
 
 const app = createApp(App)
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.use(router);
 app.use(createPinia());
+app.use(OpenLayersMap);
 app.mount('#app')

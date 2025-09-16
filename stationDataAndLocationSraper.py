@@ -58,7 +58,7 @@ class ScrapeStationData:
                             if geoData != None:
                                 rows = geoData.find_all('tr')
                                 
-                                latitiude = rows[0].find_all('td')[1]
+                                latitude = rows[0].find_all('td')[1]
                                 longitude = rows[1].find_all('td')[1]
 
                                 if code != None:
@@ -66,7 +66,7 @@ class ScrapeStationData:
                                         'name': name,
                                         'crs': code,
                                         'owner': owner.find(string=True, recursive=True),
-                                        'latitiude': latitiude.find(string=True, recursive=False).strip(),
+                                        'latitude': latitude.find(string=True, recursive=False).strip(),
                                         'longitude': longitude.find(string=True, recursive=False).strip(),
                                     }  
 
