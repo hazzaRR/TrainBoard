@@ -193,7 +193,7 @@ function updateConfiguration(config) {
   delayColour.value = intToHex(config.delayColour);
   onTimeColour.value = intToHex(config.onTimeColour);
   showCustomDisplay.value = config.showCustomDisplay;
-  matrixPixels.value = config.matrixPixels;
+  matrixPixels.value = JSON.parse(JSON.stringify(config.matrixPixels));
   initialiseArray();
 };
 
