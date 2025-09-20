@@ -24,7 +24,7 @@ Follow these two steps to install the .NET 8 runtime and SDK on your system.
 
 2) Enable Auto-Start
     
-    To ensure Mosquitto automatically starts whenever your Raspberry Pi boots up, enable its systemd service. This is crucial for a reliable background service.
+    To ensure Mosquitto automatically starts whenever your Raspberry Pi boots up, enable its systemd service.
 
     ```
     sudo systemctl enable mosquitto.service
