@@ -282,10 +282,9 @@ sudo chown $USER /opt/TrainBoardDashboard/
 
 ## Change Polkit access for Network Manager
 
-Because the C# Worker class runs as a systemd service as daemon we need to update the Polkit rules to allow
-an a non active user to be able to user network manager to use the network device to scan for available access points,
-Add connections, change connection and also enable a hotspot.
+Because the C# worker application runs as a systemd daemon service, which means it operates in the background without an active user logged in. By default, NetworkManager restricts many of its functions—like scanning for Wi-Fi networks, adding connections, or creating a hotspot—to active users for security reasons.
 
+To allow your daemon service to use these functions, you need to create a new Polkit rule. Polkit is a component that controls system-wide privileges for applications. The rule you create will grant your non-active service the necessary permissions.
 
 1) Create a new Polkit rule file using the following command:
 
