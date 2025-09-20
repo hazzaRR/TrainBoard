@@ -88,6 +88,9 @@
         <button @click="resetMatrixConfig" type="button" class="btn btn-secondary me-1">
           Reset
         </button>
+        <button @click="setToRandomStation" type="button" class="btn btn-success me-1">
+          Random
+        </button>
         <button @click="updateMatrixConfig" type="button" class="btn btn-primary">
           Update
         </button>
@@ -208,6 +211,17 @@ function initialiseArray() {
     }
   }
 };
+
+function setToRandomStation() {
+  const index = getRandomIntInclusive(1, stations?.length);
+  crs.value = stations[index];
+}
+
+function getRandomIntInclusive(min, max) {
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
+}
 
 </script>
 
