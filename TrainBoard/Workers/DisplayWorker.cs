@@ -33,6 +33,12 @@ public class DisplayWorker : BackgroundService
             await Task.Delay(5000, stoppingToken);
         }
 
+        while (!_matrixService.IsApiKeyValid)
+        {
+            DisplayInvalidApiKey();
+            await Task.Delay(5000, stoppingToken);
+        }
+
         while (!_cache.TryGetValue("departureBoard", out data))
         {
             await Task.Delay(1000, stoppingToken);

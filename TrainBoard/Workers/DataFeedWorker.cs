@@ -79,6 +79,7 @@ public class DataFeedWorker : BackgroundService
         _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
 
 
+        _logger.LogInformation($"current api key: {_optionsMonitor.CurrentValue.ApiKey}");
         _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
 
         while (!stoppingToken.IsCancellationRequested)
@@ -116,6 +117,7 @@ public class DataFeedWorker : BackgroundService
         {
             await _mqttClient.SubscribeAsync("matrix/config", cancellationToken: stoppingToken);
             await _mqttClient.SubscribeAsync("network/manage", cancellationToken: stoppingToken);
+            await _mqttClient.SubscribeAsync("feed/update", cancellationToken: stoppingToken);
         };
 
         _mqttClient.ApplicationMessageReceivedAsync += async e =>
@@ -172,12 +174,12 @@ public class DataFeedWorker : BackgroundService
             else if (e.ApplicationMessage.Topic.Equals("feed/update"))
             {
                 LdbwsOptions newApiKey = JsonSerializer.Deserialize<LdbwsOptions>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
-                _logger.LogInformation($"New api key recieved: {newApiKey}");
+                _logger.LogInformation($"New api key recieved: {newApiKey.ApiKey}");
                 try
                 {
                     string filePath = "./api-secrets.json";
 
-                    string jsonString = File.ReadAllText(filePath);
+                    string jsonString = await File.ReadAllTextAsync(filePath);
                     var jsonNode = JsonNode.Parse(jsonString);
 
                     var ldbwsSection = jsonNode["LdbwsClient"];

@@ -30,7 +30,7 @@ const mqttStore = useMqttStore();
 const apiKey = ref(null);
 
 
-const addApiKey = () => {
+const updateApiKey = () => {
     const apiKeyToAdd = {
         apiKey: apiKey.value,
     }
