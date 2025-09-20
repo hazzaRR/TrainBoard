@@ -125,34 +125,34 @@ public class DisplayWorker : BackgroundService
 
     private void DisplayPairingMode()
     {
-        string line1 = "Pairing Mode";
+        string line1 = "PAIRING MODE";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
 
-        string line2 = "WiFi: BRboard";
+        string line2 = "WIFI: BRboard";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 13, _matrixService.DestinationColour, line2);
 
         string line3 = "PW: train2go!";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 19, _matrixService.DestinationColour, line3);
 
-        string line4 = "URL:";
+        string line4 = "GO TO:";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 25, _matrixService.DestinationColour, line4);
 
-        string line5 = "trainboard.local";
+        string line5 = "TRAINBOARD.LOCAL";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 31, _matrixService.DestinationColour, line5);
     }
     
     private void DisplayInvalidApiKey()
     {
-        string line1 = "Invalid Api key";
+        string line1 = "INVALID API KEY";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
 
-        string line2 = "Go to Data feed";
+        string line2 = "GO TO:";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 13, _matrixService.DestinationColour, line2);
 
-        string line3 = "on";
+        string line3 = "TRAINBOARD.LOCAL";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 19, _matrixService.DestinationColour, line3);
 
-        string line4 = "trainboard.local";
+        string line4 = "DATA FEED PAGE";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 25, _matrixService.DestinationColour, line4);
     }
 

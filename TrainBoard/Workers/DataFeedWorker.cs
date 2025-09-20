@@ -78,8 +78,6 @@ public class DataFeedWorker : BackgroundService
         await _networkConnectivityService.InitialiseNetworkManager();
         _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
 
-
-        _logger.LogInformation($"current api key: {_optionsMonitor.CurrentValue.ApiKey}");
         _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
 
         while (!stoppingToken.IsCancellationRequested)
@@ -99,6 +97,7 @@ public class DataFeedWorker : BackgroundService
             }
             else if (!_matrixService.IsApiKeyValid)
             {
+                _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
                 await Task.Delay(2000, stoppingToken);    
             }
             else
