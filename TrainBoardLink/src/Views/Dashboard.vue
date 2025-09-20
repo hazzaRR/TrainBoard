@@ -114,8 +114,6 @@ onMounted(() => {
   }
 });
 
-const emit = defineEmits("publishConfig");
-
 const showCustomDisplay = ref(false);
 const numRows = ref(1);
 const crs = ref({ name: "Colchester", crs: "COL", owner: "Greater Anglia", latitude: "51.900711", longitude: "0.892598" });

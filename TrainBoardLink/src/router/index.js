@@ -11,6 +11,11 @@ const routes = [
         name: 'Network',
         component: () => import('../Views/Network.vue'),
       },
+      {
+        path: '/data-feed',
+        name: 'DataFeed',
+        component: () => import('../Views/DataFeed.vue'),
+      },
 ]
 
 const router = createRouter({

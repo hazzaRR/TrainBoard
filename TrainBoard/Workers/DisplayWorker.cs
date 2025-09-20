@@ -53,6 +53,13 @@ public class DisplayWorker : BackgroundService
                 _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
                 await Task.Delay(1000, stoppingToken);
             }
+            if (_matrixService.IsInitialised && !_matrixService.IsApiKeyValid)
+            {
+                _matrixService.Canvas.Clear();
+                DisplayInvalidApiKey();
+                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
+                await Task.Delay(1000, stoppingToken);
+            }
             else if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
             {
                 if (_callingPointService.IsScrollComplete)
@@ -125,6 +132,21 @@ public class DisplayWorker : BackgroundService
         string line5 = "trainboard.local";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 31, _matrixService.DestinationColour, line5);
     }
+    
+    private void DisplayInvalidApiKey()
+    {
+        string line1 = "Invalid Api key";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
+
+        string line2 = "Go to Data feed";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 13, _matrixService.DestinationColour, line2);
+
+        string line3 = "on";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 19, _matrixService.DestinationColour, line3);
+
+        string line4 = "trainboard.local";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 25, _matrixService.DestinationColour, line4);
+    }
 
     private void DisplayDepartureService()
     {
@@ -155,7 +177,7 @@ public class DisplayWorker : BackgroundService
         }
         else if (_callingPointService.showDelayReason)
         {
-           _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.DelayReason); 
+            _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.DelayReason);
         }
         else
         {
