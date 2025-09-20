@@ -30,12 +30,14 @@ public class DisplayWorker : BackgroundService
         while (_matrixService.IsInPairingMode)
         {
             DisplayPairingMode();
+            _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
             await Task.Delay(5000, stoppingToken);
         }
 
         while (!_matrixService.IsApiKeyValid)
         {
             DisplayInvalidApiKey();
+            _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
             await Task.Delay(5000, stoppingToken);
         }
 
