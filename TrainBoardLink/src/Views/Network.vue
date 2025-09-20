@@ -25,8 +25,7 @@
 
                         <span class="mt-1 mt-sm-0 fw-medium">
                             <font-awesome-icon v-if="network.isActive" class="m-1" :icon="['fas', 'check']" />
-                            <span v-else><font-awesome-icon :icon="['fas', 'wifi']" /> {{ network.signal }}
-                                dBm</span>
+                            <span v-else><font-awesome-icon :icon="['fas', 'wifi']" /> {{ network.signal }}%</span>
                         </span>
                     </div>
                 </div>
