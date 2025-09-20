@@ -27,6 +27,12 @@ public class DisplayWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
 
+        while (_matrixService.IsInPairingMode)
+        {
+            DisplayPairingMode();
+            await Task.Delay(5000, stoppingToken);
+        }
+
         while (!_cache.TryGetValue("departureBoard", out data))
         {
             await Task.Delay(1000, stoppingToken);
@@ -40,13 +46,20 @@ public class DisplayWorker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-
-            if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
+            if (_matrixService.IsInitialised && _matrixService.IsInPairingMode)
+            {
+                _matrixService.Canvas.Clear();
+                DisplayPairingMode();
+                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
+                await Task.Delay(1000, stoppingToken);
+            }
+            else if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
             {
                 if (_callingPointService.IsScrollComplete)
                 {
                     _cache.TryGetValue("departureBoard", out data);
                     _callingPointService.IsScrollComplete = false;
+                    _callingPointService.showDelayReason = data.DelayReason?.Length > 0 && !_callingPointService.showDelayReason;
                     _destinationService.ScrollTextPos = 0;
                     _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
                     _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels > _matrixService.Canvas.Width;
@@ -68,15 +81,15 @@ public class DisplayWorker : BackgroundService
                 _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height - 1, _matrixService.CurrentTimeColour, currentTime);
 
                 _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
+                await Task.Delay(25, stoppingToken);
             }
             else if (_matrixService.IsInitialised && _matrixService.ShowCustomDisplay)
             {
                 _matrixService.Canvas.Clear();
                 _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
                 _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
+                await Task.Delay(1000, stoppingToken);
             }
-
-            await Task.Delay(25, stoppingToken);
         }
     }
 
@@ -95,11 +108,34 @@ public class DisplayWorker : BackgroundService
         _matrixService.Canvas.DrawText(_matrixService.Font, line3StartingPos, 18, _matrixService.DestinationColour, line3);
     }
 
+    private void DisplayPairingMode()
+    {
+        string line1 = "Pairing Mode";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
+
+        string line2 = "WiFi: BRboard";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 13, _matrixService.DestinationColour, line2);
+
+        string line3 = "PW: train2go!";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 19, _matrixService.DestinationColour, line3);
+
+        string line4 = "URL:";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 25, _matrixService.DestinationColour, line4);
+
+        string line5 = "trainboard.local";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 31, _matrixService.DestinationColour, line5);
+    }
+
     private void DisplayDepartureService()
     {
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.StdColour, data.Std);
 
-        if (_platformEtdService.ShowPlatform)
+        if (_platformEtdService.ShowPlatform && (bool)data.IsBusReplacement)
+        {
+            int posFromEndEtd = _matrixService.Canvas.Width - (9 * _matrixService.FontWidth);
+            _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, _matrixService.PlatformColour, "Rail Repl");
+        }
+        else if (_platformEtdService.ShowPlatform)
         {
             int posFromEndEtd = _matrixService.Canvas.Width - (data.Platform.Length * _matrixService.FontWidth);
             _matrixService.Canvas.DrawText(_matrixService.Font, posFromEndEtd, _matrixService.FontHeight, _matrixService.PlatformColour, data.Platform);
@@ -116,6 +152,10 @@ public class DisplayWorker : BackgroundService
         if ((bool)data.IsCancelled && !string.IsNullOrEmpty(data.CancelReason))
         {
             _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.CancelReason);
+        }
+        else if (_callingPointService.showDelayReason)
+        {
+           _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.DelayReason); 
         }
         else
         {

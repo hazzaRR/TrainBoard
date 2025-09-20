@@ -9,6 +9,7 @@ builder.Services.AddSingleton<IRgbMatrixService, RgbMatrixService>();
 builder.Services.AddSingleton<IPlatformEtdService, PlatformEtdService>();
 builder.Services.AddSingleton<ICallingPointService, CallingPointService>();
 builder.Services.AddSingleton<IDestinationService, DestinationService>();
+builder.Services.AddSingleton<INetworkConnectivityService, NetworkConnectivityService>();
 builder.Services.AddSingleton<ILdbwsClient>(provider => new LdbwsClient("api-key"));
 builder.Services.AddHostedService<DataFeedWorker>();
 builder.Services.AddHostedService<PlatformEtdToggleWorker>();

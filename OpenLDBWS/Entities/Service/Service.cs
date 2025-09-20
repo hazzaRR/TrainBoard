@@ -5,10 +5,10 @@ namespace OpenLDBWS.Entities;
 public class Service : BaseService
 {
 
-    [XmlElement("rsid")]
+    [XmlElement("rsid", Namespace = LdbNamespaces.Lt5)]
     public string? Rsid { get; set; }
 
-    [XmlElement("formation", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("formation", Namespace = LdbNamespaces.Lt8)]
     public required Formation Formation {get; set;}
 
     [XmlElement("futureCancellation")]

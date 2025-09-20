@@ -6,10 +6,10 @@ namespace OpenLDBWS.Entities;
 public class ServiceWithCallingPoints : BaseService
 {
 
-    [XmlElement("subsequentCallingPoints", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("subsequentCallingPoints", Namespace = LdbNamespaces.Lt8)]
     public SubsequentCallingPoints? SubsequentCallingPoints {get; set;}
 
-    [XmlElement("previousCallingPoints", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlElement("previousCallingPoints", Namespace = LdbNamespaces.Lt8)]
     public PreviousCallingPoints? PreviousCallingPoints {get; set;}
 
 }

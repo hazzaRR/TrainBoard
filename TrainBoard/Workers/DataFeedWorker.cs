@@ -6,8 +6,6 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using MQTTnet;
 using System.Text.Json;
-using RPiRgbLEDMatrix;
-using TrainBoard.Utilities;
 
 namespace TrainBoard.Workers;
 
@@ -16,20 +14,24 @@ public class DataFeedWorker : BackgroundService
     private readonly ILogger<DataFeedWorker> _logger;
     private readonly IMemoryCache _cache;
     private readonly IRgbMatrixService _matrixService;
+    private readonly INetworkConnectivityService _networkConnectivityService;
     private readonly ILdbwsClient _client;
     private readonly IMqttClient _mqttClient;
     private readonly MqttClientOptions _options;
     private RgbMatrixConfiguration _config;
+    private Dictionary<string, string> _stationAliases;
+    private TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
     private JsonSerializerOptions serializeOptions = new JsonSerializerOptions
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = true
     };
 
-    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, IMemoryCache cache, ILdbwsClient client)
+    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, INetworkConnectivityService networkConnectivityService, IMemoryCache cache, ILdbwsClient client)
     {
         _logger = logger;
         _matrixService = matrixService;
+        _networkConnectivityService = networkConnectivityService;
         _cache = cache;
         _client = client;
 
@@ -58,112 +60,97 @@ public class DataFeedWorker : BackgroundService
         {
             _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(matrixSettings, serializeOptions);
         }
-        _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
-        _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
-        _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
-        _matrixService.CallingPointsColour = ColourConverter.IntToRgb(_config.CallingPointsColour);
-        _matrixService.CurrentTimeColour = ColourConverter.IntToRgb(_config.CurrentTimeColour);
-        _matrixService.DelayColour = ColourConverter.IntToRgb(_config.DelayColour);
-        _matrixService.OnTimeColour = ColourConverter.IntToRgb(_config.OnTimeColour);
-        _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
-        _matrixService.MatrixPixels = Flattern2dColourMatrix(_config.MatrixPixels);
+        _matrixService.SetUserOptions(_config);
 
         SetupMqttEventHandlers(stoppingToken);
-        await PublishConfig(stoppingToken);
-        Dictionary<string, string> stationAliases = new ()
+        await _mqttClient.ConnectAsync(_options, stoppingToken);
+        await PublishConfig("matrix/config", _config, true, stoppingToken);
+        _stationAliases = new()
         {
             {"London Liverpool Street", "London Liv St."}
         };
 
-        TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+        await _networkConnectivityService.InitialiseNetworkManager();
+        _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
-
-            if (_matrixService.IsInitialised)
+            if (_matrixService.IsInitialised && _networkConnectivityService.IsOnline)
             {
-
-                GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
-
-                List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
-                List<string> callingPoints = new List<string>();
-                ScreenData service;
-
-                ServiceWithCallingPoints? nextService = services.FirstOrDefault();
-
-                if (nextService != null)
+                try
                 {
-                    for (int i = 0; i < nextService.SubsequentCallingPoints.CallingPoints.Count; i++)
-                    {
-                        callingPoints.Add($" {nextService.SubsequentCallingPoints.CallingPoints[i].LocationName} ({nextService.SubsequentCallingPoints.CallingPoints[i].St})");
-                    }
-
-                    string destination = "";
-                    stationAliases.TryGetValue(nextService.Destination[0].LocationName, out destination);
-
-                    service = new()
-                    {
-                        Std = nextService.Std,
-                        Etd = nextService.Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
-                        nextService.Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
-                        nextService.Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ? 
-                        textInfo.ToTitleCase(nextService.Etd) : $"Exp.{nextService.Etd}",
-                        Platform = $"Plat {nextService.Platform}",
-                        Destination = !string.IsNullOrEmpty(destination) ? destination : nextService.Destination[0].LocationName,
-                        CallingPoints = string.Join(",", callingPoints),
-                        IsCancelled = nextService.IsCancelled,
-                        DelayReason = nextService.DelayReason,
-                    };
-
+                    await GetNewDepartureBoardDetails(stoppingToken);
+                    await Task.Delay(30000, stoppingToken);
                 }
-                else 
+                catch (Exception ex)
                 {
-                    service = new()
-                    {
-                        NoServices = true
-                    };
+                    _logger.LogError($"failed to get departure data: {ex.Message}");
+                    _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
                 }
-
-                    _cache.Set("departureBoard", service);
-
-
+            }
+            else
+            {
+                _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
+                await Task.Delay(5000, stoppingToken);
             }
 
-            // if (_logger.IsEnabled(LogLevel.Information))
-            // {
-            //     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            // }
-
-            await Task.Delay(30000, stoppingToken);
         }
     }
 
     private void SetupMqttEventHandlers(CancellationToken stoppingToken)
     {
 
-        _mqttClient.ConnectedAsync += async e => 
+        _mqttClient.ConnectedAsync += async e =>
         {
-            await _mqttClient.SubscribeAsync("matrix_config", cancellationToken: stoppingToken);
+            await _mqttClient.SubscribeAsync("matrix/config", cancellationToken: stoppingToken);
+            await _mqttClient.SubscribeAsync("network/manage", cancellationToken: stoppingToken);
         };
 
         _mqttClient.ApplicationMessageReceivedAsync += async e =>
         {
-            if (e.ApplicationMessage.Topic.Equals("matrix_config"))
+            if (e.ApplicationMessage.Topic.Equals("matrix/config"))
             {
                 _config = JsonSerializer.Deserialize<RgbMatrixConfiguration>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
-                _matrixService.StdColour = ColourConverter.IntToRgb(_config.StdColour);
-                _matrixService.PlatformColour = ColourConverter.IntToRgb(_config.PlatformColour);
-                _matrixService.DestinationColour = ColourConverter.IntToRgb(_config.DestinationColour);
-                _matrixService.CallingPointsColour = ColourConverter.IntToRgb(_config.CallingPointsColour);
-                _matrixService.CurrentTimeColour = ColourConverter.IntToRgb(_config.CurrentTimeColour);
-                _matrixService.DelayColour = ColourConverter.IntToRgb( _config.DelayColour);
-                _matrixService.OnTimeColour = ColourConverter.IntToRgb(_config.OnTimeColour);
-                _matrixService.ShowCustomDisplay = _config.ShowCustomDisplay;
-                _matrixService.MatrixPixels = Flattern2dColourMatrix(_config.MatrixPixels);
+                _matrixService.SetUserOptions(_config);
                 _logger.LogInformation($"New config recieved: {_config}");
                 try
                 {
                     await File.WriteAllTextAsync("./matrixSettings.json", e.ApplicationMessage.ConvertPayloadToString(), stoppingToken);
+                    try
+                    {
+                        await GetNewDepartureBoardDetails(stoppingToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"failed to get departure data: {ex.Message}");
+                        _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"{ex}");
+                }
+            }
+            else if (e.ApplicationMessage.Topic.Equals("network/manage"))
+            {
+                NewConnection newConnection = JsonSerializer.Deserialize<NewConnection>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
+                _logger.LogInformation($"New connection config recieved: {newConnection}");
+                try
+                {
+                    _networkConnectivityService.AvailableNetworks.TryGetValue(newConnection.Key, out var apConnection);
+                    if (newConnection.UseSaved)
+                    {
+                        await _networkConnectivityService.JoinSavedNetwork(apConnection.ConnPath.Value!, apConnection.ApPath.Value!);
+                    }
+                    else
+                    {
+                        string outcome = await _networkConnectivityService.AddNewConnection(apConnection.Ssid, newConnection.Password, apConnection.ApPath.Value!);
+                        await PublishConfig("network/outcome", outcome, false, stoppingToken);
+                    }
+
+                    await _networkConnectivityService.GetSavedConnections();
+                    await _networkConnectivityService.GetAvailableNetworks();
+                    await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
                 }
                 catch (Exception ex)
                 {
@@ -172,7 +159,7 @@ public class DataFeedWorker : BackgroundService
             }
         };
 
-        _mqttClient.DisconnectedAsync += async e => 
+        _mqttClient.DisconnectedAsync += async e =>
         {
             await Task.Delay(5000);
 
@@ -188,17 +175,63 @@ public class DataFeedWorker : BackgroundService
 
     }
 
-    private async Task PublishConfig(CancellationToken stoppingToken)
+    private async Task GetNewDepartureBoardDetails(CancellationToken stoppingToken)
     {
-        try 
-        {
-            
-            await _mqttClient.ConnectAsync(_options, stoppingToken);
+        GetDepBoardWithDetailsResponse response = await _client.GetDepBoardWithDetails(_config.NumRows, _config.Crs, _config.FilterCrs, _config.FilterType, _config.TimeOffset, _config.TimeWindow);
 
+        List<ServiceWithCallingPoints> services = response.StationBoardWithDetails.TrainServices;
+        services.AddRange(response.StationBoardWithDetails.BusServices);
+        List<string> callingPoints = new List<string>();
+        ScreenData service;
+
+        ServiceWithCallingPoints? nextService = services.FirstOrDefault();
+
+        if (nextService != null)
+        {
+            for (int i = 0; i < nextService.SubsequentCallingPoints.CallingPoints.Count; i++)
+            {
+                callingPoints.Add($" {nextService.SubsequentCallingPoints.CallingPoints[i].LocationName} ({nextService.SubsequentCallingPoints.CallingPoints[i].St})");
+            }
+
+            string destination = "";
+            _stationAliases.TryGetValue(nextService.Destination[0].LocationName, out destination);
+
+            service = new()
+            {
+                Std = nextService.Std,
+                Etd = nextService.Etd.Equals("On time", StringComparison.CurrentCultureIgnoreCase) ||
+                nextService.Etd.Equals("Cancelled", StringComparison.CurrentCultureIgnoreCase) ||
+                nextService.Etd.Equals("Delayed", StringComparison.CurrentCultureIgnoreCase) ?
+                textInfo.ToTitleCase(nextService.Etd) : $"Exp.{nextService.Etd}",
+                Platform = $"Plat {nextService.Platform}",
+                Destination = !string.IsNullOrEmpty(destination) ? destination : nextService.Destination[0].LocationName,
+                CallingPoints = string.Join(",", callingPoints),
+                IsCancelled = nextService.IsCancelled,
+                IsBusReplacement = nextService.ServiceType.Equals("bus", StringComparison.OrdinalIgnoreCase),
+                DelayReason = nextService.DelayReason,
+                CancelReason = nextService.CancelReason,
+            };
+
+        }
+        else
+        {
+            service = new()
+            {
+                NoServices = true
+            };
+        }
+
+        _cache.Set("departureBoard", service);
+    }
+
+    private async Task PublishConfig<T>(string topic, T payload, bool retain = true, CancellationToken stoppingToken = default)
+    {
+        try
+        {
             var applicationMessage = new MqttApplicationMessageBuilder()
-            .WithTopic("matrix_config")
-            .WithPayload(JsonSerializer.Serialize(_config, serializeOptions))
-            .WithRetainFlag()
+            .WithTopic(topic)
+            .WithPayload(JsonSerializer.Serialize(payload, serializeOptions))
+            .WithRetainFlag(retain)
             .Build();
 
             await _mqttClient.PublishAsync(applicationMessage, stoppingToken);
@@ -209,33 +242,17 @@ public class DataFeedWorker : BackgroundService
         }
     }
 
-    private Color[] Flattern2dColourMatrix(int[][]? colourMatrix)
+    private async Task<bool> CheckNetworkConnectivity(CancellationToken stoppingToken = default)
     {
-        int rows = 32;
-        int cols = 64;
+        await _networkConnectivityService.IsInternetConnected(4, TimeSpan.FromSeconds(5));
+        await _networkConnectivityService.GetSavedConnections(stoppingToken);
+        await _networkConnectivityService.GetAvailableNetworks(stoppingToken);
+        await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
 
-        if (colourMatrix == null || colourMatrix.Length == 0)
+        if (!_networkConnectivityService.IsOnline && !_matrixService.IsInPairingMode)
         {
-            colourMatrix = new int[rows][];
+            await _networkConnectivityService.EnableHotspot(stoppingToken);
         }
-
-        Color[] colourArray = new Color[rows * cols];
-
-        int pixel = 0;
-
-        for (int row = 0; row < rows; row++)
-        {
-            if (colourMatrix[row] == null || colourMatrix[row].Length != cols)
-            {
-                colourMatrix[row] = new int[cols];
-            }
-            for (int col = 0; col < cols; col++)
-            {
-                colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[row][col]);
-                pixel++;
-            }
-        }
-
-        return colourArray;
+        return !_networkConnectivityService.IsOnline;
     }
 }

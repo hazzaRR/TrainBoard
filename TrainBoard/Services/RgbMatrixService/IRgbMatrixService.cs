@@ -1,4 +1,5 @@
 using RPiRgbLEDMatrix;
+using TrainBoard.Entities;
 
 namespace TrainBoard.Services;
 
@@ -10,6 +11,7 @@ public interface IRgbMatrixService
     int FontWidth { get; }
     int FontHeight { get; }
     bool IsInitialised { get; }
+    bool IsInPairingMode { get; set; }
     Color StdColour { get; set; }
     Color PlatformColour { get; set; }
     Color DestinationColour { get; set; }
@@ -19,5 +21,6 @@ public interface IRgbMatrixService
     Color OnTimeColour { get; set; }
     bool ShowCustomDisplay { get; set; }
     Color[] MatrixPixels { get; set; }
+    void SetUserOptions(RgbMatrixConfiguration config);
 }
 

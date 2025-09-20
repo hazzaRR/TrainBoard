@@ -12,12 +12,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.0.1",
+    "@fortawesome/free-solid-svg-icons": "^7.0.1",
+    "@fortawesome/vue-fontawesome": "^3.1.2",
     "@popperjs/core": "^2.11.8",
     "@vueuse/core": "^13.7.0",
     "bootstrap": "^5.3.7",
     "mqtt": "^5.14.0",
+    "pinia": "^2.1.7",
     "vue": "^3.5.18",
-    "vue-multiselect": "^3.3.1"
+    "vue-multiselect": "^3.3.1",
+    "vue-router": "^4.5.1",
+    "vue3-openlayers": "^11.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",

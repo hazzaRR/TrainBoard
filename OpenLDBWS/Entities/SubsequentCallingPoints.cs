@@ -5,7 +5,7 @@ namespace OpenLDBWS.Entities;
 
 public class SubsequentCallingPoints
 {
-    [XmlArray("callingPointList", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
-    [XmlArrayItem(ElementName = "callingPoint", Namespace = "http://thalesgroup.com/RTTI/2021-11-01/ldb/types")]
+    [XmlArray("callingPointList", Namespace = LdbNamespaces.Lt8)]
+    [XmlArrayItem(ElementName = "callingPoint", Namespace = LdbNamespaces.Lt8)]
     public List<CallingPoint> CallingPoints {get; set;} = [];
 }
