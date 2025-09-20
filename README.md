@@ -93,6 +93,9 @@ Inside the /TrainBoard/Services/RgbMatrixService/RgbMatrixService.cs file you ma
         ```
         sudo chmod 666 /opt/TrainBoard/matrixSettings.json
         ```
+        ```
+        sudo chmod 666 /opt/TrainBoard/api-secrets.json
+        ```
 
 2) Create the Systemd Service File
 
