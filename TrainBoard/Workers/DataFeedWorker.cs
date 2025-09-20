@@ -79,7 +79,7 @@ public class DataFeedWorker : BackgroundService
         _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
 
 
-        _matrixService.IsApiKeyValid = string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
+        _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
 
         while (!stoppingToken.IsCancellationRequested)
             {
@@ -187,7 +187,7 @@ public class DataFeedWorker : BackgroundService
                     string updatedJson = jsonNode.ToJsonString(options);
                     await File.WriteAllTextAsync(filePath, updatedJson);
 
-                    _matrixService.IsApiKeyValid = string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
+                    _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
                 }
                 catch (Exception ex)
                 {
