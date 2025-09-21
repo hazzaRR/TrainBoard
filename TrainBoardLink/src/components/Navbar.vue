@@ -47,6 +47,9 @@
           <li class="nav-item">
             <RouterLink class="nav-link fw-medium text-white" to="/network">Networking</RouterLink>
           </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link fw-medium text-white" to="/data-feed">Data Feed</RouterLink>
+          </li>
         </ul>
       </div>
     </div>

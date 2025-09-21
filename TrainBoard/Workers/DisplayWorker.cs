@@ -13,6 +13,7 @@ public class DisplayWorker : BackgroundService
     private readonly IDestinationService _destinationService;
     private readonly IMemoryCache _cache;
     private ScreenData? data;
+    private int _timeout = 1000;
 
 
     public DisplayWorker(IRgbMatrixService matrixService, IPlatformEtdService platformEtdService, ICallingPointService callingPointService, IDestinationService destinationService, IMemoryCache cache)
@@ -26,34 +27,40 @@ public class DisplayWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-
-        while (_matrixService.IsInPairingMode)
-        {
-            DisplayPairingMode();
-            await Task.Delay(5000, stoppingToken);
-        }
-
-        while (!_cache.TryGetValue("departureBoard", out data))
-        {
-            await Task.Delay(1000, stoppingToken);
-        }
-
-        if (!data.NoServices)
-        {
-            _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
-            _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels > _matrixService.Canvas.Width;
-        }
-
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_matrixService.IsInitialised && _matrixService.IsInPairingMode)
+            if (!_matrixService.IsInitialised)
             {
-                _matrixService.Canvas.Clear();
-                DisplayPairingMode();
-                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
                 await Task.Delay(1000, stoppingToken);
+                continue;
             }
-            else if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
+
+            _matrixService.Canvas.Clear();
+
+            if (_matrixService.IsInPairingMode)
+            {
+                DisplayPairingMode();
+                _timeout = 2000;
+            }
+            else if (_matrixService.IsApiKeyInvalid)
+            {
+                DisplayInvalidApiKey();
+                _timeout = 2000;
+            }
+            else if (_matrixService.ShowCustomDisplay)
+            {
+                _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
+                _timeout = 1000;
+            }
+            else if (data == null)
+            {
+                _cache.TryGetValue("departureBoard", out data);
+                string line = "Loading...";
+                int lineStartingPos = (_matrixService.Canvas.Width - line.Length * _matrixService.FontWidth) / 2;
+                _matrixService.Canvas.DrawText(_matrixService.Font, lineStartingPos, _matrixService.Canvas.Height / 2, _matrixService.DestinationColour, line);
+                _timeout = 1000;
+            }
+            else
             {
                 if (_callingPointService.IsScrollComplete)
                 {
@@ -64,9 +71,6 @@ public class DisplayWorker : BackgroundService
                     _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
                     _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels > _matrixService.Canvas.Width;
                 }
-
-                _matrixService.Canvas.Clear();
-
                 if (data.NoServices)
                 {
                     DisplayNoServices();
@@ -75,21 +79,14 @@ public class DisplayWorker : BackgroundService
                 {
                     DisplayDepartureService();
                 }
-
                 string currentTime = DateTime.Now.ToString("HH:mm:ss");
                 int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length * _matrixService.FontWidth) / 2;
                 _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height - 1, _matrixService.CurrentTimeColour, currentTime);
-
-                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-                await Task.Delay(25, stoppingToken);
+                _timeout = 25;
             }
-            else if (_matrixService.IsInitialised && _matrixService.ShowCustomDisplay)
-            {
-                _matrixService.Canvas.Clear();
-                _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
-                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-                await Task.Delay(1000, stoppingToken);
-            }
+            
+            _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
+            await Task.Delay(_timeout, stoppingToken);
         }
     }
 
@@ -110,20 +107,35 @@ public class DisplayWorker : BackgroundService
 
     private void DisplayPairingMode()
     {
-        string line1 = "Pairing Mode";
+        string line1 = "PAIRING MODE";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
 
-        string line2 = "WiFi: BRboard";
+        string line2 = "WIFI: BRboard";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 13, _matrixService.DestinationColour, line2);
 
         string line3 = "PW: train2go!";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 19, _matrixService.DestinationColour, line3);
 
-        string line4 = "URL:";
+        string line4 = "GO TO:";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 25, _matrixService.DestinationColour, line4);
 
-        string line5 = "trainboard.local";
+        string line5 = "TRAINBOARD.LOCAL";
         _matrixService.Canvas.DrawText(_matrixService.Font, 0, 31, _matrixService.DestinationColour, line5);
+    }
+    
+    private void DisplayInvalidApiKey()
+    {
+        string line1 = "INVALID API KEY";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, _matrixService.FontHeight, _matrixService.DestinationColour, line1);
+
+        string line2 = "GO TO:";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 13, _matrixService.DestinationColour, line2);
+
+        string line3 = "TRAINBOARD.LOCAL";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 19, _matrixService.DestinationColour, line3);
+
+        string line4 = "DATA FEED PAGE";
+        _matrixService.Canvas.DrawText(_matrixService.Font, 0, 25, _matrixService.DestinationColour, line4);
     }
 
     private void DisplayDepartureService()
@@ -155,7 +167,7 @@ public class DisplayWorker : BackgroundService
         }
         else if (_callingPointService.showDelayReason)
         {
-           _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.DelayReason); 
+            _callingPointService.PixelsDrawn = _matrixService.Canvas.DrawText(_matrixService.Font, _callingPointService.ScrollTextPos, 22, _matrixService.CallingPointsColour, data.DelayReason);
         }
         else
         {

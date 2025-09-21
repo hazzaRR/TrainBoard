@@ -1,22 +1,19 @@
 using System.Xml;
 using System.Xml.Serialization;
 using OpenLDBWS.Entities;
+using OpenLDBWS.Options;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 namespace OpenLDBWS;
 public class LdbwsClient : ILdbwsClient
 {
-    private readonly string _apiKey;
+    private readonly IOptionsMonitor<LdbwsOptions> _optionsMonitor;
     private readonly string _url;
-    public LdbwsClient(string apiKey)
+    public LdbwsClient(IOptionsMonitor<LdbwsOptions> optionsMonitor)
     {
-        _apiKey = apiKey;
+        _optionsMonitor = optionsMonitor;
         _url = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/ldb12.asmx";
-    }
-    public LdbwsClient(string apiKey, string url)
-    {
-        _apiKey = apiKey;
-        _url = url;
     }
 
     private static T? DeserialiseSoapResponse<T>(string xml) 
@@ -44,14 +41,21 @@ public class LdbwsClient : ILdbwsClient
         return content;
     }
 
-    private async Task<string> SendSoapReqiest(string requestBody)
+    private async Task<string> SendSoapRequest(string requestBody)
     {
+
+        string apiKey = _optionsMonitor.CurrentValue.ApiKey;
+
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            throw new InvalidOperationException("API key is not configured.");
+        }
 
         string soapRequest = $@"
         <soap:Envelope xmlns:soap=""http://www.w3.org/2003/05/soap-envelope"" xmlns:typ=""http://thalesgroup.com/RTTI/2013-11-28/Token/types"" xmlns:ldb=""http://thalesgroup.com/RTTI/2021-11-01/ldb/"">
         <soap:Header>
             <typ:AccessToken>
-                <typ:TokenValue>{_apiKey}</typ:TokenValue>
+                <typ:TokenValue>{apiKey}</typ:TokenValue>
             </typ:AccessToken>
         </soap:Header>
         <soap:Body>
@@ -88,7 +92,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetDepBoardWithDetailsRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -111,7 +115,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetArrBoardWithDetailsRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -134,7 +138,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetArrDepBoardWithDetailsRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -157,7 +161,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetArrivalBoardRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -180,7 +184,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetArrivalDepartureBoardRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -203,7 +207,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetDepartureBoardRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -234,7 +238,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetFastestDeparturesRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -265,7 +269,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetFastestDeparturesWithDetailsRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -296,7 +300,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetNextDeparturesRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -327,7 +331,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetNextDeparturesWithDetailsRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {
@@ -345,7 +349,7 @@ public class LdbwsClient : ILdbwsClient
             </ldb:GetServiceDetailsRequest>";
 
 
-        string response = await SendSoapReqiest(soapRequest);
+        string response = await SendSoapRequest(soapRequest);
 
         if (response != null)
         {

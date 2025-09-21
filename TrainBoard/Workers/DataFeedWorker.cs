@@ -6,6 +6,9 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Globalization;
 using MQTTnet;
 using System.Text.Json;
+using OpenLDBWS.Options;
+using System.Text.Json.Nodes;
+using Microsoft.Extensions.Options;
 
 namespace TrainBoard.Workers;
 
@@ -17,6 +20,7 @@ public class DataFeedWorker : BackgroundService
     private readonly INetworkConnectivityService _networkConnectivityService;
     private readonly ILdbwsClient _client;
     private readonly IMqttClient _mqttClient;
+    private readonly IOptionsMonitor<LdbwsOptions> _optionsMonitor;
     private readonly MqttClientOptions _options;
     private RgbMatrixConfiguration _config;
     private Dictionary<string, string> _stationAliases;
@@ -27,13 +31,14 @@ public class DataFeedWorker : BackgroundService
         WriteIndented = true
     };
 
-    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, INetworkConnectivityService networkConnectivityService, IMemoryCache cache, ILdbwsClient client)
+    public DataFeedWorker(ILogger<DataFeedWorker> logger, IRgbMatrixService matrixService, INetworkConnectivityService networkConnectivityService, IMemoryCache cache, ILdbwsClient client, IOptionsMonitor<LdbwsOptions> optionsMonitor)
     {
         _logger = logger;
         _matrixService = matrixService;
         _networkConnectivityService = networkConnectivityService;
         _cache = cache;
         _client = client;
+        _optionsMonitor = optionsMonitor;
 
         _mqttClient = new MqttClientFactory().CreateMqttClient();
 
@@ -70,12 +75,24 @@ public class DataFeedWorker : BackgroundService
             {"London Liverpool Street", "London Liv St."}
         };
 
+        _matrixService.IsApiKeyInvalid = string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
         await _networkConnectivityService.InitialiseNetworkManager();
         _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
 
+
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_matrixService.IsInitialised && _networkConnectivityService.IsOnline)
+            if (!_networkConnectivityService.IsOnline)
+            {
+                _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
+                await Task.Delay(5000, stoppingToken);
+            }
+            else if (_matrixService.IsApiKeyInvalid)
+            {
+                _matrixService.IsApiKeyInvalid = string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
+                await Task.Delay(2000, stoppingToken);
+            }
+            else
             {
                 try
                 {
@@ -88,11 +105,6 @@ public class DataFeedWorker : BackgroundService
                     _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
                 }
             }
-            else
-            {
-                _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
-                await Task.Delay(5000, stoppingToken);
-            }
 
         }
     }
@@ -104,6 +116,7 @@ public class DataFeedWorker : BackgroundService
         {
             await _mqttClient.SubscribeAsync("matrix/config", cancellationToken: stoppingToken);
             await _mqttClient.SubscribeAsync("network/manage", cancellationToken: stoppingToken);
+            await _mqttClient.SubscribeAsync("feed/update", cancellationToken: stoppingToken);
         };
 
         _mqttClient.ApplicationMessageReceivedAsync += async e =>
@@ -151,6 +164,31 @@ public class DataFeedWorker : BackgroundService
                     await _networkConnectivityService.GetSavedConnections();
                     await _networkConnectivityService.GetAvailableNetworks();
                     await PublishConfig("network/available", _networkConnectivityService.AvailableNetworks, true, stoppingToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"{ex}");
+                }
+            }
+            else if (e.ApplicationMessage.Topic.Equals("feed/update"))
+            {
+                LdbwsOptions newApiKey = JsonSerializer.Deserialize<LdbwsOptions>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
+                _logger.LogInformation($"New api key recieved: {newApiKey.ApiKey}");
+                try
+                {
+                    string filePath = "./api-secrets.json";
+
+                    string jsonString = await File.ReadAllTextAsync(filePath);
+                    var jsonNode = JsonNode.Parse(jsonString);
+
+                    var ldbwsSection = jsonNode["LdbwsClient"];
+                    ldbwsSection["ApiKey"] = newApiKey.ApiKey;
+
+                    var options = new JsonSerializerOptions { WriteIndented = true };
+                    string updatedJson = jsonNode.ToJsonString(options);
+                    await File.WriteAllTextAsync(filePath, updatedJson);
+
+                    _matrixService.IsApiKeyInvalid = string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
                 }
                 catch (Exception ex)
                 {
