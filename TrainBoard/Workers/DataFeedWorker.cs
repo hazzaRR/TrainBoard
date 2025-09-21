@@ -75,10 +75,10 @@ public class DataFeedWorker : BackgroundService
             {"London Liverpool Street", "London Liv St."}
         };
 
+        _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
         await _networkConnectivityService.InitialiseNetworkManager();
         _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
 
-        _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
 
         while (!stoppingToken.IsCancellationRequested)
             {

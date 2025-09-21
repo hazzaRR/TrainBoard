@@ -13,6 +13,7 @@ public class DisplayWorker : BackgroundService
     private readonly IDestinationService _destinationService;
     private readonly IMemoryCache _cache;
     private ScreenData? data;
+    private int _timeout = 1000;
 
 
     public DisplayWorker(IRgbMatrixService matrixService, IPlatformEtdService platformEtdService, ICallingPointService callingPointService, IDestinationService destinationService, IMemoryCache cache)
@@ -26,49 +27,37 @@ public class DisplayWorker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-
-        while (_matrixService.IsInPairingMode)
-        {
-            DisplayPairingMode();
-            _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-            await Task.Delay(5000, stoppingToken);
-        }
-
-        while (!_matrixService.IsApiKeyValid)
-        {
-            DisplayInvalidApiKey();
-            _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-            await Task.Delay(5000, stoppingToken);
-        }
-
-        while (!_cache.TryGetValue("departureBoard", out data))
-        {
-            await Task.Delay(1000, stoppingToken);
-        }
-
-        if (!data.NoServices)
-        {
-            _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
-            _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels > _matrixService.Canvas.Width;
-        }
-
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_matrixService.IsInitialised && _matrixService.IsInPairingMode)
+            if (!_matrixService.IsInitialised)
             {
-                _matrixService.Canvas.Clear();
+                await Task.Delay(1000, stoppingToken);
+                continue;
+            }
+
+            _matrixService.Canvas.Clear();
+
+            if (_matrixService.IsInPairingMode)
+            {
                 DisplayPairingMode();
-                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-                await Task.Delay(1000, stoppingToken);
+                _timeout = 2000;
             }
-            if (_matrixService.IsInitialised && !_matrixService.IsApiKeyValid)
+            else if (!_matrixService.IsApiKeyValid)
             {
-                _matrixService.Canvas.Clear();
                 DisplayInvalidApiKey();
-                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-                await Task.Delay(1000, stoppingToken);
+                _timeout = 2000;
             }
-            else if (_matrixService.IsInitialised && !_matrixService.ShowCustomDisplay && data != null)
+            else if (_matrixService.ShowCustomDisplay)
+            {
+                _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
+                _timeout = 1000;
+            }
+            else if (data == null)
+            {
+                _cache.TryGetValue("departureBoard", out data);
+                _timeout = 1000;
+            }
+            else
             {
                 if (_callingPointService.IsScrollComplete)
                 {
@@ -79,9 +68,6 @@ public class DisplayWorker : BackgroundService
                     _destinationService.DestinationWidthInPixels = !data.NoServices ? data.Destination.Length * _matrixService.FontWidth : 0;
                     _destinationService.IsDestinationScrollable = _destinationService.DestinationWidthInPixels > _matrixService.Canvas.Width;
                 }
-
-                _matrixService.Canvas.Clear();
-
                 if (data.NoServices)
                 {
                     DisplayNoServices();
@@ -90,21 +76,14 @@ public class DisplayWorker : BackgroundService
                 {
                     DisplayDepartureService();
                 }
-
                 string currentTime = DateTime.Now.ToString("HH:mm:ss");
                 int timeStartingPos = (_matrixService.Canvas.Width - currentTime.Length * _matrixService.FontWidth) / 2;
                 _matrixService.Canvas.DrawText(_matrixService.Font, timeStartingPos, _matrixService.Canvas.Height - 1, _matrixService.CurrentTimeColour, currentTime);
-
-                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-                await Task.Delay(25, stoppingToken);
+                _timeout = 25;
             }
-            else if (_matrixService.IsInitialised && _matrixService.ShowCustomDisplay)
-            {
-                _matrixService.Canvas.Clear();
-                _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
-                _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
-                await Task.Delay(1000, stoppingToken);
-            }
+            
+            _matrixService.Matrix.SwapOnVsync(_matrixService.Canvas);
+            await Task.Delay(_timeout, stoppingToken);
         }
     }
 
