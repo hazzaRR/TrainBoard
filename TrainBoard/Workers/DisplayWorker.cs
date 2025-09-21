@@ -57,7 +57,7 @@ public class DisplayWorker : BackgroundService
                 _cache.TryGetValue("departureBoard", out data);
                 string line = "Loading...";
                 int lineStartingPos = (_matrixService.Canvas.Width - line.Length * _matrixService.FontWidth) / 2;
-                _matrixService.Canvas.DrawText(_matrixService.Font, lineStartingPos, (_matrixService.Canvas.Height / 2) + _matrixService.FontHeight, _matrixService.DestinationColour, line);
+                _matrixService.Canvas.DrawText(_matrixService.Font, lineStartingPos, _matrixService.Canvas.Height / 2, _matrixService.DestinationColour, line);
                 _timeout = 1000;
             }
             else
