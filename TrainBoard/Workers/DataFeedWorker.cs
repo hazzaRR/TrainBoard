@@ -81,8 +81,18 @@ public class DataFeedWorker : BackgroundService
 
 
         while (!stoppingToken.IsCancellationRequested)
+        {
+            if (!_networkConnectivityService.IsOnline)
             {
-            if (_matrixService.IsInitialised && _networkConnectivityService.IsOnline && _matrixService.IsApiKeyValid)
+                _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
+                await Task.Delay(5000, stoppingToken);
+            }
+            else if (!_matrixService.IsApiKeyValid)
+            {
+                _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
+                await Task.Delay(2000, stoppingToken);
+            }
+            else
             {
                 try
                 {
@@ -95,18 +105,8 @@ public class DataFeedWorker : BackgroundService
                     _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
                 }
             }
-            else if (!_matrixService.IsApiKeyValid)
-            {
-                _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
-                await Task.Delay(2000, stoppingToken);    
-            }
-            else
-            {
-                _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
-                await Task.Delay(5000, stoppingToken);
-            }
 
-            }
+        }
     }
 
     private void SetupMqttEventHandlers(CancellationToken stoppingToken)
