@@ -12,7 +12,7 @@ public interface IRgbMatrixService
     int FontHeight { get; }
     bool IsInitialised { get; }
     bool IsInPairingMode { get; set; }
-    public bool IsApiKeyValid { get; set; }
+    public bool IsApiKeyInvalid { get; set; }
     Color StdColour { get; set; }
     Color PlatformColour { get; set; }
     Color DestinationColour { get; set; }

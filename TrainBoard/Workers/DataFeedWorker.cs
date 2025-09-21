@@ -75,7 +75,7 @@ public class DataFeedWorker : BackgroundService
             {"London Liverpool Street", "London Liv St."}
         };
 
-        _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
+        _matrixService.IsApiKeyInvalid = string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
         await _networkConnectivityService.InitialiseNetworkManager();
         _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
 
@@ -87,9 +87,9 @@ public class DataFeedWorker : BackgroundService
                 _matrixService.IsInPairingMode = await CheckNetworkConnectivity(stoppingToken);
                 await Task.Delay(5000, stoppingToken);
             }
-            else if (!_matrixService.IsApiKeyValid)
+            else if (_matrixService.IsApiKeyInvalid)
             {
-                _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
+                _matrixService.IsApiKeyInvalid = string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
                 await Task.Delay(2000, stoppingToken);
             }
             else
@@ -188,7 +188,7 @@ public class DataFeedWorker : BackgroundService
                     string updatedJson = jsonNode.ToJsonString(options);
                     await File.WriteAllTextAsync(filePath, updatedJson);
 
-                    _matrixService.IsApiKeyValid = !string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
+                    _matrixService.IsApiKeyInvalid = string.IsNullOrEmpty(_optionsMonitor.CurrentValue.ApiKey);
                 }
                 catch (Exception ex)
                 {

@@ -42,7 +42,7 @@ public class DisplayWorker : BackgroundService
                 DisplayPairingMode();
                 _timeout = 2000;
             }
-            else if (!_matrixService.IsApiKeyValid)
+            else if (_matrixService.IsApiKeyInvalid)
             {
                 DisplayInvalidApiKey();
                 _timeout = 2000;
@@ -55,6 +55,9 @@ public class DisplayWorker : BackgroundService
             else if (data == null)
             {
                 _cache.TryGetValue("departureBoard", out data);
+                string line = "Loading...";
+                int lineStartingPos = (_matrixService.Canvas.Width - line.Length * _matrixService.FontWidth) / 2;
+                _matrixService.Canvas.DrawText(_matrixService.Font, lineStartingPos, (_matrixService.Canvas.Height / 2) + _matrixService.FontHeight, _matrixService.DestinationColour, line);
                 _timeout = 1000;
             }
             else
