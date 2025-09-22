@@ -178,7 +178,7 @@ async function updateMatrixConfig() {
     onTimeColour: hexToInt(onTimeColour.value),
     showCustomDisplay: showCustomDisplay.value,
     matrixPixels: matrixPixels.value,
-    brightness: brightness.value
+    brightness: Number(brightness.value)
   };
 
   mqttStore.publishPayload("matrix/config", newConfiguration,
@@ -202,7 +202,7 @@ function updateConfiguration(config) {
   onTimeColour.value = intToHex(config.onTimeColour);
   showCustomDisplay.value = config.showCustomDisplay;
   matrixPixels.value = JSON.parse(JSON.stringify(config.matrixPixels));
-  brightness.value = config.brightness;
+  brightness.value = Number(config.brightness);
   initialiseArray();
 };
 
