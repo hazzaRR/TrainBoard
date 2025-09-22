@@ -69,9 +69,13 @@ public class RgbMatrixService : IRgbMatrixService
         CurrentTimeColour = ColourConverter.IntToRgb(config.CurrentTimeColour);
         DelayColour = ColourConverter.IntToRgb(config.DelayColour);
         OnTimeColour = ColourConverter.IntToRgb(config.OnTimeColour);
-        Brightness = config.Brightness;
         ShowCustomDisplay = config.ShowCustomDisplay;
         MatrixPixels = ConvertIntToColourMatrix(config.MatrixPixels);
+        if (Brightness != config.Brightness)
+        {
+            Brightness = config.Brightness;
+            Matrix.Brightness = (byte)config.Brightness;
+        }
     }
     private Color[] Flattern2dColourMatrix(int[][]? colourMatrix)
     {
