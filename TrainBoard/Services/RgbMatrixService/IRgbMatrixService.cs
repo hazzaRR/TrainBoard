@@ -22,6 +22,7 @@ public interface IRgbMatrixService
     Color OnTimeColour { get; set; }
     bool ShowCustomDisplay { get; set; }
     Color[] MatrixPixels { get; set; }
+    int Brightness { get; set; }
     void SetUserOptions(RgbMatrixConfiguration config);
 }
 
