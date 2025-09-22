@@ -25,6 +25,7 @@ public class RgbMatrixService : IRgbMatrixService
     public Color OnTimeColour { get; set; } = new Color(0, 255, 0);
     public bool ShowCustomDisplay { get; set; } = false;
     public Color[] MatrixPixels { get; set; } = new Color[32 * 64];
+    public int Brightness { get; set; } = 50;
 
     public RgbMatrixService()
     {
@@ -33,7 +34,7 @@ public class RgbMatrixService : IRgbMatrixService
         {
             Rows = 32,
             Cols = 64,
-            Brightness = 50,
+            Brightness = Brightness,
             HardwareMapping = "adafruit-hat",
             GpioSlowdown = 5,
             ShowRefreshRate = true
@@ -68,6 +69,7 @@ public class RgbMatrixService : IRgbMatrixService
         CurrentTimeColour = ColourConverter.IntToRgb(config.CurrentTimeColour);
         DelayColour = ColourConverter.IntToRgb(config.DelayColour);
         OnTimeColour = ColourConverter.IntToRgb(config.OnTimeColour);
+        Brightness = config.Brightness;
         ShowCustomDisplay = config.ShowCustomDisplay;
         MatrixPixels = ConvertIntToColourMatrix(config.MatrixPixels);
     }

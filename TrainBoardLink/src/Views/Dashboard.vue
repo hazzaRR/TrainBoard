@@ -50,6 +50,10 @@
           <label for="floatingTimeWindow">Time Window</label>
         </div>
         <div class="form-floating mb-3">
+          <input type="range" class="form-control form-range" id="floatingScreenBrightness" min="0" max="100" v-model="brightness" />
+          <label for="floatingScreenBrightness">Screen Brightness : {{ brightness }}</label>
+        </div>
+        <div class="form-floating mb-3">
           <input type="color" class="form-control" id="floatingStdColour" v-model="stdColour" />
           <label for="floatingStdColour">Departure Time Colour</label>
         </div>
@@ -132,6 +136,7 @@ const currentTimeColour = ref("#ffa000");
 const delayColour = ref("#ff0f00");
 const onTimeColour = ref("#00ff00");
 const matrixPixels = ref([]);
+const brightness = ref(50);
 
 watch(() => mqttStore.matrixConfig, () => {
   if (mqttStore?.matrixConfig) {
@@ -153,6 +158,7 @@ function resetMatrixConfig() {
   currentTimeColour.value = "#ffa000";
   delayColour.value = "#ff0f00";
   onTimeColour.value = "#00ff00";
+  brightness.value = 50;
 };
 
 async function updateMatrixConfig() {
@@ -172,6 +178,7 @@ async function updateMatrixConfig() {
     onTimeColour: hexToInt(onTimeColour.value),
     showCustomDisplay: showCustomDisplay.value,
     matrixPixels: matrixPixels.value,
+    brightness: brightness.value
   };
 
   mqttStore.publishPayload("matrix/config", newConfiguration,
@@ -195,6 +202,7 @@ function updateConfiguration(config) {
   onTimeColour.value = intToHex(config.onTimeColour);
   showCustomDisplay.value = config.showCustomDisplay;
   matrixPixels.value = JSON.parse(JSON.stringify(config.matrixPixels));
+  brightness.value = config.brightness;
   initialiseArray();
 };
 

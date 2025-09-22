@@ -30,7 +30,8 @@ const matrixConfig = ref({
   currentTimeColour: 16758784,
   delayColour: 16711680,
   onTimeColour: 65280,
-  matrixPixels: []
+  matrixPixels: [],
+  brightness: 50,
 });
 const availableNetworks = ref(null);
 
