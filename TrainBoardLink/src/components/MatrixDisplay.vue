@@ -1,22 +1,16 @@
 <template>
   <div class="matrix-container mx-auto">
-    <div class="pixel-matrix mx-auto">
-      <div
-        v-for="(rowPixels, row) in matrixPixels"
-        :key="row"
-        class="container d-flex flex-row w-100 p-0"
-      >
+    <div class="pixel-matrix mx-auto" style="--cols: 64;">
         <div
-          v-for="(pixelColor, col) in rowPixels"
-          :key="`${row}-${col}`"
+          v-for="(pixel, index) in matrixPixels"
+          :key="index"
           class="pixel"
-          @click.left.exact="setPixelColor(row, col)"
-          @click.right.prevent.exact="resetPixelColor(row, col)"
-          @click.ctrl="resetPixelColor(row, col)"
-          @mousemove.shift="setPixelColor(row, col)"
-          :style="{ 'background-color': intToHex(matrixPixels[row][col]) }"
+          @click.left.exact="setPixelColor(index)"
+          @click.right.prevent.exact="resetPixelColor(index)"
+          @click.ctrl="resetPixelColor(index)"
+          @mousemove.shift="setPixelColor(index)"
+          :style="{ 'background-color': intToHex(matrixPixels[index]) }"
         ></div>
-    </div>
     </div>
     <div class="mx-auto d-flex align-items-center ms-4 mt-2 justify-content-start">
       <button class="btn btn-primary me-1" type="button" @click="open">
@@ -39,20 +33,18 @@ const matrixPixels = defineModel('matrixPixels', {type: Array})
 
 const selectedColor = ref("#ff0000");
 
-const setPixelColor = (row, col) => {
-    matrixPixels.value[row][col] = hexToInt(selectedColor.value);
+const setPixelColor = (index) => {
+    matrixPixels.value[index] = hexToInt(selectedColor.value);
 }
 
-const resetPixelColor = (row, col) => {
-    matrixPixels.value[row][col] = 0;
+const resetPixelColor = (index) => {
+    matrixPixels.value[index] = 0;
 }
 
 const clearMatrix = () => {
 
-  for (let row = 0; row < matrixPixels.value.length; row++) {
-      for (let col = 0; col < matrixPixels.value[row].length; col++) {
-        matrixPixels.value[row][col] = 0;
-    }
+  for (let index = 0; index < matrixPixels.value.length; index++) {
+      matrixPixels.value[index] = 0;
   }
 }
 
@@ -89,7 +81,6 @@ const processImage = (img) => {
 
   const imageData = ctx.getImageData(0, 0, cols, rows).data;
 
-  const pixels = [];
   for (let i = 0; i < imageData.length; i += 4) {
     const r = imageData[i];
     const g = imageData[i + 1];
@@ -98,12 +89,9 @@ const processImage = (img) => {
 
     const intValue = (r << 16) | (g << 8) | b;
 
-    // Calculate the row and column from the 1D index
     const pixelIndex = i / 4;
-    const row = Math.floor(pixelIndex / cols);
-    const col = pixelIndex % cols;
 
-    matrixPixels.value[row][col] = intValue;
+    matrixPixels.value[pixelIndex] = intValue;
   }
 };
 
@@ -112,10 +100,9 @@ const processImage = (img) => {
 <style lang="scss" scoped>
 .pixel-matrix {
   display: grid;
-  // grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-columns: repeat(var(--cols), 1fr);
   width: fit-content;
-//   width: calc((15px * var(--cols)) + (2px * (var(--cols) - 1)) + 2px);
-//   grid-gap: 1px;
+  grid-gap: 1px;
   border: solid #000000;
   padding: 1px;
 }

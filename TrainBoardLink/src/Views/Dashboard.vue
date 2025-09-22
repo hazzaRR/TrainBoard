@@ -200,14 +200,9 @@ function updateConfiguration(config) {
 
 function initialiseArray() {
   if (matrixPixels.value == null || matrixPixels.value.length == 0) {
-    matrixPixels.value = new Array(32);
-  }
-  for (let i = 0; i < matrixPixels.value.length; i++) {
-    if (matrixPixels.value[i] == null || matrixPixels.value[i].length == 0) {
-      matrixPixels.value[i] = new Array(64);
-      for (let j = 0; j < matrixPixels.value[i].length; j++) {
-        matrixPixels.value[i][j] = 0;
-      }
+    matrixPixels.value = new Array(32*64);
+    for (let i = 0; i < matrixPixels.value.length; i++) {
+        matrixPixels.value[i] = 0;
     }
   }
 };

@@ -69,7 +69,7 @@ public class RgbMatrixService : IRgbMatrixService
         DelayColour = ColourConverter.IntToRgb(config.DelayColour);
         OnTimeColour = ColourConverter.IntToRgb(config.OnTimeColour);
         ShowCustomDisplay = config.ShowCustomDisplay;
-        MatrixPixels = Flattern2dColourMatrix(config.MatrixPixels);
+        MatrixPixels = ConvertIntToColourMatrix(config.MatrixPixels);
     }
     private Color[] Flattern2dColourMatrix(int[][]? colourMatrix)
     {
@@ -96,6 +96,25 @@ public class RgbMatrixService : IRgbMatrixService
                 colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[row][col]);
                 pixel++;
             }
+        }
+
+        return colourArray;
+    }
+    private Color[] ConvertIntToColourMatrix(int[]? colourMatrix)
+    {
+        int pixels = 32 * 64;
+
+        if (colourMatrix == null || colourMatrix.Length == 0)
+        {
+            colourMatrix = new int[pixels];
+        }
+
+        Color[] colourArray = new Color[pixels];
+
+
+        for (int pixel = 0; pixel < pixels; pixel++)
+        {
+            colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[pixel]);
         }
 
         return colourArray;
