@@ -19,4 +19,5 @@ public class RgbMatrixConfiguration
     public int OnTimeColour { get; set; } = 65280;
     public bool ShowCustomDisplay { get; set; } = false;
     public int[][] MatrixPixels { get; set; } = new int[32][];
+    public int Brightness { get; set; } = 50;
 }
