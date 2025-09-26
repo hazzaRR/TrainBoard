@@ -21,7 +21,7 @@ public interface IRgbMatrixService
     Color DelayColour { get; set; }
     Color OnTimeColour { get; set; }
     bool ShowCustomDisplay { get; set; }
-    Color[] MatrixPixels { get; set; }
+    MatrixFrame[] MatrixFrames { get; set; }
     int Brightness { get; set; }
     void SetUserOptions(RgbMatrixConfiguration config);
 }

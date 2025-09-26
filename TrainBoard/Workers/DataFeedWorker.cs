@@ -9,6 +9,10 @@ using System.Text.Json;
 using OpenLDBWS.Options;
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using TrainBoard.Utilities;
 
 namespace TrainBoard.Workers;
 
@@ -115,6 +119,7 @@ public class DataFeedWorker : BackgroundService
         _mqttClient.ConnectedAsync += async e =>
         {
             await _mqttClient.SubscribeAsync("matrix/config", cancellationToken: stoppingToken);
+            await _mqttClient.SubscribeAsync("image/process", cancellationToken: stoppingToken);
             await _mqttClient.SubscribeAsync("network/manage", cancellationToken: stoppingToken);
             await _mqttClient.SubscribeAsync("feed/update", cancellationToken: stoppingToken);
         };
@@ -142,6 +147,31 @@ public class DataFeedWorker : BackgroundService
                 catch (Exception ex)
                 {
                     _logger.LogError($"{ex}");
+                }
+            }
+            if (e.ApplicationMessage.Topic.Equals("image/process"))
+            {
+                var imageStream = JsonSerializer.Deserialize<byte[]>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
+                _logger.LogInformation($"New image upload recieved");
+                try
+                {
+                    using var image = Image.Load<Rgb24>(imageStream);
+                    image.Mutate(o => o.Resize(_matrixService.Canvas.Width, _matrixService.Canvas.Height));
+
+                    List<EncodedFrame> frames = image.Frames
+                    .Select(f => new EncodedFrame()
+                    {
+                        Pixels = f.DangerousTryGetSinglePixelMemory(out var memory) ? memory.ToArray().Select(colour => ColourConverter.Rgb24ToInt(colour)).ToArray() : throw new("Could not get pixel buffer"),
+                        Delay = f.Metadata.GetGifMetadata().FrameDelay * 10
+                    }
+                    ).ToList();
+
+                    await PublishConfig("image/encoded", frames, true, stoppingToken);
+
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error process image: {ex.Message}");
                 }
             }
             else if (e.ApplicationMessage.Topic.Equals("network/manage"))

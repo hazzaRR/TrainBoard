@@ -24,7 +24,7 @@ public class RgbMatrixService : IRgbMatrixService
     public Color DelayColour { get; set; } = new Color(255, 15, 0);
     public Color OnTimeColour { get; set; } = new Color(0, 255, 0);
     public bool ShowCustomDisplay { get; set; } = false;
-    public Color[] MatrixPixels { get; set; } = new Color[32 * 64];
+    public MatrixFrame[] MatrixFrames { get; set; } = [];
     public int Brightness { get; set; } = 50;
 
     public RgbMatrixService()
@@ -70,7 +70,7 @@ public class RgbMatrixService : IRgbMatrixService
         DelayColour = ColourConverter.IntToRgb(config.DelayColour);
         OnTimeColour = ColourConverter.IntToRgb(config.OnTimeColour);
         ShowCustomDisplay = config.ShowCustomDisplay;
-        MatrixPixels = ConvertIntToColourMatrix(config.MatrixPixels);
+        MatrixFrames = ConvertIntToColourMatrix(config.MatrixFrames);
         if (Brightness != config.Brightness)
         {
             Brightness = config.Brightness;
@@ -106,24 +106,20 @@ public class RgbMatrixService : IRgbMatrixService
 
         return colourArray;
     }
-    private Color[] ConvertIntToColourMatrix(int[]? colourMatrix)
+    private MatrixFrame[] ConvertIntToColourMatrix(List<EncodedFrame> encodedFrames)
     {
         int pixels = 32 * 64;
 
-        if (colourMatrix == null || colourMatrix.Length == 0)
+        if (encodedFrames == null || encodedFrames.Count == 0)
         {
-            colourMatrix = new int[pixels];
+            encodedFrames = [new() {Pixels = new int[pixels], Delay = 1000}];
         }
 
-        Color[] colourArray = new Color[pixels];
-
-
-        for (int pixel = 0; pixel < pixels; pixel++)
+        return encodedFrames.Select(frame => new MatrixFrame()
         {
-            colourArray[pixel] = ColourConverter.IntToRgb(colourMatrix[pixel]);
-        }
-
-        return colourArray;
+            Pixels = frame.Pixels.Select(pixel => ColourConverter.IntToRgb(pixel)).ToArray(),
+            Delay = frame.Delay
+        }).ToArray();
     }
 
 

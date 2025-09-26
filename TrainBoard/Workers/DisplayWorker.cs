@@ -14,6 +14,7 @@ public class DisplayWorker : BackgroundService
     private readonly IMemoryCache _cache;
     private ScreenData? data;
     private int _timeout = 1000;
+    private int frame = -1;
 
 
     public DisplayWorker(IRgbMatrixService matrixService, IPlatformEtdService platformEtdService, ICallingPointService callingPointService, IDestinationService destinationService, IMemoryCache cache)
@@ -49,8 +50,9 @@ public class DisplayWorker : BackgroundService
             }
             else if (_matrixService.ShowCustomDisplay)
             {
-                _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixPixels.AsSpan());
-                _timeout = 1000;
+                frame = (frame + 1) % _matrixService.MatrixFrames.Length;
+                _matrixService.Canvas.SetPixels(0, 0, _matrixService.Canvas.Width, _matrixService.Canvas.Height, _matrixService.MatrixFrames[frame].Pixels.AsSpan());
+                _timeout = _matrixService.MatrixFrames[frame].Delay;
             }
             else if (data == null)
             {

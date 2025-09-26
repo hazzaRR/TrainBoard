@@ -1,4 +1,5 @@
 using RPiRgbLEDMatrix;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace TrainBoard.Utilities;
 
@@ -24,6 +25,16 @@ public static class ColourConverter
     /// <param name="color">The RgbColor struct to convert.</param>
     /// <returns>A 32-bit integer representing the color.</returns>
     public static int RgbToInt(Color color)
+    {
+        return (color.R << 16) | (color.G << 8) | color.B;
+    }
+
+    /// <summary>
+    /// Converts an Rgb24 struct to a single 32-bit integer representation.
+    /// </summary>
+    /// <param name="color">The RgbColor struct to convert.</param>
+    /// <returns>A 32-bit integer representing the color.</returns>
+    public static int Rgb24ToInt(Rgb24 color)
     {
         return (color.R << 16) | (color.G << 8) | color.B;
     }
