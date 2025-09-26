@@ -13,10 +13,19 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import {
     faCheck,
-    faWifi
+    faWifi,
+    faChevronLeft,
+    faChevronRight,
+    faPlay,
+    faPause,
+    faUpload,
+    faClone,
+    faPlus,
+    faTrash,
+    faSquareMinus
 } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faCheck, faWifi);
+library.add(faCheck, faWifi, faChevronLeft, faChevronRight, faPlay, faPause, faUpload, faClone, faPlus, faTrash, faSquareMinus);
 
 import "vue3-openlayers/styles.css";
 import OpenLayersMap from "vue3-openlayers";

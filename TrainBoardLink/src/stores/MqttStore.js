@@ -12,8 +12,9 @@ const alert = ref({
 });
 
 let client = null;
-const host = "ws://pizero.local:9001";
+const host = "ws://pizero.local:9006";
 const matrixConfigTopic = "matrix/config";
+const imageEncodedTopic = "image/encoded";
 const availableNetworksTopic = "network/available";
 const networkOutcomeTopic = "network/outcome";
 const matrixConfig = ref({
@@ -30,7 +31,7 @@ const matrixConfig = ref({
   currentTimeColour: 16758784,
   delayColour: 16711680,
   onTimeColour: 65280,
-  matrixPixels: [],
+  matrixFrames: [],
   brightness: 50,
 });
 const availableNetworks = ref(null);
@@ -55,6 +56,11 @@ const connectToBroker = () => {
       client.subscribe(networkOutcomeTopic, (err) => {
         if (!err) {
           console.log(`Subscribed to topic: ${networkOutcomeTopic}`);
+        }
+      });
+      client.subscribe(imageEncodedTopic, (err) => {
+        if (!err) {
+          console.log(`Subscribed to topic: ${imageEncodedTopic}`);
         }
       });
     });

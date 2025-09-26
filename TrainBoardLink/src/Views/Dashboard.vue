@@ -86,7 +86,7 @@
             v-model="showCustomDisplay" />
           <label class="form-check-label" for="switchCheckDefault">Custom display</label>
         </div>
-        <MatrixDisplay v-if="showCustomDisplay" v-model:matrix-pixels="matrixPixels" />
+        <MatrixDisplay v-if="showCustomDisplay" v-model:matrix-frames="matrixFrames" @process-image="processImage" />
       </div>
       <div class="card-footer text-end">
         <button @click="resetMatrixConfig" type="button" class="btn btn-secondary me-1">
@@ -135,7 +135,7 @@ const callingPointsColour = ref("#ffa000");
 const currentTimeColour = ref("#ffa000");
 const delayColour = ref("#ff0f00");
 const onTimeColour = ref("#00ff00");
-const matrixPixels = ref([]);
+const matrixFrames = ref([]);
 const brightness = ref(50);
 
 watch(() => mqttStore.matrixConfig, () => {
@@ -177,7 +177,7 @@ async function updateMatrixConfig() {
     delayColour: hexToInt(delayColour.value),
     onTimeColour: hexToInt(onTimeColour.value),
     showCustomDisplay: showCustomDisplay.value,
-    matrixPixels: matrixPixels.value,
+    matrixFrames: matrixFrames.value,
     brightness: Number(brightness.value)
   };
 
@@ -201,16 +201,20 @@ function updateConfiguration(config) {
   delayColour.value = intToHex(config.delayColour);
   onTimeColour.value = intToHex(config.onTimeColour);
   showCustomDisplay.value = config.showCustomDisplay;
-  matrixPixels.value = JSON.parse(JSON.stringify(config.matrixPixels));
+  matrixFrames.value = JSON.parse(JSON.stringify(config.matrixFrames));
   brightness.value = Number(config.brightness);
   initialiseArray();
 };
 
 function initialiseArray() {
-  if (matrixPixels.value == null || matrixPixels.value.length == 0) {
-    matrixPixels.value = new Array(32*64);
-    for (let i = 0; i < matrixPixels.value.length; i++) {
-        matrixPixels.value[i] = 0;
+  if (matrixFrames.value == null || matrixFrames.value.length == 0) {
+    matrixFrames.value[0] = {
+      pixels: new Array(32*64),
+      delay: 1000
+    };
+
+    for (let i = 0; i < matrixFrames.value[0].pixels.length; i++) {
+        matrixFrames.value[0].pixels[i] = 0;
     }
   }
 };
@@ -224,6 +228,11 @@ function getRandomIntInclusive(min, max) {
   const minCeiled = Math.ceil(min);
   const maxFloored = Math.floor(max);
   return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
+}
+
+function processImage(byteArray)
+{
+    mqttStore.publishPayload("image/process", byteArray, "Processing Images", 1);
 }
 
 </script>
