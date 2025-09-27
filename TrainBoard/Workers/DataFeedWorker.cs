@@ -151,10 +151,11 @@ public class DataFeedWorker : BackgroundService
             }
             if (e.ApplicationMessage.Topic.Equals("image/process"))
             {
-                var imageStream = JsonSerializer.Deserialize<byte[]>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
-                _logger.LogInformation($"New image upload recieved");
+                _logger.LogInformation($"New image upload recieved: {e.ApplicationMessage.ConvertPayloadToString()}");
+                var payload = JsonSerializer.Deserialize<ImagePayload>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
                 try
                 {
+                    var imageStream = Convert.FromBase64String(payload.ImageData);
                     using var image = Image.Load<Rgb24>(imageStream);
                     image.Mutate(o => o.Resize(_matrixService.Canvas.Width, _matrixService.Canvas.Height));
 
@@ -166,7 +167,7 @@ public class DataFeedWorker : BackgroundService
                     }
                     ).ToList();
 
-                    await PublishConfig("image/encoded", frames, true, stoppingToken);
+                    await PublishConfig("image/encoded", frames, false, stoppingToken);
 
                 }
                 catch (Exception ex)
