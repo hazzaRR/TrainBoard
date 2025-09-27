@@ -155,17 +155,31 @@ public class DataFeedWorker : BackgroundService
                 var payload = JsonSerializer.Deserialize<ImagePayload>(e.ApplicationMessage.ConvertPayloadToString(), serializeOptions);
                 try
                 {
-                    var imageStream = Convert.FromBase64String(payload.ImageData);
+                    var imageStream = Convert.FromBase64String(payload.ImageData); 
                     using var image = Image.Load<Rgb24>(imageStream);
                     image.Mutate(o => o.Resize(_matrixService.Canvas.Width, _matrixService.Canvas.Height));
 
-                    List<EncodedFrame> frames = image.Frames
-                    .Select(f => new EncodedFrame()
+                    int pixelCount = _matrixService.Canvas.Width * _matrixService.Canvas.Height;
+                    var pixelBuffer = new int[pixelCount];
+                    List<EncodedFrame> frames = [];
+                    
+                    foreach(var frame in image.Frames)
                     {
-                        Pixels = f.DangerousTryGetSinglePixelMemory(out var memory) ? memory.ToArray().Select(colour => ColourConverter.Rgb24ToInt(colour)).ToArray() : throw new("Could not get pixel buffer"),
-                        Delay = f.Metadata.GetGifMetadata().FrameDelay * 10
+                        if (!frame.DangerousTryGetSinglePixelMemory(out var memory))
+                        {
+                            throw new Exception("Could not get pixel buffer");
+                        }
+                        for (int i = 0; i < pixelCount; i++)
+                        {
+                            pixelBuffer[i] = ColourConverter.Rgb24ToInt(memory.Span[i]);
+                        }
+
+                        frames.Add(new EncodedFrame
+                        {
+                            Pixels = pixelBuffer.ToArray(),
+                            Delay = frame.Metadata.GetGifMetadata().FrameDelay * 10
+                        });
                     }
-                    ).ToList();
 
                     await PublishConfig("image/encoded", frames, false, stoppingToken);
 
