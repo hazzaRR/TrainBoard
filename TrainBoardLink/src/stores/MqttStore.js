@@ -12,7 +12,7 @@ const alert = ref({
 });
 
 let client = null;
-const host = "ws://pizero.local:9006";
+const host = "ws://pizero.local:9001";
 const matrixConfigTopic = "matrix/config";
 const imageEncodedTopic = "image/encoded";
 const availableNetworksTopic = "network/available";
@@ -71,6 +71,9 @@ const connectToBroker = () => {
       }
       if (receivedTopic === availableNetworksTopic) {
         availableNetworks.value = JSON.parse(payload.toString());
+      }
+      if (receivedTopic === imageEncodedTopic) {
+        matrixConfig.value.matrixFrames = JSON.parse(payload.toString());
       }
       if (receivedTopic === networkOutcomeTopic) {
         updateAlert(1, true, JSON.parse(payload.toString()));

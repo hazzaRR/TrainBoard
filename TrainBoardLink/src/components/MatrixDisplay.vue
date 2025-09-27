@@ -29,7 +29,7 @@
     </div>
     <div class="mx-auto d-flex align-items-center mt-2 justify-content-start my-1">
       <input type="color" class="form-control form-control-color me-1" v-model="selectedColor" />
-      <button class="btn btn-primary me-1" type="button" @click="open">
+      <button :disabled="isConnected !== 1" class="btn btn-primary me-1" type="button" @click="open">
         <font-awesome-icon class="m-1" :icon="['fas', 'upload']" />
       </button>
       <button class="btn btn-primary me-1" type="button" @click="duplicateCurrentFrame">
@@ -59,8 +59,15 @@ let timeoutId;
 const emit = defineEmits(['processImage'])
 
 const matrixFrames = defineModel('matrixFrames', { type: Array })
-const currentFrame = ref(0);
 
+const {isConnected} = defineProps({
+  isConnected: {
+    type: Number,
+    default: 0
+  }
+})
+
+const currentFrame = ref(0);
 const selectedColor = ref("#ff0000");
 const isPlaying = ref(false);
 

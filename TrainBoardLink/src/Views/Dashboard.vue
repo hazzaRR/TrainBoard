@@ -86,7 +86,7 @@
             v-model="showCustomDisplay" />
           <label class="form-check-label" for="switchCheckDefault">Custom display</label>
         </div>
-        <MatrixDisplay v-if="showCustomDisplay" v-model:matrix-frames="matrixFrames" @process-image="processImage" />
+        <MatrixDisplay v-if="showCustomDisplay" :is-connected="isConnected" v-model:matrix-frames="matrixFrames" @process-image="processImage" />
       </div>
       <div class="card-footer text-end">
         <button @click="resetMatrixConfig" type="button" class="btn btn-secondary me-1">
@@ -104,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import MatrixDisplay from "../components/MatrixDisplay.vue";
 import Multiselect from "vue-multiselect";
 import { intToHex, hexToInt } from "../utils/ColourConverter";
@@ -113,6 +113,9 @@ import { useMqttStore } from "../stores/MqttStore";
 import StationMap from "@/components/StationMap.vue";
 
 const mqttStore = useMqttStore();
+
+
+const isConnected = computed(() => mqttStore.status)
 
 onMounted(() => {
   initialiseArray();
